@@ -14,9 +14,9 @@
 
     <header>
       <img src="images/site/logo.png" class="logo_header">
-      <input type="text" placeholder="Search.." name="search">
+      <input class="search_bar" type="text" placeholder="Search.." name="search">
       <div class="login_register_buttons">
-        <button type="button">LOG IN</button>
-        <button type="button">SIGN UP</button>
+        <button class="log_in_button" type="button">LOG IN</button>
+        <button class="sign_up_button" type="button">SIGN UP</button>
       </div>
     </header>
