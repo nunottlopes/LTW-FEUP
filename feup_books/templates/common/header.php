@@ -13,7 +13,7 @@
   <body>
 
     <header>
-      <img src="images/site/logo.png" class="logo_header">
+    <a href="index.php"><img src="images/site/logo.png" class="logo_header"></a>
       <input class="search_bar" type="text" placeholder="Search.." name="search">
       <div class="login_register_buttons">
         <button class="log_in_button" type="button">LOG IN</button>
