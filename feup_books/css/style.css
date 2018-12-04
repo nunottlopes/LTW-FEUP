@@ -1,4 +1,5 @@
 body {
+  padding-top: 3em;
   display: grid;
   margin: 0 auto;
   background-color: #A5483E;
@@ -7,6 +8,8 @@ body {
 
 body > header {
   background-color: #A5483E;
+  position: fixed;
+  width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -17,13 +20,8 @@ body > header {
 .logo_header{
   width: 10em;
 }
-.geral_div{
-  width: 100%;
-  margin: 0 auto;
-  background-color: #DAE0E6;
-}
 
-.story{
+.post{
   width: 50em;
   margin: 1em auto;
   background-color: white;
@@ -35,7 +33,29 @@ body > footer{
   text-align: center;
 }
 
-.log_in_button{
+.user-buttons {
+  margin-right: 1em;
+  display: flex;
+  justify-content: space-around;
+}
+
+.user-signup {
+  background-color: black;
+  padding: 0.5em;
+  width: 5em;
+  border: 1px solid black;
+  border-radius: 4px; 
+  margin: auto 0.5em;
+  text-decoration: none;
+  text-align: center;
+  color: white;
+}
+
+.user-signup:hover {
+  border-color: gray;
+}
+
+/* .log_in_button{
   display:inline-block;
   padding:0.3em 1.2em;
   margin:0 0.3em 0.3em 0;
@@ -71,14 +91,14 @@ body > footer{
 .sign_up_button:hover{
   background-color:rgb(134, 64, 56);
   cursor: pointer;
-}
+} */
 
-.story_ref_link{
+.post_ref_link{
   color: black;
   text-decoration: none;
 }
 
-.buttons_stories{
+.post_button{
   display: inline-block;
   padding: 0.3em 1.2em;
   margin: 0 0.1em 0.1em 0;
@@ -87,6 +107,7 @@ body > footer{
   text-decoration:none;
   font-family:'Roboto',sans-serif;
   font-weight:300;
+  font-size:12px;
   color:#FFFFFF;
   text-shadow: 0 0.04em 0.04em rgba(0,0,0,0.35);
   text-align:center;
@@ -94,7 +115,7 @@ body > footer{
   background-color: #A5483E;
 }
 
-.buttons_stories:hover{
+.post_button:hover{
   border-color: rgb(0, 0, 0);
   cursor: pointer;
 }
@@ -110,7 +131,6 @@ body > footer{
   background-position: 10px 10px;
   background-repeat: no-repeat;
   padding: 12px 20px 12px 40px;
-  -webkit-transition: width 0.4s ease-in-out;
   transition: width 0.4s ease-in-out;
 }
 
@@ -118,13 +138,13 @@ body > footer{
   width: 30%;
 }
 
-.view_story{
+.view_post{
   width: 100%;
   margin: 0 auto;
   background-color: #DAE0E6;
 }
 
-.view_story_container{
+.view_post_container{
   width: 70em;
   margin: 1em auto;
   background-color: white;
@@ -151,7 +171,7 @@ body > footer{
   padding: 0; 
 }
 
-.buttons_comments{
+.comment_button{
   display: inline-block;
   padding: 0.3em 1.2em;
   margin: 0 0.1em 0.1em 0;
@@ -165,7 +185,7 @@ body > footer{
   background-color: white;
 }
 
-.buttons_comments:hover{
+.comment_button:hover{
   text-decoration: underline;
   cursor: pointer;
 }

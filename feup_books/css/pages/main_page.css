@@ -1,0 +1,15 @@
+.main_page {
+    background-color: white;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: [start] 4fr [middle] 1fr [end];
+}
+
+.main_page#main_page_posts{
+    grid-column: start;
+    background-color: #DAE0E6;
+}
+
+.main_page#main_page_aside{
+    grid-column: middle;
+}
