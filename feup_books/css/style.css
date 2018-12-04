@@ -33,29 +33,7 @@ body > footer{
   text-align: center;
 }
 
-.user-buttons {
-  margin-right: 1em;
-  display: flex;
-  justify-content: space-around;
-}
-
-.user-signup {
-  background-color: black;
-  padding: 0.5em;
-  width: 5em;
-  border: 1px solid black;
-  border-radius: 4px; 
-  margin: auto 0.5em;
-  text-decoration: none;
-  text-align: center;
-  color: white;
-}
-
-.user-signup:hover {
-  border-color: gray;
-}
-
-/* .log_in_button{
+.log_in_button{
   display:inline-block;
   padding:0.3em 1.2em;
   margin:0 0.3em 0.3em 0;
@@ -91,8 +69,17 @@ body > footer{
 .sign_up_button:hover{
   background-color:rgb(134, 64, 56);
   cursor: pointer;
-} */
+}
 
+.login_register_buttons{
+  /* display: flex;
+  justify-content: center; */
+  /* padding-right: 1em; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0em 1em;
+}
 .post_ref_link{
   color: black;
   text-decoration: none;

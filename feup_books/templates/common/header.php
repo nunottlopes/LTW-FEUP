@@ -19,10 +19,11 @@
     <a href="index.php"><img src="images/site/logo.png" class="logo_header"></a>
       <input class="search_bar" type="text" placeholder="Search.." name="search"/>
 
-      <div class="user-buttons">
-        <a href="#login-popup" class="user-signup">Login</a>
-        <?php include('templates/user/login.php'); ?>
-        <a href="#register-popup" class="user-signup">Register</a>
-        <?php include('templates/user/register.php'); ?>
+      <div class="login_register_buttons">
+       <a href="#login-popup"><button class="log_in_button" type="button">LOG IN</button></a>
+       <?php include('templates/user/login.php'); ?>
+       <a href="#register-popup"><button class="sign_up_button" type="button">SIGN UP</button></a>
+       <?php include('templates/user/register.php'); ?>
       </div>
+      
     </header>
