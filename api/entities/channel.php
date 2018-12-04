@@ -7,11 +7,11 @@ class Channel {
     /**
      * VALIDATION
      */
-    public static function valid($name) {
+    public static function valid(string $name) {
         return preg_match(static::$channelRegex, $name) === 1;
     }
 
-    public static function check($name) {
+    public static function check(string $name) {
         if (!static::valid($name)) {
             throw new Error($error);
         }
@@ -20,7 +20,7 @@ class Channel {
     /**
      * CREATE
      */
-    public static function create($name, $creator, &$error = null) {
+    public static function create(string $name, int $creator, &$error = null) {
         static::check($name);
 
         $query = '
@@ -40,7 +40,7 @@ class Channel {
     /**
      * READ
      */
-    public static function get($name) {
+    public static function get(string $name) {
         $query = '
             SELECT * FROM channel WHERE name = ?
             ';
@@ -50,7 +50,7 @@ class Channel {
         return $stmt->fetch();
     }
 
-    public static function read($id) {
+    public static function read(int $id) {
         $query = '
             SELECT * FROM channel WHERE channel_id = ?
             ';

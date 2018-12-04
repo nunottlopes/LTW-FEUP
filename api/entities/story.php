@@ -1,11 +1,12 @@
 <?php
-require_once '../config/db.php';
+require_once __DIR__ '/../config/db.php';
 
 class Story {
     /**
      * CREATE
      */
-    public static function create($channel, $user, $title, $type, $content) {
+    public static function create(string $channel, int $user, string $title,
+            string $type, string $content) {
         $query = '
             INSERT INTO story(channel_id, user_id, title, type, content)
             VALUES (?, ?, ?, ?, ?)
@@ -19,7 +20,7 @@ class Story {
     /**
      * READ
      */
-    public static function read($id) {
+    public static function read(int $id) {
         $query = '
             SELECT * FROM story WHERE entity_id = ?
             ';
@@ -29,7 +30,7 @@ class Story {
         return $stmt->fetch();
     }
 
-    public static function readChannel($channel) {
+    public static function readChannel(int $channel) {
         $query = '
             SELECT * FROM story WHERE channel_id = ?
             ';
@@ -39,7 +40,7 @@ class Story {
         return $stmt->fetchAll();
     }
 
-    public static function readUser($user) {
+    public static function readUser(int $user) {
         $query = '
             SELECT * FROM story WHERE user_id = ?
             ';
@@ -52,7 +53,7 @@ class Story {
     /**
      * UPDATE
      */
-    public static function update($id, $content) {
+    public static function update(int $id, string $content) {
         $query = '
             UPDATE story WHERE entity_id = ? SET content = ?
             ';
@@ -65,7 +66,7 @@ class Story {
     /**
      * DELETE
      */
-    public static function delete($id) {
+    public static function delete(int $id) {
         $query = '
             DELETE FROM story WHERE entity_id = ?
             ';

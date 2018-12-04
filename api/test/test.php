@@ -1,18 +1,36 @@
 <?php
+ini_set('display_errors', 'on');
+error_reporting(E_ALL);
 
 function brk() {
     echo '<br/><br/><br/>';
 }
 
-function tprint($object, $header = null) {
+function hdr(string $header = null) {
+    if ($header != null) echo "<h3>$header</h3>";
+}
+
+function ftr($error) {
+    if ($error != null) echo "<h4>$error</h4>";
+}
+
+function tprint($object, string $header = null) {
     echo '<pre>';
-    if ($header != null) echo "<h4>$header</h4>";
+    hdr($header);
     echo json_encode($object, JSON_PRETTY_PRINT);
     echo '</pre>';
     echo '<br/>';
 }
 
-function keyfy($array, $key) {
+function eprint($error, string $header = null) {
+    echo '<pre>';
+    hdr($header);
+    echo $error;
+    echo '</pre>';
+    echo '<br/>';
+}
+
+function keyfy(iterable $array, string $key) {
     $object = [];
 
     foreach ($array as $el) {

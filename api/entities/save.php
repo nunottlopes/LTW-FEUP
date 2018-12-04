@@ -1,11 +1,11 @@
 <?php
-require_once '../config/db.php';
+require_once __DIR__ . '/../config/db.php';
 
 class Save {
     /**
      * CREATE
      */
-    public static function create($entity, $user) {
+    public static function create(int $entity, int $user) {
         $query = '
             INSERT INTO save(entity_id, user_id) VALUES (?, ?)
             ';
@@ -18,7 +18,7 @@ class Save {
     /**
      * READ
      */
-    public static function getUserSaves($user) {
+    public static function getUserSaves(int $user) {
         $query = '
             SELECT * FROM save
             LEFT JOIN story ON save.entity_id = story.entity_id
@@ -32,7 +32,7 @@ class Save {
         return $stmt->fetchAll();
     }
 
-    public static function getUserStorySaves($user) {
+    public static function getUserStorySaves(int $user) {
         $query = '
             SELECT * FROM save JOIN story
             WHERE user_id = ?
@@ -44,7 +44,7 @@ class Save {
         return $stmt->fetchAll();
     }
 
-    public static function getUserStorySaves($user) {
+    public static function getUserStorySaves(int $user) {
         $query = '
             SELECT * FROM save JOIN comment
             WHERE user_id = ?

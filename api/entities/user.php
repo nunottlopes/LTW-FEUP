@@ -1,5 +1,5 @@
 <?php
-require_once '../config/db.php';
+require_once __DIR__ . '/../config/db.php';
 
 class User {
     private static $usernameRegex = '/^[a-zA-Z][a-zA-Z0-9_+-]{2,31}$/i';
@@ -14,15 +14,15 @@ class User {
      * valid -> true or false
      * check -> void or throw
      */
-    public static function validUsername($username) {
+    public static function validUsername(string $username) {
         return preg_match(static::$usernameRegex, $username) === 1;
     }
 
-    public static function validEmail($email) {
+    public static function validEmail(string $email) {
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
-    public static function valid($username, $email, &$error = null) {
+    public static function valid(string $username, string $email, &$error = null) {
         if (!static::validUsername($username)) {
             $error = 'Invalid username';
             return false;
@@ -36,19 +36,19 @@ class User {
         return true;
     }
 
-    public static function checkUsername($username) {
+    public static function checkUsername(string $username) {
         if (!static::validUsername($username)) {
             throw new Error('Invalid username');
         }
     }
 
-    public static function checkEmail($email) {
+    public static function checkEmail(string $email) {
         if (!static::validEmail($email)) {
             throw new Error('Invalid email');
         }
     }
 
-    public static function check($username, $email) {
+    public static function check(string $username, string $email) {
         if (!static::valid($username, $email, $error)) {
             throw new Error($error);
         }
@@ -57,7 +57,7 @@ class User {
     /**
      * CREATE
      */
-    public static function create($username, $email, $password) {
+    public static function create(string $username, string $email, string $password) {
         static::check($username, $email);
 
         $hash = password_hash($password, PASSWORD_DEFAULT, static::$hashOpt);
@@ -74,7 +74,7 @@ class User {
     /**
      * READ
      */
-    public static function getByUsername($username) {
+    public static function getByUsername(string $username) {
         $query = '
             SELECT * FROM user WHERE username = ?
             ';
@@ -84,7 +84,7 @@ class User {
         return $stmt->fetch();
     }
 
-    public static function getByEmail($email) {
+    public static function getByEmail(string $email) {
         $query = '
             SELECT * FROM user WHERE email = ?
             ';
@@ -94,7 +94,7 @@ class User {
         return $stmt->fetch();
     }
 
-    public static function get($name) {
+    public static function get(string $name) {
         if (static::validUsername($name)) {
             return static::getByUsername($name);
         }
@@ -106,7 +106,7 @@ class User {
         return false;
     }
 
-    public static function read($id) {
+    public static function read(int $id) {
         $query = '
             SELECT * FROM user WHERE user_id = ?
             ';
@@ -129,7 +129,7 @@ class User {
     /**
      * AUTHENTICATE
      */
-    public static function authenticate($name, $password, &$error = null) {
+    public static function authenticate(string $name, string $password, &$error = null) {
         $user = static::get($name);
 
         if (!$user) {

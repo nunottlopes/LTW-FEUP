@@ -1,11 +1,11 @@
 <?php
-require_once '../config/db.php';
+require_once __DIR__ . '/../config/db.php';
 
 class Comment {
     /**
      * CREATE
      */
-    public static function create($parent, $user, $content) {
+    public static function create(int $parent, int $user, string $content) {
         $query = '
             INSERT INTO comment(parent_id, user_id, content)
             VALUES (?, ?, ?)
@@ -19,7 +19,7 @@ class Comment {
     /**
      * READ
      */
-    public static function read($id) {
+    public static function read(int $id) {
         $query = '
             SELECT * FROM comment WHERE entity_id = ?
             ';
@@ -32,7 +32,7 @@ class Comment {
     /**
      * UPDATE
      */
-    public static function update($id, $content) {
+    public static function update(int $id, string $content) {
         $query = '
             UPDATE comment WHERE entity_id = ? SET content = ?
             ';
@@ -45,7 +45,7 @@ class Comment {
     /**
      * DELETE
      */
-    public static function delete($id) {
+    public static function delete(int $id) {
         $query = '
             DELETE FROM comment WHERE entity_id = ?
             ';

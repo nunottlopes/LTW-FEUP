@@ -42,9 +42,28 @@ tprint(User::create('henrique123', 'henrique123@gmail.com', 'gengibre'),
 tprint(User::create('send_nudes', 'nudes@send.nudes', 'qweasdzxc123'),
     'create(send_nudes, nudes@send.nudes, qweasdzxc123)');
 
+// User::create Bad calls
+hdr('create(invalid@username, valid@gmail.com, 12341234)');
+try {
+    tprint(User::create('invalid@username', 'valid@gmail.com', '12341234'));
+} catch (Error $e) {
+    eprint($e);
+}
+
+hdr('create(valid+username, invalid@#@gmail.com, 12341234)');
+try {
+    tprint(User::create('valid+username', 'invalid@#@gmail.com', '12341234'));
+} catch (Error $e) {
+    eprint($e);
+}
+
+brk();
+
 tprint(User::get('Carlos'), 'get(Carlos)');
 tprint(User::get('henrique123'), 'get(henrique123)');
 tprint(User::get('nudes@send.nudes'), 'get(nudes@send.nudes)');
+tprint(User::get('valid@gmail.com'), 'get(valid@gmail.com)');
+tprint(User::get('valid+username'), 'get(valid+username)');
 
 brk();
 
