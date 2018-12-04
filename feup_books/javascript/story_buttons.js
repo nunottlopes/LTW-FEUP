@@ -13,3 +13,7 @@ function comments() {
 function share() {
     console.log("share");
 }
+
+function save() {
+    console.log("save");
+}
