@@ -2,7 +2,7 @@ body {
   padding-top: 3em;
   display: grid;
   margin: 0 auto;
-  background-color: #A5483E;
+  background-color: #DAE0E6;
 }
 
 
@@ -22,7 +22,7 @@ body > header {
 }
 
 .post{
-  width: 50em;
+  min-width: 50em;
   margin: 1em auto;
   background-color: white;
   border: 1px solid rgb(156, 162, 168);
@@ -31,13 +31,14 @@ body > header {
 
 body > footer{
   text-align: center;
+  background-color: #A5483E;
 }
 
 .log_in_button{
   display:inline-block;
   padding:0.3em 1.2em;
   margin:0 0.3em 0.3em 0;
-  border-radius:2em;
+  border-radius: 2em;
   box-sizing: border-box;
   text-decoration:none;
   font-family:'Roboto',sans-serif;
@@ -72,9 +73,6 @@ body > footer{
 }
 
 .login_register_buttons{
-  /* display: flex;
-  justify-content: center; */
-  /* padding-right: 1em; */
   display: flex;
   align-items: center;
   justify-content: center;
