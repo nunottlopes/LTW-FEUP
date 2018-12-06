@@ -33,7 +33,15 @@ body > footer{
   background-color: #A5483E;
 }
 
-.log_in_button{
+#log_in_button{
+  background-color:white;
+}
+#log_in_button:hover{
+  background-color:rgb(161, 78, 68);
+  cursor: pointer;
+}
+
+.header_button {
   display:inline-block;
   padding:0.3em 1.2em;
   margin:0 0.3em 0.3em 0;
@@ -43,40 +51,18 @@ body > footer{
   font-family:'Roboto',sans-serif;
   font-weight:300;
   color:black;
-  background-color:white;
   text-align:center;
   transition: all 0.2s;
-}
-.log_in_button:hover{
-  background-color:rgb(161, 78, 68);
-  cursor: pointer;
 }
 
-.sign_up_button{
-  display:inline-block;
-  padding:0.3em 1.2em;
-  margin:0 0.3em 0.3em 0;
-  border-radius:2em;
-  box-sizing: border-box;
-  text-decoration:none;
-  font-family:'Roboto',sans-serif;
-  font-weight:300;
-  color:black;
+#sign_up_button{
   background-color:rgb(212, 102, 90);
-  text-align:center;
-  transition: all 0.2s;
 }
-.sign_up_button:hover{
+#sign_up_button:hover{
   background-color:rgb(134, 64, 56);
   cursor: pointer;
 }
 
-.login_register_buttons{
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0em 1em;
-}
 .post_ref_link{
   color: black;
   text-decoration: none;
@@ -176,4 +162,24 @@ body > footer{
 
 .inside_comments{
   margin-left: 3em;
+}
+
+section#user-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0em 1em;
+}
+
+section#user-header img{
+  width: 2em;
+  height: 2em;
+}
+
+#profile_button{
+  display:flex;
+  padding: 0;
+  min-width: 160px;
+  justify-content: space-around;
+  align-items: center;
 }
