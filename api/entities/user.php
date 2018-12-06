@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/apientity.php';
 
-class User {
+class User extends APIEntity {
     private static $usernameRegex = '/^[a-zA-Z][a-zA-Z0-9_+-]{2,31}$/i';
     private static $hashOpt = ['cost' => 10];
 
@@ -63,77 +63,104 @@ class User {
         $hash = password_hash($password, PASSWORD_DEFAULT, static::$hashOpt);
 
         $query = '
-            INSERT INTO user(username, email, hash) VALUES (?, ?, ?)
+            INSERT INTO User(username, email, hash)
+            VALUES (?, ?, ?)
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$username, $email, $hash]);
-        return true;
+
+        return $stmt->execute([$username, $email, $hash]);
+    }
+
+    /**
+     * READ WITH HASH
+     */
+    private static function getByUsernameHash(string $username) {
+        $query = '
+            SELECT * FROM User WHERE username = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$username]);
+        return static::fetch($stmt);
+    }
+
+    private static function getByEmailHash(string $email) {
+        $query = '
+            SELECT * FROM User WHERE email = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$email]);
+        return static::fetch($stmt);
+    }
+
+    private static function getHash(string $name) {
+        if (static::validUsername($name)) {
+            return static::getByUsernameHash($name);
+        }
+
+        if (static::validEmail($name)) {
+            return static::getByEmailHash($name);
+        }
+        
+        return false;
     }
 
     /**
      * READ
      */
     public static function getByUsername(string $username) {
-        $query = '
-            SELECT * FROM user WHERE username = ?
-            ';
-
-        $stmt = DB::get()->prepare($query);
-        $stmt->execute([$username]);
-        return $stmt->fetch();
+        $user = static::getByUsernameHash($username);
+        unset($user['hash']);
+        return $user;
     }
 
     public static function getByEmail(string $email) {
-        $query = '
-            SELECT * FROM user WHERE email = ?
-            ';
-
-        $stmt = DB::get()->prepare($query);
-        $stmt->execute([$email]);
-        return $stmt->fetch();
+        $user = static::getByEmailHash($email);
+        unset($user['hash']);
+        return $user;
     }
 
     public static function get(string $name) {
-        if (static::validUsername($name)) {
-            return static::getByUsername($name);
-        }
-
-        if (static::validEmail($name)) {
-            return static::getByEmail($name);
-        }
-        
-        return false;
+        $user = static::getHash($name);
+        unset($user['hash']);
+        return $user;
     }
 
-    public static function read(int $id) {
+    public static function read(int $userid) {
         $query = '
-            SELECT * FROM user WHERE user_id = ?
+            SELECT * FROM UserNohash WHERE userid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$id]);
-        return $stmt->fetch();
+        $stmt->execute([$userid]);
+        return static::fetch($stmt);
     }
 
     public static function readAll() {
         $query = '
-            SELECT * FROM user
+            SELECT * FROM UserNohash
             ';
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute();
-        return $stmt->fetchAll();
+        return static::fetchAll($stmt);
     }
 
     /**
      * AUTHENTICATE
      */
     public static function authenticate(string $name, string $password, &$error = null) {
-        $user = static::get($name);
+        if (!static::validUsername($name)) {
+            $error = 'Invalid username';
+            return false;
+        }
+
+        $user = static::getHash($name);
 
         if (!$user) {
-            $error = 'User not found';
+            $error = 'User not found'; // API distinguishes errors
             return false;
         }
 
@@ -150,7 +177,15 @@ class User {
      */
     
     /**
-     * NO DELETE FOR NOW
+     * DELETE
      */
+    public static function delete($userid) {
+        $query = '
+            DELETE FROM User WHERE userid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        return $stmt->execute([$userid]);
+    }
 }
 ?>

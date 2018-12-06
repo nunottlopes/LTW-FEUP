@@ -1,18 +1,18 @@
 <?php
-require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/apientity.php';
 
-class Channel {
+class Channel extends APIEntity {
     private static $channelRegex = '/^[a-zA-Z][a-zA-Z0-9_+-]{2,31}$/i';
 
     /**
      * VALIDATION
      */
-    public static function valid(string $name) {
-        return preg_match(static::$channelRegex, $name) === 1;
+    public static function valid(string $channelname) {
+        return preg_match(static::$channelRegex, $channelname) === 1;
     }
 
-    public static function check(string $name) {
-        if (!static::valid($name)) {
+    public static function check(string $channelname) {
+        if (!static::valid($channelname)) {
             throw new Error($error);
         }
     }
@@ -20,62 +20,65 @@ class Channel {
     /**
      * CREATE
      */
-    public static function create(string $name, int $creator, &$error = null) {
-        static::check($name);
+    public static function create(string $channelname, int $creator) {
+        static::check($channelname);
 
         $query = '
-            INSERT INTO channel(name, creator_id) VALUES (?, ?)
+            INSERT INTO Channel(channelname, creatorid) VALUES (?, ?)
             ';
 
         $stmt = DB::get()->prepare($query);
-        try {
-            $stmt->execute([$name, $creator]);
-            return true;
-        } catch (PDOException $exception) {
-            $error = $exception;
-            return false;
-        }
+        return $stmt->execute([$channelname, $creator]);
     }
 
     /**
      * READ
      */
-    public static function get(string $name) {
+    public static function get(string $channelname) {
         $query = '
-            SELECT * FROM channel WHERE name = ?
+            SELECT * FROM Channel WHERE channelname = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$name]);
-        return $stmt->fetch();
+        $stmt->execute([$channelname]);
+        return static::fetch($stmt);
     }
 
-    public static function read(int $id) {
+    public static function read(int $channelid) {
         $query = '
-            SELECT * FROM channel WHERE channel_id = ?
+            SELECT * FROM Channel WHERE channelid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$id]);
-        return $stmt->fetch();
+        $stmt->execute([$channelid]);
+        return static::fetch($stmt);
     }
 
     public static function readAll() {
         $query = '
-            SELECT * FROM channel
+            SELECT * FROM Channel
             ';
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute();
-        return $stmt->fetchAll();
+        return static::fetchAll($stmt);
     }
 
     /**
-     * NO UPDATE FOR NOW
+     * NO UPDATE
+     * There's nothing to be updated.
      */
     
     /**
-     * NO DELETE FOR NOW
+     * DELETE
      */
+    public static function delete(int $channelid) {
+        $query = '
+            DELETE FROM Channel WHERE channelid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        return $stmt->execute([$channelid]);
+    }
 }
 ?>
