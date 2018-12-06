@@ -1,59 +1,134 @@
 <?php
-require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/apientity.php';
+require_once __DIR__ . '/story.php';
+require_once __DIR__ . '/comment.php';
 
-class Save {
+class Save extends APIEntity {
+    private static function mergeSaves($stories, $comments) {
+        // Null checks
+        if (!$stories) return $comments;
+        if (!$comments) return $stories;
+
+        $storyTotal = count($stories);
+        $commentTotal = count($comments);
+        // ^ both positive
+        
+        $merged = [];
+        
+        $s = 0; $c = 0;
+        while ($s < $storyTotal && $c < $commentTotal) {
+            $story = $stories[$s];
+            $comment = $comments[$c];
+
+            $storyTime = $story['savedat'];
+            $commentTime = $comment['savedat'];
+
+            // Most recent first
+            if ($storyTime > $commentTime) {
+                ++$s;
+                array_push($merged, $story);
+            } else {
+                ++$c;
+                array_push($merged, $comment);
+            }
+        }
+
+        if ($s === $storyTotal) {
+            $merged = array_merge($merged, array_slice($comments, $c));
+        } else if ($c === $commentTotal - 1) {
+            $merged = array_merge($merged, array_slice($stories, $s));
+        }
+
+        return $merged;
+    }
+
     /**
      * CREATE
      */
-    public static function create(int $entity, int $user) {
+    public static function create(int $entityid, int $userid) {
         $query = '
-            INSERT INTO save(entity_id, user_id) VALUES (?, ?)
+            INSERT INTO Save(entityid, userid) VALUES (?, ?)
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$parent, $user]);
-        return true;
+        return $stmt->execute([$entityid, $userid]);
     }
 
     /**
      * READ
      */
-    public static function getUserSaves(int $user) {
+    public static function getUserStories(int $userid) {
         $query = '
-            SELECT * FROM save
-            LEFT JOIN story ON save.entity_id = story.entity_id
-            LEFT JOIN comment on save.entity_id = comment.entity_id
-            WHERE save.user_id = ?
-            ORDER BY save.created_at DESC
+            SELECT * FROM SaveStory
+            WHERE userid = ?
+            ORDER BY savedat DESC
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$user]);
-        return $stmt->fetchAll();
+        $stmt->execute([$userid]);
+        return static::fetchAll($stmt);
     }
 
-    public static function getUserStorySaves(int $user) {
+    public static function getUserComments(int $userid) {
         $query = '
-            SELECT * FROM save JOIN story
-            WHERE user_id = ?
-            ORDER BY created_at DESC
+            SELECT * FROM SaveComment
+            WHERE userid = ?
+            ORDER BY savedat DESC
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$user]);
-        return $stmt->fetchAll();
+        $stmt->execute([$userid]);
+        return static::fetchAll($stmt);
     }
 
-    public static function getUserStorySaves(int $user) {
+    public static function getUser(int $userid) {
+        $stories = static::getUserStories($userid);
+        $comments = static::getUserComments($userid);
+
+        // Merge $stories and $comments descendingly by save_date
+        return static::mergeSaves($stories, $comments);
+    }
+
+    public static function getStory(int $entityid) {
         $query = '
-            SELECT * FROM save JOIN comment
-            WHERE user_id = ?
-            ORDER BY created_at DESC
+            SELECT * FROM SaveStory
+            WHERE entityid = ?
+            ORDER BY savedat DESC
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$user]);
-        return $stmt->fetchAll();
+        $stmt->execute([$entityid]);
+        return static::fetchAll($stmt);
+    }
+
+    public static function getComment(int $entityid) {
+        $query = '
+            SELECT * FROM SaveComment
+            WHERE entityid = ?
+            ORDER BY savedat DESC
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$entityid]);
+        return static::fetchAll($stmt);
+    }
+
+    public static function getEntity(int $entityid) {
+        if (Story::read($entityid)) {
+            return static::getStory($entityid);
+        } else {
+            return static::getComment($entityid);
+        }
+    }
+
+    public static function readAll() {
+        $query = '
+            SELECT * FROM Save
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute();
+        return static::fetchAll($stmt);
     }
 
     /**
@@ -64,14 +139,25 @@ class Save {
     /**
      * DELETE
      */
-    public static function delete($entity, $user) {
+    public static function delete(int $entityid, int $userid) {
         $query = '
-            DELETE FROM save WHERE entity_id = ? AND user_id = ?
+            DELETE FROM Save WHERE entityid = ? AND userid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$entity, $user]);
-        return true;
+        return $stmt->execute([$entityid, $userid]);
+    }
+
+    /**
+     * EXTRA
+     */
+    public static function deleteAllUser(int $userid) {
+        $query = '
+            DELETE FROM Save WHERE userid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        return $stmt->execute([$userid]);
     }
 }
 ?>

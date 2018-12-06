@@ -9,7 +9,7 @@
  * 6  Amadeu     amadeu
  * 7  Nuno       nuno
  */
-INSERT INTO user(user_id, username, email, hash) VALUES
+INSERT INTO User(userid, username, email, hash) VALUES
     (1, 'Emanuel', 'emanuel@gmail.com', '$2y$10$xCpKMa8XygdBr3VOxsIOhOyl9HLzw8WgmxCdAs4rhEsjcQsMW87hO'),
     (2, 'David', 'david.andrade@gmail.com', '$2y$10$xesrOHbPqklXV1I7FNfERuA37Indy1PJBIrxqqZ7tY7/qIJOxb5Ge'),
     (3, 'Tiago', 'tiago@live.com.pt', '$2y$10$raS40nxOFgUViuNF61HRMOn6bDrJIobJM7TXsWyp0RXNuTtdEOTS.'),
@@ -26,7 +26,7 @@ INSERT INTO user(user_id, username, email, hash) VALUES
  * 3  jokes           Nuno
  * 4  askscience      Emanuel
  */
-INSERT INTO channel(channel_id, name, creator_id) VALUES
+INSERT INTO Channel(channelid, channelname, creatorid) VALUES
     (1, 'showerthoughts', 6),
     (2, 'philosophy', 4),
     (3, 'jokes', 7),
@@ -35,7 +35,7 @@ INSERT INTO channel(channel_id, name, creator_id) VALUES
 /**
  * STORY
  */
-INSERT INTO story(channel_id, user_id, title, type, content) VALUES
+INSERT INTO Story(channelid, authorid, storyTitle, storyType, content) VALUES
     (1, 6, 'The number 5 feels like the most even odd number', 'title', ''),
 
     (2, 1, 'Suicide', 'self', 'What are your personal beliefs on suicide as it relates to stoicism?'),
@@ -49,65 +49,65 @@ INSERT INTO story(channel_id, user_id, title, type, content) VALUES
 /**
  * COMMENT
  */
-INSERT INTO comment(parent_id, user_id, content) VALUES
-    ((SELECT entity_id FROM story WHERE channel_id = 1 AND user_id = 6),
+INSERT INTO Comment(parentid, authorid, content) VALUES
+    ((SELECT entityid FROM Story WHERE channelid = 1 AND authorid = 6),
         5, '7 feels like the most odd odd number'),
-    ((SELECT entity_id FROM story WHERE channel_id = 2 AND user_id = 1),
+    ((SELECT entityid FROM Story WHERE channelid = 2 AND authorid = 1),
         5, '"As I was jumping off, I suddenly realized all of my problems were fixable, except the one of just jumping."'),
-    ((SELECT entity_id FROM story WHERE channel_id = 3 AND user_id = 2),
+    ((SELECT entityid FROM Story WHERE channelid = 3 AND authorid = 2),
         5, '"He foams when you are wak"'),
-    ((SELECT entity_id FROM story WHERE channel_id = 3 AND user_id = 2),
+    ((SELECT entityid FROM Story WHERE channelid = 3 AND authorid = 2),
         4, '"Santa Claus is swallowing his tongu"'),
-    ((SELECT entity_id FROM story WHERE channel_id = 4 AND user_id = 6),
+    ((SELECT entityid FROM Story WHERE channelid = 4 AND authorid = 6),
         2, 'Organs have a "shelf life" so to speak. The original organs from someone whose 40 planted into a 20 year old, means that they stay at "40 years of age" in terms of dna degradation, wear etc. The organ might have to undergo processes its not used too and this can cause premature failure. (a 40 year old non alcoholics liver would function better than one that one thats riddled with cirrhosis.');
 
-INSERT INTO comment(parent_id, user_id, content) VALUES
-    ((SELECT entity_id FROM comment WHERE content = '7 feels like the most odd odd number'),
+INSERT INTO Comment(parentid, authorid, content) VALUES
+    ((SELECT entityid FROM Comment WHERE content = '7 feels like the most odd odd number'),
         1, 'I say 13'),
-    ((SELECT entity_id FROM comment WHERE content = '7 feels like the most odd odd number'),
+    ((SELECT entityid FROM Comment WHERE content = '7 feels like the most odd odd number'),
         6, 'Somehow, it''s 1 for me'),
-    ((SELECT entity_id FROM comment WHERE content LIKE '%As I was jumping off%'),
+    ((SELECT entityid FROM Comment WHERE content LIKE '%As I was jumping off%'),
         1, 'Aaaaah the good old myth of jumpers regret, made up to discourage people from doing it.'),
-    ((SELECT entity_id FROM comment WHERE content LIKE '%when you are wak%'),
+    ((SELECT entityid FROM Comment WHERE content LIKE '%when you are wak%'),
         3, '"He hates all blinking light effects so be still for stillness sake"');
 
-INSERT INTO comment(parent_id, user_id, content) VALUES
-    ((SELECT entity_id FROM comment WHERE content = 'I say 13'),
+INSERT INTO Comment(parentid, authorid, content) VALUES
+    ((SELECT entityid FROM Comment WHERE content = 'I say 13'),
         2, 'I say 11'),
-    ((SELECT entity_id FROM comment WHERE content LIKE 'Aaaaa%'),
+    ((SELECT entityid FROM Comment WHERE content LIKE 'Aaaaa%'),
         3, 'Research doesn''t agree with your opinion.'),
-    ((SELECT entity_id FROM comment WHERE content LIKE '%He hates all blinking%'),
+    ((SELECT entityid FROM Comment WHERE content LIKE '%He hates all blinking%'),
         3, 'Someone please call a docter');
 
 /**
  * SAVE
  */
-INSERT INTO save(entity_id, user_id) VALUES
-    ((SELECT entity_id FROM story WHERE channel_id = 3 AND user_id = 2), 1),
-    ((SELECT entity_id FROM story WHERE channel_id = 3 AND user_id = 2), 4),
-    ((SELECT entity_id FROM story WHERE channel_id = 3 AND user_id = 2), 5),
-    ((SELECT entity_id FROM story WHERE channel_id = 1 AND user_id = 6), 1),
-    ((SELECT entity_id FROM story WHERE channel_id = 1 AND user_id = 6), 2);
+INSERT INTO Save(entityid, userid) VALUES
+    ((SELECT entityid FROM Story WHERE channelid = 3 AND authorid = 2), 1),
+    ((SELECT entityid FROM Story WHERE channelid = 3 AND authorid = 2), 4),
+    ((SELECT entityid FROM Story WHERE channelid = 3 AND authorid = 2), 5),
+    ((SELECT entityid FROM Story WHERE channelid = 1 AND authorid = 6), 1),
+    ((SELECT entityid FROM Story WHERE channelid = 1 AND authorid = 6), 2);
 
 /**
  * VOTE
  */
-INSERT INTO vote(entity_id, user_id, kind) VALUES
-    ((SELECT entity_id FROM story WHERE channel_id = 3 AND user_id = 2), 1, '+'),
-    ((SELECT entity_id FROM story WHERE channel_id = 3 AND user_id = 2), 5, '+'),
-    ((SELECT entity_id FROM story WHERE channel_id = 3 AND user_id = 2), 6, '-'),
+INSERT INTO Vote(entityid, userid, vote) VALUES
+    ((SELECT entityid FROM Story WHERE channelid = 3 AND authorid = 2), 1, '+'),
+    ((SELECT entityid FROM Story WHERE channelid = 3 AND authorid = 2), 5, '+'),
+    ((SELECT entityid FROM Story WHERE channelid = 3 AND authorid = 2), 6, '-'),
 
-    ((SELECT entity_id FROM story WHERE channel_id = 1 AND user_id = 6), 1, '+'),
-    ((SELECT entity_id FROM story WHERE channel_id = 1 AND user_id = 6), 2, '-'),
+    ((SELECT entityid FROM Story WHERE channelid = 1 AND authorid = 6), 1, '+'),
+    ((SELECT entityid FROM Story WHERE channelid = 1 AND authorid = 6), 2, '-'),
 
-    ((SELECT entity_id FROM story WHERE channel_id = 2 AND user_id = 1), 5, '-'),
-    ((SELECT entity_id FROM story WHERE channel_id = 2 AND user_id = 1), 3, '-'),
-    ((SELECT entity_id FROM story WHERE channel_id = 2 AND user_id = 1), 4, '+');
+    ((SELECT entityid FROM Story WHERE channelid = 2 AND authorid = 1), 5, '-'),
+    ((SELECT entityid FROM Story WHERE channelid = 2 AND authorid = 1), 3, '-'),
+    ((SELECT entityid FROM Story WHERE channelid = 2 AND authorid = 1), 4, '+');
 
 /**
  * SUBSCRIBE
  */
-INSERT INTO subscribe(channel_id, user_id) VALUES
+INSERT INTO Subscribe(channelid, userid) VALUES
     (1, 1), (1, 2), (1, 5), (1, 6), (1, 7),
     (2, 1), (2, 3), (2, 4), (2, 5),
     (3, 5), (3, 6),

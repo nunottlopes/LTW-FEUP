@@ -1,38 +1,53 @@
 <?php
-
 require_once __DIR__ . '/test.php';
 require_once __DIR__ . '/../entities/channel.php';
 
-// Channel::readAll()
+// Channel::readAll
 tprint(Channel::readAll(), 'readAll()');
 
 brk();
 
-// Channel::read($id)
+// Channel::read
 tprint(Channel::read(1), 'read(1)');
 tprint(Channel::read(2), 'read(2)');
 tprint(Channel::read(3), 'read(3)');
 
 brk();
 
-// Channel::get($name)
+// Channel::get
 tprint(Channel::get('showerthoughts'), 'get(showerthoughts)');
 tprint(Channel::get('askscience'), 'get(askscience)');
 
 brk();
 
-// Channel::create($name, $creator)
-tprint(Channel::create('news', 4, $error1), 'create(news, 4)');
-eprint($error1);
-tprint(Channel::create('pics', 2, $error2), 'create(pics, 2)');
-eprint($error2);
-tprint(Channel::create('politics', 5, $error3), 'create(politics, 5)');
-eprint($error3);
+// Channel::create
+if (isset($_GET['create'])) {
+    hdr('create(news, 4)');
+    test([Channel::class, 'create'], ['news', 4]);
 
-tprint(Channel::get('news'), 'get(news)');
-tprint(Channel::get('pics'), 'get(pics)');
-tprint(Channel::get('politics'), 'get(politics)');
+    hdr('create(pics, 5)');
+    test([Channel::class, 'create'], ['pics', 5]);
+    
+    hdr('create(politics, 73)');
+    test([Channel::class, 'create'], ['politics', 73]);
 
-brk();
+    tprint(Channel::readAll(), 'readAll()');
+    brk();
+}
+
+// Channel::delete
+if (isset($_GET['delete'])) {
+    hdr('delete(4)');
+    test([Channel::class, 'delete'], [4]);
+
+    hdr('delete(5)');
+    test([Channel::class, 'delete'], [5]);
+
+    hdr('delete(6)');
+    test([Channel::class, 'delete'], [6]);
+
+    tprint(Channel::readAll(), 'readAll()');
+    brk();
+}
 
 ?>
