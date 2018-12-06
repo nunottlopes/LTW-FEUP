@@ -1,32 +1,71 @@
 <?php
-require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/apientity.php';
 
-class Comment {
+class Comment extends APIEntity {    
     /**
      * CREATE
      */
-    public static function create(int $parent, int $user, string $content) {
+    public static function create(int $parentid, int $authorid, string $content) {
         $query = '
-            INSERT INTO comment(parent_id, user_id, content)
+            INSERT INTO Comment(parentid, authorid, content)
             VALUES (?, ?, ?)
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$parent, $user, $content]);
-        return true;
+        return $stmt->execute([$parentid, $authorid, $content]);
     }
 
     /**
      * READ
      */
+    public static function getUser(int $authorid) {
+        $query = '
+            SELECT * FROM CommentAll WHERE authorid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$authorid]);
+        return static::fetchAll($stmt);
+    }
+
+    public static function getChildren(int $parentid) {
+        $query = '
+            SELECT * FROM CommentAll WHERE parentid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$parentid]);
+        return static::fetchAll($stmt);
+    }
+
+    public static function getChildrenUser(int $parentid, int $authorid) {
+        $query = '
+            SELECT * FROM CommentAll WHERE parentid = ? AND authorid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$parentid, $authorid]);
+        return static::fetchAll($stmt);
+    }
+
     public static function read(int $id) {
         $query = '
-            SELECT * FROM comment WHERE entity_id = ?
+            SELECT * FROM CommentAll WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$id]);
-        return $stmt->fetch();
+        return static::fetch($stmt);
+    }
+
+    public static function readAll() {
+        $query = '
+            SELECT * FROM CommentAll
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute();
+        return static::fetchAll($stmt);
     }
 
     /**
@@ -34,12 +73,20 @@ class Comment {
      */
     public static function update(int $id, string $content) {
         $query = '
-            UPDATE comment WHERE entity_id = ? SET content = ?
+            UPDATE Comment SET content = ? WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$id, $content]);
-        return true;
+        return $stmt->execute([$content, $id]);
+    }
+
+    public static function clear(int $id) {
+        $query = '
+            UPDATE Comment SET content = "" WHERE entityid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        return $stmt->execute([$id]);
     }
     
     /**
@@ -47,12 +94,11 @@ class Comment {
      */
     public static function delete(int $id) {
         $query = '
-            DELETE FROM comment WHERE entity_id = ?
+            DELETE FROM Comment WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$id]);
-        return true;
+        return $stmt->execute([$id]);
     }
 }
 ?>

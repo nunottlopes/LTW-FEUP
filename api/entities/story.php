@@ -1,53 +1,72 @@
 <?php
-require_once __DIR__ '/../config/db.php';
+require_once __DIR__ . '/apientity.php';
 
-class Story {
+class Story extends APIEntity {    
     /**
      * CREATE
      */
-    public static function create(string $channel, int $user, string $title,
+    public static function create(string $channelid, int $authorid, string $title,
             string $type, string $content) {
         $query = '
-            INSERT INTO story(channel_id, user_id, title, type, content)
+            INSERT INTO Story(channelid, authorid, storyTitle, storyType, content)
             VALUES (?, ?, ?, ?, ?)
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$channel, $user, $title, $type, $content]);
-        return true;
+        return $stmt->execute([$channelid, $authorid, $title, $type, $content]);
     }
 
     /**
      * READ
      */
+    public static function getChannel(int $channelid) {
+        $query = '
+            SELECT * FROM StoryAll WHERE channelid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$channelid]);
+        return static::fetchAll($stmt);
+    }
+
+    public static function getUser(int $authorid) {
+        $query = '
+            SELECT * FROM StoryAll WHERE authorid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$authorid]);
+        return static::fetchAll($stmt);
+    }
+
+    public static function getChannelUser(int $channelid, int $authorid) {
+        $query = '
+            SELECT * FROM StoryAll WHERE channelid = ? AND authorid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$channelid, $authorid]);
+        return static::fetchAll($stmt);
+    }
+
     public static function read(int $id) {
         $query = '
-            SELECT * FROM story WHERE entity_id = ?
+            SELECT * FROM StoryAll WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$id]);
-        return $stmt->fetch();
+        return static::fetch($stmt);
     }
 
-    public static function readChannel(int $channel) {
+    public static function readAll() {
         $query = '
-            SELECT * FROM story WHERE channel_id = ?
+            SELECT * FROM StoryAll
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$channel]);
-        return $stmt->fetchAll();
-    }
-
-    public static function readUser(int $user) {
-        $query = '
-            SELECT * FROM story WHERE user_id = ?
-            ';
-
-        $stmt = DB::get()->prepare($query);
-        $stmt->execute([$user]);
-        return $stmt->fetchAll();
+        $stmt->execute();
+        return static::fetchAll($stmt);
     }
 
     /**
@@ -55,12 +74,11 @@ class Story {
      */
     public static function update(int $id, string $content) {
         $query = '
-            UPDATE story WHERE entity_id = ? SET content = ?
+            UPDATE Story SET content = ? WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$id, $content]);
-        return true;
+        return $stmt->execute([$content, $id]);
     }
     
     /**
@@ -68,12 +86,11 @@ class Story {
      */
     public static function delete(int $id) {
         $query = '
-            DELETE FROM story WHERE entity_id = ?
+            DELETE FROM Story WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$id]);
-        return true;
+        return $stmt->execute([$id]);
     }
 }
 ?>
