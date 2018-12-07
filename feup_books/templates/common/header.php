@@ -13,6 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.5.0/css/all.css' integrity='sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU' crossorigin='anonymous'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
 
   <body>
@@ -22,19 +23,18 @@
     <input class="search_bar" type="text" placeholder="Search.." name="search"/>
     <section id="user-header">
       <div class="dropdown">
-        <div id="profile_button">
+        <!-- <div id="profile_button">
         <img src="images/users/user.png" alt="User profile picture">
-        <p> Profile </p>
+        <p> Amadeu Pereira </p>
         </div>
-        <?php include('templates/user/dropdown.php'); ?>
-      </div>
+        <?php //include('templates/user/dropdown.php'); ?>
+      </div> -->
 
-      <!-- <button id="log_in_button" class="header_button" type="button">LOG IN</button>
-      <?php //include('templates/user/login.php'); ?>
+      <button id="log_in_button" class="header_button" type="button">LOG IN</button>
+      <?php include('templates/user/login.php'); ?>
       <button id="sign_up_button" class="header_button" type="button">SIGN UP</button>
-      <?php //include('templates/user/register.php'); ?> -->
+      <?php include('templates/user/register.php'); ?>
 
-      <script src="javascript/user_header.js"></script> 
     </section>
     <!-- <?php //if(isset($username)) {?>
         <img src="images/users/user.png" alt="User profile picture">
@@ -46,6 +46,7 @@
         <button class="sign_up_button" type="button">SIGN UP</button>
         <?php //include('templates/user/register.php'); ?>
     <?php //} ?> -->
-    <!-- <script src="javascript/user_header.js"></script> -->
+
+      <script src="javascript/user_header.js"></script> 
       
     </header>
