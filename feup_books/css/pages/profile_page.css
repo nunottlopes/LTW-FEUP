@@ -83,3 +83,66 @@ body > section#account > nav > ul > a{
     text-align: left;
     color: white;
 }
+
+.profile_content{
+    padding: 60px;
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+.profile_content h1{
+    font-size: 30px;
+    margin: 0.5em;
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid rgb(165, 165, 165);
+}
+
+.profile_content_inside{
+    margin-top: 3em;
+}
+
+.profile_content_inside > form > div#profile_button{
+    display: flex;
+    flex-direction: column;
+}
+
+.profile_content_inside > form{
+    margin: auto 0em; 
+}
+
+.profile_content_inside > form > div#profile_button > div#profile_info{
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-row-gap: 2em;
+    grid-column-gap: 2em;
+}
+
+.profile_content_inside > form > div#profile_button > div#button_profile{
+    display: grid;
+    margin: auto;
+    padding-top: 5em;
+}
+
+.profile_content_inside > form > div#profile_button > div#button_profile input[type=submit]{
+    border: none;
+    background-color: #800000;
+    color: white;
+    max-width: 10em;
+    text-align: center;
+    text-decoration: none;
+    font-size: 12px;
+    padding: 0.5em 1em; 
+    border-radius: 25px;
+    display:block;
+    cursor: pointer;
+    -webkit-transition: color 0.2s ease-out;
+    -moz-transition: color 0.2s ease-out;
+    -o-transition: color 0.2s ease-out;
+    -ms-transition: color 0.2s ease-out;
+    transition: color 0.2s ease-out;
+}
+
+.profile_content_inside > form > div#profile_button > div#button_profile input[type=submit]:hover{
+    background-color: #bb3030;
+    color: white;
+}

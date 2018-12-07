@@ -35,18 +35,6 @@
       <button id="sign_up_button" class="header_button" type="button">SIGN UP</button>
       <?php include('templates/user/register.php'); ?>
 
-    </section>
-    <!-- <?php //if(isset($username)) {?>
-        <img src="images/users/user.png" alt="User profile picture">
-        <button class="profile_button"></button>
-        <?php //include('templates/user/user_dropdown.php'); ?>
-    <?php //} else {?>
-        <button class="log_in_button" type="button">LOG IN</button>
-        <?php //include('templates/user/login.php'); ?>
-        <button class="sign_up_button" type="button">SIGN UP</button>
-        <?php //include('templates/user/register.php'); ?>
-    <?php //} ?> -->
-
       <script src="javascript/user_header.js"></script> 
       
     </header>

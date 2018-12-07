@@ -2,7 +2,6 @@ var divs = document.querySelectorAll("#account ul>*");
 
 for(let i = 0; i < divs.length; i++){
     divs[i].addEventListener("click", function(){
-        // console.log(divs[i]);
         divs[i].classList.add("profile_options_selected");
         for(let n = 0; n < divs.length; n++){
             if(n != i){
@@ -12,14 +11,30 @@ for(let i = 0; i < divs.length; i++){
     });
 }
 
-var contentDiv = document.querySelector("#account_content");
+var contentDiv = document.querySelector("#profile_content");
 
 document.querySelector("#account_overview").addEventListener("click", function(){
     contentDiv.innerHTML = '<h1>Account Overview</h1>';
 });
 
 document.querySelector("#edit_profile").addEventListener("click", function(){
-    contentDiv.innerHTML = '<h1>Edit Profile</h1>';
+    contentDiv.innerHTML = `<h1>Edit Profile</h1>
+    <div class="profile_content_inside">
+    <form action="#" method="get">
+      <div id="profile_button">
+        <div id="profile_info">
+          Username <input type="text" name="username" value="Amadeu Pereira">
+          Email <input type="email" name="email" value="amadeupereira@gmail.com">
+          New Password <input type="password" name="password">
+          Retype Password <input type="password" name="repeat_password">
+          Update Profile Picture <input type="file" name="fileToUpload">
+        </div>
+        <div id="button_profile">
+          <input type="submit" value="Save changes">
+        </div>
+      </div>
+    </form>
+    </div>`;
 });
 
 document.querySelector("#my_posts").addEventListener("click", function(){

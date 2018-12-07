@@ -26,9 +26,14 @@
     </ul>
   </nav>
 
-  <div id="account_content">
-
+  <div class="profile_content" id="profile_content">
+    <h1>My Posts</h1>
+    <a href="post.php" class="post_ref_link"><article class="post">
+      <header>Posted by Amadeu 4 hours ago</header>
+      <h2>Title</h2>
+    </article></a>
   </div>
+
 </section>
 
 <script src="javascript/profile.js"></script>

@@ -7,7 +7,7 @@ body {
   height: 100%;
   margin: 0;
   display: grid;
-  grid-template-rows: 25fr 0.5fr;
+  grid-template-rows: 1fr auto;
   margin: 0 auto;
   background-color: #DAE0E6;
 }
@@ -92,6 +92,7 @@ body > footer{
   text-align:center;
   transition: all 0.2s;
   background-color: #A5483E;
+  outline: none;
 }
 
 .post_button:hover{
@@ -163,6 +164,7 @@ body > footer{
   text-align:center;
   transition: all 0.2s;
   background-color: white;
+  outline: none;
 }
 
 .comment_button:hover{
