@@ -13,8 +13,70 @@ for(let i = 0; i < divs.length; i++){
 
 var contentDiv = document.querySelector("#profile_content");
 
-document.querySelector("#account_overview").addEventListener("click", function(){
-    contentDiv.innerHTML = '<h1>Account Overview</h1>';
+document.querySelector("#my_posts").addEventListener("click", function(){
+    contentDiv.innerHTML = `<h1>My Posts</h1>
+    <div class="profile_content_inside">
+      <div class="profile_post">
+        <a href="#"><h2>Title</h2></a>
+        <h5>Posted by Amadeu 4 hours ago</h5>
+      </div>
+      <div class="profile_post">
+        <a href="#"><h2>Title2</h2></a>
+        <h5>Posted by Amadeu 4 hours ago</h5>
+      </div>
+      <div class="profile_post">
+        <a href="#"><h2>Title3</h2></a>
+        <h5>Posted by Amadeu 4 hours ago</h5>
+      </div>
+      <div class="profile_post">
+        <a href="#"><h2>Title4</h2></a>
+        <h5>Posted by Amadeu 4 hours ago</h5>
+      </div>
+    </div>`;
+});
+
+document.querySelector("#my_comments").addEventListener("click", function(){
+    contentDiv.innerHTML = `<h1>My Comments</h1>
+    <div class="profile_content_inside">
+      <div class="profile_post">
+        <a href="#"><h2>Comment</h2></a>
+        <h5>Posted by Amadeu 4 hours ago</h5>
+      </div>
+      <div class="profile_post">
+        <a href="#"><h2>Comment2</h2></a>
+        <h5>Posted by Amadeu 4 hours ago</h5>
+      </div>
+      <div class="profile_post">
+        <a href="#"><h2>Comment3</h2></a>
+        <h5>Posted by Amadeu 4 hours ago</h5>
+      </div>
+      <div class="profile_post">
+        <a href="#"><h2>Comment4</h2></a>
+        <h5>Posted by Amadeu 4 hours ago</h5>
+      </div>
+    </div>`;
+});
+
+document.querySelector("#my_saved_posts").addEventListener("click", function(){
+    contentDiv.innerHTML = `<h1>My Saved Posts</h1>
+    <div class="profile_content_inside">
+      <div class="profile_post">
+        <a href="#"><h2>Title</h2></a>
+        <h5>Posted by Amadeu 4 hours ago</h5>
+      </div>
+      <div class="profile_post">
+        <a href="#"><h2>Title2</h2></a>
+        <h5>Posted by Amadeu 4 hours ago</h5>
+      </div>
+      <div class="profile_post">
+        <a href="#"><h2>Title3</h2></a>
+        <h5>Posted by Amadeu 4 hours ago</h5>
+      </div>
+      <div class="profile_post">
+        <a href="#"><h2>Title4</h2></a>
+        <h5>Posted by Amadeu 4 hours ago</h5>
+      </div>
+    </div>`;
 });
 
 document.querySelector("#edit_profile").addEventListener("click", function(){
@@ -35,18 +97,6 @@ document.querySelector("#edit_profile").addEventListener("click", function(){
       </div>
     </form>
     </div>`;
-});
-
-document.querySelector("#my_posts").addEventListener("click", function(){
-    contentDiv.innerHTML = '<h1>My Posts</h1>';
-});
-
-document.querySelector("#my_comments").addEventListener("click", function(){
-    contentDiv.innerHTML = '<h1>My Comments</h1>';
-});
-
-document.querySelector("#my_saved_posts").addEventListener("click", function(){
-    contentDiv.innerHTML = '<h1>My Saved Posts</h1>';
 });
 
 document.querySelector("#logout").addEventListener("click", function(){
