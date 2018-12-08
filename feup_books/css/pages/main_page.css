@@ -28,6 +28,11 @@
     text-align:center;
     transition: all 0.2s;
     background-color: #A5483E;
+    outline: none;
+}
+
+#aside_create_post a{
+    text-decoration: none;
 }
 
 #aside_create_post button:hover{

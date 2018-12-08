@@ -4,12 +4,12 @@
     margin: 0 auto;
     background-color: #DAE0E6;
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 3fr 1fr;
 }
 
-#post {
-    margin: 0 1em;
-    max-width: 70em;
+#post_page_post {
+    margin: 1em 1em;
+    background-color: white;
 }
 
 #channel_subscription {
@@ -29,9 +29,45 @@
     text-align:center;
     transition: all 0.2s;
     background-color: #A5483E;
+    outline: none;
+}
+
+#channel_subscription a{
+    text-decoration: none;
 }
 
 #channel_subscription button:hover{
     border-color: rgb(0, 0, 0);
     cursor: pointer;
+}
+
+#add_comment{
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid rgb(214, 213, 213);
+}
+
+#add_comment img{
+    margin: 1em;
+    width: 40px;
+    height: 40px;
+}
+
+#add_comment form{
+    display: flex;
+    flex-direction: row;
+    margin: 1em 0;
+}
+
+#add_comment > form textarea{
+    width: 50em;
+}
+
+#add_comment > form input{
+    margin: 1em 0;
+    margin-left: 2em;
+}
+
+.post_complete header{
+    padding-left: 1em;
 }
