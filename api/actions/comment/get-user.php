@@ -3,7 +3,7 @@ $action = 'get-user';
 
 $auth = Auth::demandLevel('free');
 
-$authorid = (int)$args['authorid'];
+$authorid = $args['authorid'];
 
 if (!User::read($authorid)) {
     HTTPResponse::adjacentNotFound("User with id $authorid");

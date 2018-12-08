@@ -1,19 +1,24 @@
 <?php
 $action = 'delete';
 
-$commentid = (int)$args['commentid'];
+$commentid = $args['commentid'];
 
 $comment = Comment::read($commentid);
 
-if ($comment) {
-    $authorid = (int)$comment['authorid'];
-
-    $auth = Auth::demandLevel('authid', $authorid);
-
-    Comment::delete($commentid);
-
-    HTTPResponse::deleted("Deleted comment $commentid");
+if (!$comment) {
+    HTTPResponse::notFound("Comment with id $commentid");
 }
 
-HTTPResponse::notFound("Comment with id $commentid");
+$authorid = $comment['authorid'];
+
+$auth = Auth::demandLevel('authid', $authorid);
+
+$count = Comment::delete($commentid);
+
+$data = [
+    'count' => $count,
+    'comment' => $comment
+];
+
+HTTPResponse::deleted("Deleted comment $commentid", $data);
 ?>

@@ -1,14 +1,24 @@
 <?php
-require_once __DIR__ . '/../utils/http.php';
+require_once __DIR__ . '/../api.php';
 require_once API::entity('channel');
 
 $resource = 'channel';
 
-$supported = ['GET', 'HEAD', 'POST', 'DELETE'];
+$methods = ['GET', 'HEAD', 'POST', 'DELETE'];
 
 $parameters = ['channelid', 'channelname', 'valid', 'confirm-delete', 'all'];
 
-$method = HTTPRequest::method($supported, true);
+$actions = [
+    'create'   => ['POST', 'channelname', 'confirm'],
+    'delete'   => ['DELETE', 'channelid', 'confirm-delete'],
+    'get'      => ['GET', 'channelname'],
+    'read-all' => ['GET', 'all'],
+    'read'     => ['GET', 'channelid'],
+    'look'     => ['GET'],
+    'valid'    => ['GET', 'channelname', 'valid']
+];
+
+$method = HTTPRequest::method($methods, true);
 
 $args = HTTPRequest::parse($parameters);
 
@@ -24,7 +34,7 @@ case 'HEAD':
     if (got('all')) {
         API::action('read-all');
     }
-    if (got('channelname') && got('valid')) {
+    if (got('valid') && got('channelname')) {
         API::action('valid');
     }
     if (got('channelname')) {
@@ -32,16 +42,18 @@ case 'HEAD':
     }
     break;
 case 'POST':
-    if (got('channelname')) {
+    if (got('channelname') && got('confirm')) {
         API::action('create');
     }
+    HTTPResponse::noConfirm("Channel creation");
     break;
 case 'DELETE':
     if (got('channelid') && got('confirm-delete')) {
         API::action('delete');
     }
+    HTTPResponse::noConfirmDelete();
     break;
 }
 
-HTTPResponse::noAction($method);
+HTTPResponse::noAction();
 ?>

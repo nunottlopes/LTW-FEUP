@@ -1,9 +1,9 @@
 <?php
 $action = 'self';
 
-$auth = Auth::demandLevel('user');
+$auth = Auth::demandLevel('auth');
 
-$userid = (int)$auth['userid'];
+$userid = $auth['userid'];
 
 $user = User::self($userid);
 

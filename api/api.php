@@ -49,8 +49,12 @@ class Auth {
      * Admin specs might change in the future, e.g. another column on the
      * database's user table specifying authorization level, or specific username.
      */
-    private static function isAdminUser(int $userid) {
+    public static function isAdminUser(int $userid) {
         return $userid === 0;
+    }
+
+    public static function admin() {
+        return static::level('admin');
     }
 
     /**
@@ -233,7 +237,12 @@ class Auth {
             break;
         case 'authid':
         case 'userid':
-            $allow = $authid === $userid;
+            // Action as another user
+            if ($admin) {
+                $allow = User::read($userid) != null; // user exists.
+            } else {
+                $allow = $authid === $userid; // equality implies existence.
+            }
             break;
         case 'privileged':
         case 'admin':
@@ -294,7 +303,12 @@ class Auth {
         case 'authid':
         case 'loginid':
         case 'user':
-            $allow = $authid === $userid;
+            // Action as another user
+            if ($admin) {
+                $allow = User::read($userid) != null; // user exists.
+            } else {
+                $allow = $authid === $userid; // equality implies existence.
+            }
             break;
         case 'privileged':
         case 'admin':
@@ -653,8 +667,8 @@ class HTTPResponse {
      * Append several variables to a JSON, output response body and exit.
      * Redirects to json() for output. plain() not used as of now.
      */
-    private static function output(string $code, string $message, array $data = null) {
-        global $resource, $supported, $parameters, $method, $args, $auth, $action;
+    private static function success(string $code, string $message, array $data = null) {
+        global $resource, $methods, $method, $parameters, $args, $auth, $actions, $action;
 
         $json = [
             'message' => $message,          // User readable [success] message
@@ -663,9 +677,10 @@ class HTTPResponse {
             'auth' => $auth,                // Request performed as this user
             'resource' => $resource,        // Resource accessed
             'action' => $action,            // Action performed on this resource
-            'supported' => $supported,      // Methods supported on this resource
-            'parameters' => $parameters,    // Parameters supported on this resource
             'method' => $method,            // HTTP request method
+            //'methods' => $methods,          // Methods supported on this resource
+            //'parameters' => $parameters,    // Parameters supported on this resource
+            //'actions' => $actions,          // Actions supported on this resource
             'data' => $data
         ];
 
@@ -676,7 +691,7 @@ class HTTPResponse {
      * Like output() but intended for error messages.
      */
     private static function error(string $code, string $error, array $data = null) {
-        global $resource, $supported, $parameters, $method, $args, $auth, $action;
+        global $resource, $methods, $method, $parameters, $args, $auth, $actions, $action;
 
         $json = [
             'message' => $error,            // User readable [error] message
@@ -686,9 +701,10 @@ class HTTPResponse {
             'auth' => $auth,                // Request performed as this user
             'resource' => $resource,        // Resource accessed
             'action' => $action,            // Action performed on this resource
-            'supported' => $supported,      // Methods supported on this resource
-            'parameters' => $parameters,    // Parameters supported on this resource
             'method' => $method,            // HTTP request method
+            'methods' => $methods,          // Methods supported on this resource
+            'parameters' => $parameters,    // Parameters supported on this resource
+            'actions' => $actions,          // Actions supported on this resource
             'data' => $data
         ];
 
@@ -707,10 +723,20 @@ class HTTPResponse {
      * 200 OK
      * No arguments provided, querying resource.
      */
-    public static function look(string $message, array $data) {
+    public static function look(string $message, array $extra = []) {
         http_response_code(200);
 
-        static::output('Query resource', $message, $data);
+        global $methods, $parameters, $actions;
+
+        $look = [
+            'methods' => $methods,
+            'parameters' => $parameters,
+            'actions' => $actions
+        ];
+
+        $data = $look + $extra;
+
+        static::success('Query resource', $message, $data);
     }
 
     /**
@@ -719,7 +745,7 @@ class HTTPResponse {
     public static function ok(string $message, array $data) {
         http_response_code(200);
 
-        static::output('OK', $message, $data);
+        static::success('OK', $message, $data);
     }
 
     /**
@@ -728,7 +754,7 @@ class HTTPResponse {
     public static function updated(string $message, array $data = null) {
         http_response_code(200);
 
-        static::output('Updated', $message, $data);
+        static::success('Updated', $message, $data);
     }
 
     /**
@@ -737,25 +763,25 @@ class HTTPResponse {
     public static function deleted(string $message, array $data = null) {
         http_response_code(200);
 
-        static::output('Deleted', $message, $data);
+        static::success('Deleted', $message, $data);
     }
 
     /**
      * 201 Created
      */
-    public static function created(string $message, array $data) {
+    public static function created(string $message, array $data = null) {
         http_response_code(201);
 
-        static::output('Created', $message, $data);
+        static::success('Created', $message, $data);
     }
 
     /**
      * 202 Accepted
      */
-    public static function accepted(string $message, array $data = null) {
+    public static function accepted(string $message, array $data = []) {
         http_response_code(202);
 
-        static::output('Accepted', $message, $data);
+        static::success('Accepted', $message, $data);
     }
 
     /**
@@ -795,7 +821,7 @@ class HTTPResponse {
             'keys' => $parameters
         ];
 
-        static::output('Missing Parameter', $error, $data);
+        static::error('Missing Parameter', $error, $data);
     }
 
     /**
@@ -858,22 +884,47 @@ class HTTPResponse {
      * Header Allow present.
      * Might change into a 405 in the future.
      */
-    public static function noAction(string $method) {
+    public static function noAction() {
         http_response_code(400);
 
-        global $supported;
+        global $methods, $method, $actions;
 
-        $allowed = implode(', ', $supported);
+        $allowed = implode(', ', $methods);
         header("Allow: $allowed");
 
         $error = "Action could not be deduced from the provided arguments";
 
         $data = [
-            'supported' => $supported,
-            'method' => $method
+            'methods' => $methods,
+            'method' => $method,
+            'actions' => $actions
         ];
 
         static::error('No Action', $error, $data);
+    }
+
+    /**
+     * 400 Bad Request
+     * Certain requests require 'confirm' argument (creates and updates).
+     */
+    public static function noConfirm(string $what, array $data = null) {
+        http_response_code(400);
+
+        $error = "Please confirm $what with \"confirm\" argument";
+
+        static::error('Unconfirmed', $error, $data);
+    }
+
+    /**
+     * 400 Bad Request
+     * Irreversible delete requests require 'confirm-delete' argument.
+     */
+    public static function noConfirmDelete(array $data = null) {
+        http_response_code(400);
+
+        $error = "Please confirm delete with \"confirm-delete\" argument";
+
+        static::error('Unconfirmed delete', $error, $data);
     }
 
     /**
@@ -897,6 +948,10 @@ class HTTPResponse {
 
         if ($userid === null) {
             $error = "Unauthorized request: requires login";
+
+            $data = [];
+        } else if (Auth::isAdminUser($userid)) {
+            $error = "Unauthorized request: requires administrator login";
 
             $data = [];
         } else {
@@ -981,20 +1036,20 @@ class HTTPResponse {
      * of arguments.
      * Required header Allow present.
      */
-    public static function badMethod(string $method) {
+    public static function badMethod() {
         http_response_code(405);
 
-        global $supported;
+        global $methods, $method, $actions;
 
-        $allowed = implode(', ', $supported);
+        $allowed = implode(', ', $methods);
         header("Allow: $allowed");
 
         $error = "HTTP request method $method not supported for this resource";
 
         $data = [
-            'allowed' => $supported,
-            'supported' => $supported,
-            'method' => $method
+            'methods' => $methods,
+            'method' => $method,
+            'actions' => $actions
         ];
 
         static::error('Bad Method', $error, $data);
@@ -1003,7 +1058,7 @@ class HTTPResponse {
     /**
      * 500 Internal Server Error
      */
-    public static function serverError(array $data = []) {
+    public static function serverError(array $data = null) {
         http_response_code(500);
         header("Retry-After: 3");
 
@@ -1016,7 +1071,7 @@ class HTTPResponse {
      * 503 Service Unavailable
      * Database schema change (debugging only, presumably...)
      */
-    public static function schemaChanged(array $data = []) {
+    public static function schemaChanged(array $data = null) {
         http_response_code(503);
         header("Retry-After: 1");
 
@@ -1028,7 +1083,7 @@ class HTTPResponse {
     /**
      * 503 Service Unavailable
      */
-    public static function unavailable(string $message, int $time, array $data = []) {
+    public static function unavailable(string $message, int $time, array $data = null) {
         http_response_code(503);
         header("Retry-After: $time");
 

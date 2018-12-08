@@ -3,7 +3,7 @@ $action = 'read';
 
 $auth = Auth::demandLevel('free');
 
-$userid = (int)$args['userid'];
+$userid = $args['userid'];
 
 $user = User::read($userid);
 

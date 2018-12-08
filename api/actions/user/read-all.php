@@ -1,5 +1,5 @@
 <?php
-$action = 'read';
+$action = 'read-all';
 
 $auth = Auth::demandLevel('free');
 

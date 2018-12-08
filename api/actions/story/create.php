@@ -1,15 +1,18 @@
 <?php
-require_once API::entity('channel');
-
 $action = 'create';
 
-$auth = Auth::demandLevel('auth');
+if (got('userid')) { // admin impersonation
+    $auth = Auth::demandLevel('authid', $args['userid']);
+    $authorid = $args['userid'];
+} else {
+    $auth = Auth::demandLevel('auth');
+    $authorid = $auth['userid'];
+}
 
-$channelid = (int)$args['channelid'];
+$channelid = $args['channelid'];
 $title = $args['storyTitle'];
 $type = $args['storyType'];
 $content = $args['content'];
-$authorid = $auth['userid'];
 
 if (!Channel::read($channelid)) {
     HTTPResponse::adjacentNotFound("Channel with id $channelid");
@@ -17,13 +20,15 @@ if (!Channel::read($channelid)) {
 
 $storyid = Story::create($channelid, $authorid, $title, $type, $content);
 
-if ($storyid) {
-    $data = [
-        'storyid' => $storyid,
-        'entityid' => $storyid
-    ];
-    HTTPResponse::created("Created story $storyid", $data);
-}
+$data = [
+    'storyid' => $storyid,
+    'entityid' => $storyid,
+    'authorid' => $authorid,
+    'channelid' => $channelid,
+    'title' => $title,
+    'type' => $type,
+    'content' => $content
+];
 
-HTTPResponse::badRequest("Invalid story title, type or content");
+HTTPResponse::created("Created story $storyid", $data);
 ?>

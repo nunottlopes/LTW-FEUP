@@ -1,19 +1,24 @@
 <?php
 $action = 'delete';
 
-$storyid = (int)$args['storyid'];
+$storyid = $args['storyid'];
 
 $story = Story::read($storyid);
 
-if ($story) {
-    $authorid = (int)$story['authorid'];
-
-    $auth = Auth::demandLevel('authid', $authorid);
-
-    Story::delete($storyid);
-
-    HTTPResponse::deleted("Deleted story $storyid");
+if (!$story) {
+    HTTPResponse::notFound("Story with id $storyid");
 }
 
-HTTPResponse::notFound("Story with id $storyid");
+$authorid = $story['authorid'];
+
+$auth = Auth::demandLevel('authid', $authorid);
+
+$count = Story::delete($storyid);
+
+$data = [
+    'count' => $count,
+    'story' => $story
+]
+
+HTTPResponse::deleted("Deleted story $storyid", $data);
 ?>

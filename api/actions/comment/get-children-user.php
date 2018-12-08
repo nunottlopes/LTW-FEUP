@@ -3,8 +3,8 @@ $action = 'get-children-user';
 
 $auth = Auth::demandLevel('free');
 
-$authorid = (int)$args['authorid'];
-$parentid = (int)$args['parentid'];
+$authorid = $args['authorid'];
+$parentid = $args['parentid'];
 
 if (!User::read($authorid)) {
     HTTPResponse::adjacentNotFound("User with id $authorid");

@@ -1,16 +1,27 @@
 <?php
-require_once __DIR__ . '/../utils/http.php';
+require_once __DIR__ . '/../api.php';
 require_once API::entity('story');
 require_once API::entity('comment');
 
 $resource = 'comment';
 
-$supported = ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE'];
+$methods = ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE'];
 
-$parameters = ['commentid', 'authorid', 'parentid', 'content',
-                'confirm-delete', 'all'];
+$parameters = ['parentid', 'commentid', 'content', 'userid', 'all', 'confirm-delete'];
 
-$method = HTTPRequest::method($supported, true);
+$actions = [
+    'create'            => ['POST', 'parentid', 'content'],
+    'delete'            => ['DELETE', 'commentid', 'confirm-delete'],
+    'get-children-user' => ['GET', 'parentid', 'userid'],
+    'get-children'      => ['GET', 'parentid'],
+    'get-user'          => ['GET', 'userid'],
+    'read-all'          => ['GET', 'all'],
+    'read'              => ['GET', 'commentid'],
+    'look'              => ['GET'],
+    'update'            => ['PATCH', 'commentid', 'content']
+];
+
+$method = HTTPRequest::method($methods, true);
 
 $args = HTTPRequest::parse($parameters);
 
@@ -50,8 +61,9 @@ case 'DELETE':
     if (got('commentid') && got('confirm-delete')) {
         API::action('delete');
     }
+    HTTPResponse::noConfirmDelete();
     break;
 }
 
-HTTPResponse::noAction($method);
+HTTPResponse::noAction();
 ?>
