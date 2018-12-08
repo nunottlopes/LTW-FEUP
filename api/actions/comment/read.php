@@ -3,7 +3,7 @@ $action = 'read';
 
 $auth = Auth::demandLevel('free');
 
-$commentid = (int)$args['commentid'];
+$commentid = $args['commentid'];
 
 $comment = Comment::read($commentid);
 

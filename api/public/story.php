@@ -6,8 +6,8 @@ $resource = 'story';
 
 $methods = ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE'];
 
-$parameters = ['storyid', 'authorid', 'channelid', 'storyTitle', 'storyType',
-                'content', 'confirm-delete', 'all'];
+$parameters = ['storyid', 'userid', 'authorid', 'channelid', 'storyTitle',
+                'storyType', 'content', 'confirm-delete', 'all'];
 
 $actions = [
     'create'           => ['POST', 'channelid', 'storyTitle', 'storyType', 'content'],

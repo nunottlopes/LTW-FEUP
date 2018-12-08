@@ -7,14 +7,15 @@ $resource = 'comment';
 
 $methods = ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE'];
 
-$parameters = ['parentid', 'commentid', 'content', 'userid', 'all', 'confirm-delete'];
+$parameters = ['parentid', 'commentid', 'content', 'userid', 'authorid',
+                'all', 'confirm-delete'];
 
 $actions = [
     'create'            => ['POST', 'parentid', 'content'],
     'delete'            => ['DELETE', 'commentid', 'confirm-delete'],
-    'get-children-user' => ['GET', 'parentid', 'userid'],
+    'get-children-user' => ['GET', 'parentid', 'authorid'],
     'get-children'      => ['GET', 'parentid'],
-    'get-user'          => ['GET', 'userid'],
+    'get-user'          => ['GET', 'authorid'],
     'read-all'          => ['GET', 'all'],
     'read'              => ['GET', 'commentid'],
     'look'              => ['GET'],
