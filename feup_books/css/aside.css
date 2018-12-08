@@ -1,0 +1,21 @@
+.aside_div {
+    width: 270px;
+    background-color: white;
+    margin-right: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border: 2px solid rgb(156, 162, 168);
+    border-radius: 2px;
+}
+
+#aside_footer {
+    padding-top: 1em;
+    text-align: center;
+    background-color: #A5483E;
+  }
+  
+#aside_footer a{
+    padding: 0.5em;
+    text-decoration: none;
+    color: black;
+}

@@ -1,4 +1,4 @@
-#main_page {
+#view_post{
     padding-top: 3em;
     max-width: 70em;
     margin: 0 auto;
@@ -7,15 +7,16 @@
     grid-template-columns: 2fr 1fr;
 }
 
-#main_page_posts{
+#post {
     margin: 0 1em;
+    max-width: 70em;
 }
 
-#aside_create_post h1{
+#channel_subscription {
     text-align: center;
 }
 
-#aside_create_post button{
+#channel_subscription button{
     padding: 0.3em 1.2em;
     display: block;
     margin: 0 auto 0.2em auto;
@@ -30,29 +31,7 @@
     background-color: #A5483E;
 }
 
-#aside_create_post button:hover{
+#channel_subscription button:hover{
     border-color: rgb(0, 0, 0);
     cursor: pointer;
-}
-
-#aside_favorite_post{
-    display: inline-block;
-}
-
-#aside_favorite_post header{
-    margin: 0.4em;
-    font-size:12px;
-    font-weight:900;
-}
-
-#aside_favorite_post a {
-    text-decoration: none;
-    color:black;
-}
-
-#aside_favorite_post p{
-    padding: 0 1em;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
 }
