@@ -24,11 +24,22 @@ class Channel extends APIEntity {
         static::check($channelname);
 
         $query = '
-            INSERT INTO Channel(channelname, creatorid) VALUES (?, ?)
+            INSERT INTO Channel(channelname, creatorid)
+            VALUES (?, ?)
             ';
 
         $stmt = DB::get()->prepare($query);
-        return $stmt->execute([$channelname, $creator]);
+
+        try {
+            DB::get()->beginTransaction();
+            $stmt->execute([$channelname, $creator]);
+            $id = (int)DB::get()->lastInsertId();
+            DB::get()->commit();
+            return $id;
+        } catch (PDOException $e) {
+            DB::get()->rollback();
+            return false;
+        }
     }
 
     /**
