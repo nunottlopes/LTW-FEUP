@@ -1,7 +1,7 @@
 <?php
 $action = 'get-user';
 
-$user = Auth::demandLevel('free');
+$auth = Auth::demandLevel('free');
 
 $authorid = (int)$args['authorid'];
 

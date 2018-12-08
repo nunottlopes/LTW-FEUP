@@ -1,12 +1,17 @@
 <?php
 require_once __DIR__ . '/session.php';
 
+function got(string $key) {
+    global $args;
+    return isset($args[$key]);
+}
+
 class API {
     /**
      * Redirect to appropriate action file.
      */
     public static function action(string $act) {
-        global $resource, $supported, $parameters, $method, $args, $user, $action;
+        global $resource, $supported, $parameters, $method, $args, $auth, $action;
         $file = $_SERVER['DOCUMENT_ROOT'] . "/api/actions/$resource/$act.php";
         require_once $file;
     }
@@ -182,11 +187,11 @@ class Auth {
      * It is assumed that a session has already been started.
      */
     public static function authenticate() {
-        $user = static::session();
-        if ($user) return $user;
+        $auth = static::session();
+        if ($auth) return $auth;
 
-        $user = static::authorization();
-        if ($user) return $user;
+        $auth = static::authorization();
+        if ($auth) return $auth;
 
         return false;
     }
@@ -204,6 +209,7 @@ class Auth {
      *     userid       Accessible if the user is authorized as particular user.
      *   - privileged,
      *     admin        Authorized as admin.
+     *   - none         Not authorized.
      *
      * Returns
      *     true       if authentication is not achieved and not required.
@@ -213,7 +219,7 @@ class Auth {
     public static function authLevel(string $level, int $userid = null) {
         $auth = static::authorization();
 
-        if (!$auth) return $level === 'open' || $level === 'free';
+        if (!$auth) return $level === 'open' || $level === 'free' || $level === 'none';
 
         $authid = $auth['userid'];
         $admin = $auth['admin'];
@@ -233,6 +239,7 @@ class Auth {
         case 'admin':
             $allow = $admin;
             break;
+        case 'none':
         default:
             $allow = false;
             break;
@@ -260,6 +267,7 @@ class Auth {
      *     loggedinid   Accessible if the user is logged in as a particular user.
      *   - privileged,
      *     admin        Logged in as admin.
+     *   - none         No session.
      *
      * Returns
      *     true       if authentication is not achieved and not required.
@@ -269,7 +277,7 @@ class Auth {
     public static function sessionLevel(string $level, int $userid = null) {
         $auth = static::session();
 
-        if (!$auth) return $level === 'open' || $level === 'free';
+        if (!$auth) return $level === 'open' || $level === 'free' || $level === 'none';
 
         $authid = $auth['userid'];
         $admin = $auth['admin'];
@@ -292,6 +300,7 @@ class Auth {
         case 'admin':
             $allow = $admin;
             break;
+        case 'none':
         default:
             $allow = false;
             break;
@@ -358,6 +367,7 @@ class Auth {
         switch ($level) {
         case 'auth':
         case 'user':
+        case 'none':
             HTTPResponse::unauthorized();
         case 'authid':
         case 'userid':
@@ -400,6 +410,7 @@ class Auth {
         case 'login':
         case 'logged':
         case 'loggedin':
+        case 'none':
             HTTPResponse::unauthorized();
         case 'authid':
         case 'userid':
@@ -445,6 +456,7 @@ class Auth {
         case 'login':
         case 'logged':
         case 'loggedin':
+        case 'none':
             HTTPResponse::unauthorized();
         case 'authid':
         case 'userid':
@@ -642,13 +654,13 @@ class HTTPResponse {
      * Redirects to json() for output. plain() not used as of now.
      */
     private static function output(string $code, string $message, array $data = null) {
-        global $resource, $supported, $parameters, $method, $args, $user, $action;
+        global $resource, $supported, $parameters, $method, $args, $auth, $action;
 
         $json = [
             'message' => $message,          // User readable [success] message
             'code' => $code,                // Machine readable [success] message
             'args' => $args,                // Client provided arguments
-            'auth' => $user,                // Request performed as this user
+            'auth' => $auth,                // Request performed as this user
             'resource' => $resource,        // Resource accessed
             'action' => $action,            // Action performed on this resource
             'supported' => $supported,      // Methods supported on this resource
@@ -664,14 +676,14 @@ class HTTPResponse {
      * Like output() but intended for error messages.
      */
     private static function error(string $code, string $error, array $data = null) {
-        global $resource, $supported, $parameters, $method, $args, $user, $action;
+        global $resource, $supported, $parameters, $method, $args, $auth, $action;
 
         $json = [
             'message' => $error,            // User readable [error] message
             'error' => $error,              // User readable [error] message
             'code' => $code,                // Machine readable [error] message
             'args' => $args,                // Client provided arguments, possibly null
-            'auth' => $user,                // Request performed as this user
+            'auth' => $auth,                // Request performed as this user
             'resource' => $resource,        // Resource accessed
             'action' => $action,            // Action performed on this resource
             'supported' => $supported,      // Methods supported on this resource
@@ -792,7 +804,7 @@ class HTTPResponse {
      * action based on the arguments provided, but a particular argument had an
      * incorrect value (probably of the wrong type).
      */
-    public static function badArgument(string $param, string $value, array $parameters) {
+    public static function badArgument(string $param, string $value) {
         http_response_code(400);
 
         $error = "Parameter \"$param\" has an unexpected value";
@@ -800,7 +812,6 @@ class HTTPResponse {
         $data = [
             'param' => $param,
             'key' => $param,
-            'keys' => $params,
             'value' => $value
         ];
 
@@ -912,6 +923,24 @@ class HTTPResponse {
     }
 
     /**
+     * 403 Forbidden
+     * The request tried to create a resource that conflicted with an already existing
+     * resource.
+     */
+    public static function conflict(string $error, string $entity, string $culprit) {
+        http_response_code(403);
+
+        $error = "Conflict: $error";
+
+        $data = [
+            'culprit' => $culprit,
+            'entity' => $entity
+        ];
+
+        static::error('Conflict', $error, $data);
+    }
+
+    /**
      * 404 Not Found
      * The resource requested by the client does not exist.
      */
@@ -976,6 +1005,7 @@ class HTTPResponse {
      */
     public static function serverError(array $data = []) {
         http_response_code(500);
+        header("Retry-After: 3");
 
         $error = "Internal Server Error processing the request";
 

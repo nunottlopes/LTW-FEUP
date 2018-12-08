@@ -1,7 +1,7 @@
 <?php
 $action = 'read';
 
-$user = Auth::demandLevel('free');
+$auth = Auth::demandLevel('free');
 
 $storyid = (int)$args['storyid'];
 

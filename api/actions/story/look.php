@@ -1,17 +1,17 @@
 <?php
 $action = 'look';
 
-$user = Auth::demandLevel('free');
+$auth = Auth::demandLevel('free');
 
 $actions = [
-    'create',
-    'delete',
-    'get-channel-user',
-    'get-channel',
-    'get-user',
-    'read-all',
-    'read',
-    'update'
+    'create'           => ['channelid', 'storyTitle', 'storyType', 'content'],
+    'delete'           => ['storyid', 'confirm-delete'],
+    'get-channel-user' => ['authorid', 'channelid'],
+    'get-channel'      => ['channelid'],
+    'get-user'         => ['authorid'],
+    'read-all'         => ['all'],
+    'read'             => ['storyid'],
+    'update'           => ['storyid', 'content']
 ];
 
 $data = [

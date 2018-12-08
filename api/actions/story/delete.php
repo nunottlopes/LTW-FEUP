@@ -8,7 +8,7 @@ $story = Story::read($storyid);
 if ($story) {
     $authorid = (int)$story['authorid'];
 
-    $user = Auth::demandLevel('authid', $authorid);
+    $auth = Auth::demandLevel('authid', $authorid);
 
     Story::delete($storyid);
 

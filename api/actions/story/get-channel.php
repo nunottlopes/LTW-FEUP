@@ -3,7 +3,7 @@ require_once API::entity('channel');
 
 $action = 'get-channel';
 
-$user = Auth::demandLevel('free');
+$auth = Auth::demandLevel('free');
 
 $channelid = (int)$args['channelid'];
 

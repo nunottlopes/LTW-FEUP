@@ -3,13 +3,13 @@ require_once API::entity('channel');
 
 $action = 'create';
 
-$user = Auth::demandLevel('user');
+$auth = Auth::demandLevel('auth');
 
 $channelid = (int)$args['channelid'];
 $title = $args['storyTitle'];
 $type = $args['storyType'];
 $content = $args['content'];
-$authorid = $user['userid'];
+$authorid = $auth['userid'];
 
 if (!Channel::read($channelid)) {
     HTTPResponse::adjacentNotFound("Channel with id $channelid");

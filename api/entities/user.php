@@ -68,8 +68,17 @@ class User extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-
-        return $stmt->execute([$username, $email, $hash]);
+        
+        try {
+            DB::get()->beginTransaction();
+            $stmt->execute([$username, $email, $hash]);
+            $id = DB::get()->lastInsertId();
+            DB::get()->commit();
+            return $id;
+        } catch (PDOException $e) {
+            DB::get()->rollback();
+            return false;
+        }
     }
 
     /**
@@ -146,6 +155,10 @@ class User extends APIEntity {
         $stmt = DB::get()->prepare($query);
         $stmt->execute();
         return static::fetchAll($stmt);
+    }
+
+    public static function self(int $userid) {
+        return static::read($userid);
     }
 
     /**

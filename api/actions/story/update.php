@@ -9,7 +9,7 @@ $story = Story::read($storyid);
 if ($story) {
     $authorid = $story['authorid'];
 
-    $user = Auth::demandLevel('authid', $authorid);
+    $auth = Auth::demandLevel('authid', $authorid);
 
     $result = Story::update($storyid, $content);
 

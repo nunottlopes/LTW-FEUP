@@ -6,7 +6,8 @@ $resource = 'story';
 
 $supported = ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE'];
 
-$parameters = ['storyid', 'authorid', 'channelid', 'storyTitle', 'storyType', 'content', 'confirm'];
+$parameters = ['storyid', 'authorid', 'channelid', 'storyTitle', 'storyType',
+                'content', 'confirm-delete', 'all'];
 
 $method = HTTPRequest::method($supported, true);
 
@@ -15,19 +16,19 @@ $args = HTTPRequest::parse($parameters);
 switch ($method) {
 case 'GET':
 case 'HEAD':
-    if (isset($args['storyid'])) {
+    if (got('storyid')) {
         API::action('read');
     }
-    if (isset($args['authorid']) && isset($args['channelid'])) {
+    if (got('authorid') && got('channelid')) {
         API::action('get-channel-user');
     }
-    if (isset($args['authorid'])) {
+    if (got('authorid')) {
         API::action('get-user');
     }
-    if (isset($args['channelid'])) {
+    if (got('channelid')) {
         API::action('get-channel');
     }
-    if (isset($args['confirm'])) {
+    if (got('all')) {
         API::action('read-all');
     }
     if ($args === []) {
@@ -35,18 +36,18 @@ case 'HEAD':
     }
     break;
 case 'POST':
-    if (isset($args['channelid']) && isset($args['storyTitle']) &&
-        isset($args['storyType']) && isset($args['content'])) {
+    if (got('channelid') && got('storyTitle') &&
+        got('storyType') && got('content')) {
         API::action('create');
     }
     break;
 case 'PATCH':
-    if (isset($args['storyid']) && isset($args['content'])) {
+    if (got('storyid') && got('content')) {
         API::action('update');
     }
     break;
 case 'DELETE':
-    if (isset($args['storyid'])) {
+    if (got('storyid') && got('confirm-delete')) {
         API::action('delete');
     }
     break;

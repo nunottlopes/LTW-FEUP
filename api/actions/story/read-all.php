@@ -1,7 +1,7 @@
 <?php
 $action = 'read-all';
 
-$user = Auth::demandLevel('free');
+$auth = Auth::demandLevel('free');
 
 $stories = Story::readAll();
 
