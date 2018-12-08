@@ -16,35 +16,35 @@ switch ($method) {
 case 'GET':
 case 'HEAD':
     if (isset($args['storyid'])) {
-    //    API::action('read');
+        API::action('read');
     }
     if (isset($args['authorid']) && isset($args['channelid'])) {
-    //    API::action('get-channel-user');
+        API::action('get-channel-user');
     }
     if (isset($args['authorid'])) {
-    //    API::action('get-user');
+        API::action('get-user');
     }
     if (isset($args['channelid'])) {
-    //    API::action('get-channel');
+        API::action('get-channel');
     }
     if (isset($args['confirm'])) {
-    //    API::action('read-all');
+        API::action('read-all');
     }
     if ($args === []) {
-    //    API::action('look');
+        API::action('look');
     }
-    //break;
+    break;
 case 'POST':
     if (isset($args['channelid']) && isset($args['storyTitle']) &&
         isset($args['storyType']) && isset($args['content'])) {
-    //    API::action('create');
+        API::action('create');
     }
-    //break;
+    break;
 case 'PATCH':
     if (isset($args['storyid']) && isset($args['content'])) {
         API::action('update');
     }
-    //break;
+    break;
 case 'DELETE':
     if (isset($args['storyid'])) {
         API::action('delete');

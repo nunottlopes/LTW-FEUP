@@ -36,8 +36,8 @@ require_once API::entity('user');
 class Auth {
     private static $authRegex = '/^Basic ((?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?)$/';
 
-    private static $authorization_parsed = false;
-    private static $authorization_user = null;
+    private static $authorizationParsed = false;
+    private static $authorizationUser = null;
 
     /**
      * Check if userid is an admin.
@@ -113,9 +113,9 @@ class Auth {
      */
     public static function authorization() {
         // Cache
-        if (static::$authorization_parsed) return static::$authorization_user;
+        if (static::$authorizationParsed) return static::$authorizationUser;
 
-        static::$authorization_parsed = true;
+        static::$authorizationParsed = true;
 
         $header = HTTPRequest::header('Authorization');
 
@@ -146,7 +146,7 @@ class Auth {
 
             //if (!$user) HTTPResponse::unauthorized();
 
-            static::$authorization_user = $user;
+            static::$authorizationUser = $user;
             return $user;
         }
         
@@ -158,7 +158,7 @@ class Auth {
      * 
      * Returns an array representing the authenticated user if successful, or false.
      */
-    private static function session() {
+    public static function session() {
         $auth = isset($_SESSION) && isset($_SESSION['userid']);
 
         if (!$auth) return false;
