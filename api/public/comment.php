@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../utils/http.php';
+require_once __DIR__ . '/../api.php';
 require_once API::entity('story');
 require_once API::entity('comment');
 
