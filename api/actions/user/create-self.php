@@ -16,11 +16,11 @@ if (!User::validEmail($useremail)) {
 }
 
 if (User::getByUsername($username)) {
-    HTTPResponse::conflict('Already existing username', 'username', $username);
+    HTTPResponse::conflict("Already existing username", 'username', $username);
 }
 
 if (User::getByEmail($useremail)) {
-    HTTPResponse::conflict('Email already in use', 'email', $useremail);
+    HTTPResponse::conflict("Email already in use", 'email', $useremail);
 }
 
 $userid = User::create($username, $useremail, $password);
