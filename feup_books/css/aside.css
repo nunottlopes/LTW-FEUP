@@ -12,10 +12,19 @@
     padding-top: 1em;
     text-align: center;
     background-color: #A5483E;
+    color: white;
+    font-family: 'Roboto',sans-serif;
+    font-weight: 300;
+    font-size: 12px;
   }
   
 #aside_footer a{
     padding: 0.5em;
     text-decoration: none;
-    color: black;
+    color: white;
+}
+
+#page_authors{
+    display: flex;
+    flex-direction: column;
 }
