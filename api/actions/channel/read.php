@@ -1,6 +1,4 @@
 <?php
-$action = 'read';
-
 $auth = Auth::demandLevel('free');
 
 $channelid = $args['channelid'];

@@ -1,6 +1,4 @@
 <?php
-$action = 'valid-email';
-
 $auth = Auth::demandLevel('free');
 
 $useremail = $args['email'];

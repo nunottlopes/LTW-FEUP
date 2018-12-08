@@ -1,7 +1,5 @@
 <?php
-$action = 'delete';
-
-if (got('userid')) { // admin impersonation
+if (API::gotargs('userid')) { // admin impersonation
     $auth = Auth::demandLevel('authid', $args['userid']);
     $userid = $args['userid'];
 } else {

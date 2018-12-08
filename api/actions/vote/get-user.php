@@ -1,6 +1,4 @@
 <?php
-$action = 'get-user';
-
 $userid = $args['userid'];
 
 if (!User::read($userid)) {

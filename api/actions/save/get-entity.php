@@ -1,6 +1,4 @@
 <?php
-$action = 'get-entity';
-
 $auth = Auth::demandLevel('admin');
 
 $entityid = $args['entityid'];

@@ -80,7 +80,7 @@ class Tree extends APIEntity {
 
         $descendants = static::getDescendants($parentid);
 
-        $entities = keyfy($descendants, 'entityid');
+        $entities = API::keyfy($descendants, 'entityid');
 
         $entities[$parentid] = $top;
 

@@ -1,6 +1,4 @@
 <?php
-$action = 'delete';
-
 $storyid = $args['storyid'];
 
 $story = Story::read($storyid);

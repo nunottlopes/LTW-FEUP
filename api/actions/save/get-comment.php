@@ -1,6 +1,4 @@
 <?php
-$action = 'get-comment';
-
 $auth = Auth::demandLevel('admin');
 
 $commentid = $args['commentid'];

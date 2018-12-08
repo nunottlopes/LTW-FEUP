@@ -1,6 +1,4 @@
 <?php
-$action = 'get-channel';
-
 $auth = Auth::demandLevel('free');
 
 $channelid = $args['channelid'];

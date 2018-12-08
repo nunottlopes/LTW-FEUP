@@ -1,6 +1,4 @@
 <?php
-$action = 'delete';
-
 $commentid = $args['commentid'];
 
 $comment = Comment::read($commentid);

@@ -24,10 +24,10 @@ case 'HEAD':
     if ($args === []) {
         API::action('look');
     }
-    if (got('entityid')) {
+    if (API::gotargs('entityid')) {
         API::action('read');
     }
-    if (got('all')) {
+    if (API::gotargs('all')) {
         API::action('read-all');
     }
     break;

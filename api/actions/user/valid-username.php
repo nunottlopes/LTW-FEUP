@@ -1,6 +1,4 @@
 <?php
-$action = 'valid-username';
-
 $auth = Auth::demandLevel('free');
 
 $username = $args['username'];

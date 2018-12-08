@@ -1,6 +1,4 @@
 <?php
-$action = 'admin';
-
 $admin = Auth::level('admin');
 
 if (!$admin) {

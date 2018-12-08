@@ -1,6 +1,4 @@
 <?php
-$action = 'get-children';
-
 $auth = Auth::demandLevel('free');
 
 $parentid = $args['parentid'];

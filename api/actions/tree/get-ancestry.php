@@ -1,6 +1,4 @@
 <?php
-$action = 'get-ancestry';
-
 $auth = Auth::demandLevel('free');
 
 $childid = $args['childid'];

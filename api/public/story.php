@@ -31,38 +31,39 @@ case 'HEAD':
     if ($args === []) {
         API::action('look');
     }
-    if (got('storyid')) {
+    if (API::gotargs('storyid')) {
         API::action('read');
     }
-    if (got('all')) {
+    if (API::gotargs('all')) {
         API::action('read-all');
     }
-    if (got('authorid', 'channelid')) {
+    if (API::gotargs('authorid', 'channelid')) {
         API::action('get-channel-user');
     }
-    if (got('authorid')) {
+    if (API::gotargs('authorid')) {
         API::action('get-user');
     }
-    if (got('channelid')) {
+    if (API::gotargs('channelid')) {
         API::action('get-channel');
     }
     break;
 case 'POST':
-    if (got('channelid', 'storyTitle') &&
-        got('storyType', 'content')) {
+    if (API::gotargs('channelid', 'storyTitle', 'storyType', 'content')) {
         API::action('create');
     }
+    HTTPResponse::missingParameters(['channelid', 'storyTitle', 'storyType', 'content']);
     break;
 case 'PATCH':
-    if (got('storyid', 'content')) {
+    if (API::gotargs('storyid', 'content')) {
         API::action('update');
     }
+    HTTPResponse::missingParameters(['storyid', 'content']);
     break;
 case 'DELETE':
-    if (got('storyid', 'confirm-delete')) {
+    if (API::gotargs('storyid', 'confirm-delete')) {
         API::action('delete');
     }
-    HTTPResponse::noConfirmDelete();
+    HTTPResponse::missingParameters(['storyid', 'confirm-delete']);
     break;
 }
 

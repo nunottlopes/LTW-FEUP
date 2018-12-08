@@ -1,6 +1,4 @@
 <?php
-$action = 'update';
-
 $commentid = $args['commentid'];
 $content = $args['content'];
 

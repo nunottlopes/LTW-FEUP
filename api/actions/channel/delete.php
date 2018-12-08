@@ -1,6 +1,4 @@
 <?php
-$action = 'delete';
-
 $auth = Auth::demandLevel('admin');
 
 $channelid = $args['channelid'];

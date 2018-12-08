@@ -1,6 +1,4 @@
 <?php
-$action = 'self';
-
 $auth = Auth::demandLevel('auth');
 
 $userid = $auth['userid'];

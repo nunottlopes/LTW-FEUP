@@ -1,6 +1,4 @@
 <?php
-$action = 'get-by-email';
-
 $user = Auth::demandLevel('free');
 
 $useremail = $args['email'];

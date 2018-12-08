@@ -1,6 +1,4 @@
 <?php
-$action = 'get-by-username';
-
 $user = Auth::demandLevel('free');
 
 $username = $args['username'];

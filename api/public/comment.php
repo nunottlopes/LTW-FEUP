@@ -31,37 +31,39 @@ case 'HEAD':
     if ($args === []) {
         API::action('look');
     }
-    if (got('commentid')) {
+    if (API::gotargs('commentid')) {
         API::action('read');
     }
-    if (got('all')) {
+    if (API::gotargs('all')) {
         API::action('read-all');
     }
-    if (got('authorid', 'parentid')) {
+    if (API::gotargs('authorid', 'parentid')) {
         API::action('get-children-user');
     }
-    if (got('authorid')) {
+    if (API::gotargs('authorid')) {
         API::action('get-user');
     }
-    if (got('parentid')) {
+    if (API::gotargs('parentid')) {
         API::action('get-children');
     }
     break;
 case 'POST':
-    if (got('parentid', 'content')) {
+    if (API::gotargs('parentid', 'content')) {
         API::action('create');
     }
+    HTTPResponse::missingParameter(['parentid', 'content']);
     break;
 case 'PATCH':
-    if (got('commentid', 'content')) {
+    if (API::gotargs('commentid', 'content')) {
         API::action('update');
     }
+    HTTPResponse::missingParameter(['commentid', 'content']);
     break;
 case 'DELETE':
-    if (got('commentid', 'confirm-delete')) {
+    if (API::gotargs('commentid', 'confirm-delete')) {
         API::action('delete');
     }
-    HTTPResponse::noConfirmDelete();
+    HTTPResponse::missingParameter(['commentid', 'confirm-delete']);
     break;
 }
 

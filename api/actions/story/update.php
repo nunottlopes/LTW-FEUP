@@ -1,7 +1,5 @@
 <?php
-$action = 'update';
-
-$storyid = (int)$args['storyid'];
+$storyid = $args['storyid'];
 $content = $args['content'];
 
 $story = Story::read($storyid);

@@ -1,6 +1,4 @@
 <?php
-$action = 'get-story';
-
 $auth = Auth::demandLevel('admin');
 
 $storyid = $args['storyid'];

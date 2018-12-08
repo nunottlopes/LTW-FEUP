@@ -29,31 +29,33 @@ case 'HEAD':
     if ($args === []) {
         API::action('look');
     }
-    if (got('userid', 'entityid')) {
+    if (API::gotargs('userid', 'entityid')) {
         API::action('get');
     }
-    if (got('userid')) {
+    if (API::gotargs('userid')) {
         API::action('get-user');
     }
-    if (got('entityid')) {
+    if (API::gotargs('entityid')) {
         API::action('get-entity');
     }
-    if (got('all')) {
+    if (API::gotargs('all')) {
         API::action('read-all');
     }
     break;
 case 'PUT':
-    if (got('entityid', 'upvote')) {
+    if (API::gotargs('entityid', 'upvote')) {
         API::action('upvote');
     }
-    if (got('entityid', 'downvote')) {
+    if (API::gotargs('entityid', 'downvote')) {
         API::action('downvote');
     }
+    HTTPResponse::missingParameters(['entityid', '*vote']);
     break;
 case 'DELETE':
-    if (got('entityid')) {
+    if (API::gotargs('entityid')) {
         API::action('delete');
     }
+    HTTPResponse::missingParameters(['entityid']);
     break;
 }
 

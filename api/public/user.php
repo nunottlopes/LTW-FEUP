@@ -34,45 +34,45 @@ case 'HEAD':
     if ($args === []) {
         API::action('look');
     }
-    if (got('self')) {
+    if (API::gotargs('self')) {
         API::action('self');
     }
-    if (got('userid')) {
+    if (API::gotargs('userid')) {
         API::action('read');
     }
-    if (got('all')) {
+    if (API::gotargs('all')) {
         API::action('read-all');
     }
-    if (got('valid', 'username', 'email')) {
+    if (API::gotargs('valid', 'username', 'email')) {
         API::action('valid');
     }
-    if (got('valid', 'username')) {
+    if (API::gotargs('valid', 'username')) {
         API::action('valid-username');
     }
-    if (got('valid', 'email')) {
+    if (API::gotargs('valid', 'email')) {
         API::action('valid-email');
     }
-    if (got('username')) {
+    if (API::gotargs('username')) {
         API::action('get-by-username');
     }
-    if (got('email')) {
+    if (API::gotargs('email')) {
         API::action('get-by-email');
     }
-    if (got('admin')) {
+    if (API::gotargs('admin')) {
         API::action('admin');
     }
     break;
 case 'POST':
-    if (got('username', 'email', 'password', 'confirm')) {
+    if (API::gotargs('username', 'email', 'password', 'confirm')) {
         API::action('create');
     }
-    HTTPResponse::noConfirm("Account creation");
+    HTTPResponse::missingParameters(['username', 'email', 'password', 'confirm']);
     break;
 case 'DELETE':
-    if (got('confirm-delete')) {
+    if (API::gotargs('confirm-delete')) {
         API::action('delete');
     }
-    HTTPResponse::noConfirmDelete();
+    HTTPResponse::missingParameters(['confirm-delete']);
     break;
 }
 

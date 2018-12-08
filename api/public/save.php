@@ -30,34 +30,36 @@ case 'HEAD':
     if ($args === []) {
         API::action('look');
     }
-    if (got('stories')) {
+    if (API::gotargs('stories')) {
         API::action('get-user-stories');
     }
-    if (got('comments')) {
+    if (API::gotargs('comments')) {
         API::action('get-user-comments');
     }
-    if (got('entities')) {
+    if (API::gotargs('entities')) {
         API::action('get-user-entities');
     }
-    if (got('storyid')) {
+    if (API::gotargs('storyid')) {
         API::action('get-story');
     }
-    if (got('commentid')) {
+    if (API::gotargs('commentid')) {
         API::action('get-comment');
     }
-    if (got('entityid')) {
+    if (API::gotargs('entityid')) {
         API::action('get-entity');
     }
     break;
 case 'PUT':
-    if (got('entityid')) {
+    if (API::gotargs('entityid')) {
         API::action('create');
     }
+    HTTPResponse::missingParameters(['entityid']);
     break;
 case 'DELETE':
-    if (got('entityid')) {
+    if (API::gotargs('entityid')) {
         API::action('delete');
     }
+    HTTPResponse::missingParameters(['entityid']);
     break;
 }
 

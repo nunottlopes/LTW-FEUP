@@ -1,6 +1,4 @@
 <?php
-$action = 'get-children-user';
-
 $auth = Auth::demandLevel('free');
 
 $authorid = $args['authorid'];

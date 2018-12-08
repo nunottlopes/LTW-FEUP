@@ -1,5 +1,7 @@
 <?php
 
+echo false || 'hello';
+
 echo phpinfo();
 
 /**

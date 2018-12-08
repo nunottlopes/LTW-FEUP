@@ -1,7 +1,5 @@
 <?php
-$action = 'delete';
-
-if (got('userid')) {
+if (API::gotargs('userid')) {
     $auth = Auth::demandLevel('authid', $args['userid']);
     $userid = $args['userid'];
 } else {
@@ -11,13 +9,9 @@ if (got('userid')) {
 
 $user = User::read($userid);
 
-if (!$user) {
-    HTTPResponse::notFound("User with id $userid");
-}
-
 $count = User::delete($userid);
 
-if (!Auth::admin()) Auth::logout();
+if (!$auth['admin']) Auth::logout();
 
 $data = [
     'count' => $count,

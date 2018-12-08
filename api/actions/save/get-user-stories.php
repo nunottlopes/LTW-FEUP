@@ -1,7 +1,5 @@
 <?php
-$action = 'get-user-stories';
-
-if (got('userid')) { // admin impersonation
+if (API::gotargs('userid')) { // admin impersonation
     $auth = Auth::demandLevel('authid', $args['userid']);
     $userid = $args['userid'];
 } else {

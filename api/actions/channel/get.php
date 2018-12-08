@@ -1,6 +1,4 @@
 <?php
-$action = 'get';
-
 $auth = Auth::demandLevel('free');
 
 $channelname = $args['channelname'];

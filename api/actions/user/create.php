@@ -1,6 +1,4 @@
 <?php
-$action = 'create';
-
 $auth = Auth::demandLevel('none');
 
 $username = $args['username'];

@@ -1,13 +1,11 @@
 <?php
-$action = 'get-entity';
+$auth = Auth::demandLevel('admin');
 
 $entityid = $args['entityid'];
 
 if (!Entity::read($entityid)) {
     HTTPResponse::notFound("Entity with id $entityid");
 }
-
-$auth = Auth::demandLevel('admin');
 
 $votes = Vote::getEntity($entityid);
 

@@ -9,21 +9,56 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-function got(string ...$keys) {
-    global $args;
-    foreach ($keys as $key) {
-        if (!isset($args[$key])) return false;
-    }
-    return true;
-}
-
+/**
+ * API generic utilities
+ * Little functionality, name might be misleading.
+ */
 class API {
     /**
-     * Redirect to appropriate action file.
+     * Cast array keys to appropriate type.
+     * Used by database entities for database fetches and client argument parsing.
      */
-    public static function action(string $act) {
+    public static function cast(array $data) {
+        $casted = [];
+
+        foreach ($data as $key => $value) {
+            // IDs
+            if (preg_match('/^\w*id$/', $key)) {
+                $casted[$key] = (int)$value;
+                continue;
+            }
+
+            // Votes
+            if (preg_match('/^\w*votes\w*$/', $key)) {
+                $casted[$key] = (int)$value;
+                continue;
+            }
+
+            // Timestamps
+            if (preg_match('/^(?:\w+at|\w*date|\w*time|timestamp)$/', $key)) {
+                $casted[$key] = (int)$value;
+                continue;
+            }
+
+            // Numbers
+            if (preg_match('/^(?:\w*number\w*|\w+num)$/', $key)) {
+                $casted[$key] = (int)$value;
+            }
+
+            // Default text
+            $casted[$key] = $value;
+        }
+
+        return $casted;
+    }
+
+    /**
+     * Redirect to chosen action file.
+     */
+    public static function action(string $chosen) {
         global $resource, $supported, $parameters, $method, $args, $auth, $action;
-        $file = $_SERVER['DOCUMENT_ROOT'] . "/api/actions/$resource/$act.php";
+        $action = $chosen;
+        $file = $_SERVER['DOCUMENT_ROOT'] . "/api/actions/$resource/$chosen.php";
         require_once $file;
     }
 
@@ -42,8 +77,32 @@ class API {
         $file = $_SERVER['DOCUMENT_ROOT'] . "/api/public/$resource.php";
         return $file;
     }
+
+    /**
+     * Check if global $args has the specified keys.
+     */
+    public static function gotargs(string ...$keys) {
+        global $args;
+        foreach ($keys as $key) {
+            if (!isset($args[$key])) return false;
+        }
+        return true;
+    }
+
+    /**
+     * Turns an array of arrays into a dictionary according to some key
+     * present in every element.
+     */
+    public static function keyfy(array $array, string $key) {
+        $object = [];
+        foreach($array as $el) {
+            $object[$el[$key]] = $el;
+        }
+        return $object;
+    }
 }
 
+// Class Auth needs User entity
 require_once API::entity('user');
 
 /**
@@ -62,10 +121,6 @@ class Auth {
      */
     public static function isAdminUser(int $userid) {
         return $userid === 0;
-    }
-
-    public static function admin() {
-        return static::level('admin');
     }
 
     /**
@@ -131,7 +186,7 @@ class Auth {
      *
      * Returns an array representing the authenticated user if successful, or false.
      */
-    public static function authorization() {
+    public static function authorization(bool $force = false) {
         // Cache
         if (static::$authorizationParsed) return static::$authorizationUser;
 
@@ -164,7 +219,9 @@ class Auth {
 
             $user = static::autho($username, $password, $error);
 
-            //if (!$user) HTTPResponse::unauthorized();
+            if (!$user && $force) {
+                HTTPResponse::unauthorized();
+            }
 
             static::$authorizationUser = $user;
             return $user;
@@ -178,9 +235,10 @@ class Auth {
      * 
      * Returns an array representing the authenticated user if successful, or false.
      */
-    public static function session() {
+    public static function session(bool $force = false) {
         $auth = isset($_SESSION) && isset($_SESSION['userid']);
 
+        if (!$auth && $force) HTTPResponse::unauthorized();
         if (!$auth) return false;
 
         $userid = $_SESSION['userid'];
@@ -224,17 +282,20 @@ class Auth {
      *     userid       Accessible if the user is authorized as particular user.
      *   - privileged,
      *     admin        Authorized as admin.
-     *   - none         Not authorized.
+     *   - none         Authorized as admin or not authorized.
      *
      * Returns
      *     true       if authentication is not achieved and not required.
      *     false      if authentication is not achieved and is required.
      *     user array if authentication is achieved and required.
      */
-    public static function authLevel(string $level, int $userid = null) {
+    public static function authLevel(string $level, int $userid = null,
+            bool $force = true) {
         $auth = static::authorization();
 
-        if (!$auth) return $level === 'open' || $level === 'free' || $level === 'none';
+        if (!$auth) {
+            return $level === 'open' || $level === 'free' || $level === 'none';
+        }
 
         $authid = $auth['userid'];
         $admin = $auth['admin'];
@@ -248,18 +309,20 @@ class Auth {
             break;
         case 'authid':
         case 'userid':
-            // Action as another user
-            if ($admin) {
-                $allow = User::read($userid) != null; // user exists.
+            if ($admin) { // admin impersonation
+                $allow = User::read($userid) != null; // user exists?
+                if (!$allow && $force) { // allow user not to exist?
+                    HTTPResponse::notFound("User with id $userid");
+                }
             } else {
                 $allow = $authid === $userid; // equality implies existence.
             }
             break;
         case 'privileged':
         case 'admin':
+        case 'none':
             $allow = $admin;
             break;
-        case 'none':
         default:
             $allow = false;
             break;
@@ -287,17 +350,20 @@ class Auth {
      *     loggedinid   Accessible if the user is logged in as a particular user.
      *   - privileged,
      *     admin        Logged in as admin.
-     *   - none         No session.
+     *   - none         Logged in as admin or not logged in.
      *
      * Returns
      *     true       if authentication is not achieved and not required.
      *     false      if authentication is not achieved and is required.
      *     user array if authentication is achieved and required.
      */
-    public static function sessionLevel(string $level, int $userid = null) {
+    public static function sessionLevel(string $level, int $userid = null,
+            bool $force = true) {
         $auth = static::session();
 
-        if (!$auth) return $level === 'open' || $level === 'free' || $level === 'none';
+        if (!$auth) {
+            return $level === 'open' || $level === 'free' || $level === 'none';
+        }
 
         $authid = $auth['userid'];
         $admin = $auth['admin'];
@@ -316,16 +382,19 @@ class Auth {
         case 'user':
             // Action as another user
             if ($admin) {
-                $allow = User::read($userid) != null; // user exists.
+                $allow = User::read($userid) != null; // user exists?
+                if (!$allow && $force) { // allow user not to exist?
+                    HTTPResponse::notFound("User with id $userid");
+                }
             } else {
                 $allow = $authid === $userid; // equality implies existence.
             }
             break;
         case 'privileged':
         case 'admin':
+        case 'none':
             $allow = $admin;
             break;
-        case 'none':
         default:
             $allow = false;
             break;
@@ -353,20 +422,27 @@ class Auth {
      *     loggedinid   Accessible if the user is logged in as a particular user.
      *   - privileged,
      *     admin        Authenticated as admin.
+     *   - none         Authenticated as admin or not authenticated.
      *
      * Returns
      *     true       if authentication is not achieved and not required.
      *     false      if authentication is not achieved and is required.
      *     user array if authentication is achieved and required.
      */
-    public static function level(string $level, int $userid = null) {
-        $auth = static::sessionLevel($level, $userid);
-        if ($auth) return $auth;
+    public static function level(string $level, int $userid = null, bool $force = true) {
+        if ($level === 'none') {
+            $auth = static::authLevel($level, $userid, $force);
+            $session = static::sessionLevel($level, $userid, $force);
+            return ($auth && $session) ? $auth : false;
+        } else {
+            $auth = static::authLevel($level, $userid, $force);
+            if ($auth) return $auth;
 
-        $auth = static::authLevel($level, $userid);
-        if ($auth) return $auth;
+            $session = static::sessionLevel($level, $userid, $force);
+            if ($session) return $session;
 
-        return false;
+            return false;
+        }
     }
 
     /**
@@ -500,16 +576,7 @@ class Auth {
      * Idempotent, does not fail if there is no login.
      */
     public static function logout() {
-        session_destroy();
-        session_start();
-
-        if (isset($_SESSION['userid'])) unset($_SESSION['userid']);
-        if (isset($_SESSION['username'])) unset($_SESSION['username']);
-        if (isset($_SESSION['useremail'])) unset($_SESSION['useremail']);
-        if (isset($_SESSION['login_timestamp'])) unset($_SESSION['login_timestamp']);
-        if (isset($_SESSION['authkey'])) unset($_SESSION['authkey']);
-
-        return true;
+        session_reset();
     }
 }
 
@@ -518,22 +585,46 @@ class Auth {
  */
 class HTTPRequest {
     /**
+     * Used to "set" the HTTP request method. Used for testing in query.php only.
+     */
+    public static $methodBackdoor = false;
+
+    /**
      * Assume GET or HEAD and parse the query's key value pairs into a JSON.
      *
      * If $force is set all parameters searched must be present.
      */
     public static function parseQuery(array $parameters, bool $force = false) {
-        $data = [];
+        $args = [];
 
         foreach ($parameters as $param) {
             if (!isset($_GET[$param])) {
                 if ($force) HTTPResponse::missingParameter($param, $parameters);
             } else {
-                $data[$param] = $_GET[$param];
+                $args[$param] = $_GET[$param];
             }
         }
 
-        return $data;
+        return API::cast($args);
+    }
+
+    /**
+     * Assume POST and parse the the request's body into a JSON.
+     *
+     * If $force is set all parameters searched must be present.
+     */
+    public static function parsePOST(array $parameters, bool $force = false) {
+        $args = [];
+
+        foreach ($parameters as $param) {
+            if (!isset($_GET[$param])) {
+                if ($force) HTTPResponse::missingParameter($param, $parameters);
+            } else {
+                $args[$param] = $_POST[$param];
+            }
+        }
+
+        return API::cast($args);
     }
 
     /**
@@ -542,7 +633,7 @@ class HTTPRequest {
      * If $force is set all parameters searched must be present.
      */
     public static function parseBodyJSON(array $parameters, bool $force = false) {
-        $data = [];
+        $args = [];
 
         $json = static::bodyJSON();
 
@@ -550,11 +641,11 @@ class HTTPRequest {
             if (!isset($json[$param])) {
                 if ($force) HTTPResponse::missingParameter($param, $parameters);
             } else {
-                $data[$param] = $json[$param];
+                $args[$param] = $json[$param];
             }
         }
 
-        return $data;
+        return API::cast($args);
     }
 
     /**
@@ -576,15 +667,27 @@ class HTTPRequest {
     public static function method(array $supported = null, bool $force = false) {
         $method = $_SERVER['REQUEST_METHOD'];
 
-        if ($supported === null) return $method;
+        // Backdoor method for query.php
+        if ($force && static::$methodBackdoor !== false) {
+            return static::$methodBackdoor;
+        } 
 
+        // Just querying the actual method
+        if ($supported === null) {
+            return $method;
+        }
+
+        // Method is supported
         if (in_array($method, $supported, true)) {
             return $method;
-        } else if ($force) {
-            HTTPResponse::badMethod($supported);
-        } else {
-            return false;
         }
+
+        // Method must be supported, answer client
+        if ($force) {
+            HTTPResponse::badMethod($supported);
+        }
+        
+        return false;
     }
 
     /**
@@ -642,8 +745,7 @@ class HTTPRequest {
  *
  * Calling any public method will terminate the script and answer the client.
  *
- * Every method except json() and plain() assume -nothing- has been echoed yet,
- * effectively disregarding all echoes and emitting headers freely.
+ * Every method assumes -nothing- has been echoed yet.
  */
 class HTTPResponse {
     private static $authenticationRealm = 'FEUP News';
@@ -818,21 +920,58 @@ class HTTPResponse {
     /**
      * 400 Bad Request
      * The request performed on the specified entity was successfully deduced to an
-     * action based on the arguments provided, but that action requires another(s)
+     * action based on the arguments provided, but that action requires an
      * argument which was not provided.
      */
-    public static function missingParameter(string $param, array $parameters) {
+    public static function missingParameter(string $missing, array $parameters) {
         http_response_code(400);
 
-        $error = "Required parameter \"$param\" is missing";
+        $error = "Required parameter(s) not present: \"$missingstring\"";
 
         $data = [
-            'missing' => $param,
-            'key' => $param,
-            'keys' => $parameters
+            'missing' => $missing,
+            'parameters' => $parameters
         ];
 
         static::error('Missing Parameter', $error, $data);
+    }
+
+    /**
+     * 400 Bad Request
+     * The request performed on the specified entity was successfully deduced to an
+     * action based on the arguments provided, but that action requires one or more
+     * arguments which were not provided.
+     */
+    public static function missingParameters(array $parameters) {
+        http_response_code(400);
+
+        $missing = [];
+
+        foreach ($parameters as $param) {
+            if (!gotargs($param)) $missing[] = $param;
+        }
+
+        $missingstring = implode(', ', $missing);
+
+
+        if ($missingstring === 'confirm') {
+            // Certain requests require 'confirm' argument (creates and updates).
+            $error = "Please confirm action with \"confirm\" argument";
+        } else if ($missingstring === 'confirm-delete') {
+            // Irreversible delete requests require 'confirm-delete' argument.
+            $error = "Please confirm irreversible delete with \"confirm-delete\"";
+        } else {
+            // Generic
+            $error = "Required parameter(s) not present: \"$missingstring\"";
+        }
+
+        $data = [
+            'missing' => $missing,
+            'parameters' => $parameters,
+            'text' => $missingstring
+        ];
+
+        static::error('Missing Parameters', $error, $data);
     }
 
     /**
@@ -916,30 +1055,6 @@ class HTTPResponse {
 
     /**
      * 400 Bad Request
-     * Certain requests require 'confirm' argument (creates and updates).
-     */
-    public static function noConfirm(string $what, array $data = null) {
-        http_response_code(400);
-
-        $error = "Please confirm $what with \"confirm\" argument";
-
-        static::error('Unconfirmed', $error, $data);
-    }
-
-    /**
-     * 400 Bad Request
-     * Irreversible delete requests require 'confirm-delete' argument.
-     */
-    public static function noConfirmDelete(array $data = null) {
-        http_response_code(400);
-
-        $error = "Please confirm delete with \"confirm-delete\" argument";
-
-        static::error('Unconfirmed delete', $error, $data);
-    }
-
-    /**
-     * 400 Bad Request
      * General 400 error with a generic message and data JSON.
      */
     public static function badRequest(string $error, array $data = null) {
@@ -955,7 +1070,8 @@ class HTTPResponse {
      */
     public static function unauthorized(int $userid = null) {
         http_response_code(401);
-        header("WWW-Authenticate: Basic realm=\"FEUP News\"");
+        $realm = static::$authenticationRealm;
+        header("WWW-Authenticate: Basic realm=\"$realm\"");
 
         if ($userid === null) {
             $error = "Unauthorized request: requires login";
@@ -968,9 +1084,7 @@ class HTTPResponse {
         } else {
             $error = "Unauthorized request: requires login as $userid";
 
-            $data = [
-                'userid' => $userid
-            ];
+            $data = ['userid' => $userid];
         }
 
         static::error('Unauthorized', $error, $data);

@@ -28,30 +28,30 @@ case 'HEAD':
     if ($args === []) {
         API::action('look');
     }
-    if (got('channelid')) {
+    if (API::gotargs('channelid')) {
         API::action('read');
     }
-    if (got('all')) {
+    if (API::gotargs('all')) {
         API::action('read-all');
     }
-    if (got('valid', 'channelname')) {
+    if (API::gotargs('valid', 'channelname')) {
         API::action('valid');
     }
-    if (got('channelname')) {
+    if (API::gotargs('channelname')) {
         API::action('get');
     }
     break;
 case 'POST':
-    if (got('channelname', 'confirm')) {
+    if (API::gotargs('channelname', 'confirm')) {
         API::action('create');
     }
-    HTTPResponse::noConfirm("Channel creation");
+    HTTPResponse::missingParameters(['channelname', 'confirm']);
     break;
 case 'DELETE':
-    if (got('channelid', 'confirm-delete')) {
+    if (API::gotargs('channelid', 'confirm-delete')) {
         API::action('delete');
     }
-    HTTPResponse::noConfirmDelete();
+    HTTPResponse::missingParameters(['channelid', 'confirm-delete']);
     break;
 }
 

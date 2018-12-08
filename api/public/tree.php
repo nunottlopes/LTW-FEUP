@@ -24,10 +24,10 @@ case 'HEAD':
     if ($args === []) {
         API::action('look');
     }
-    if (got('parentid')) {
+    if (API::gotargs('parentid')) {
         API::action('get-tree');
     }
-    if (got('childid')) {
+    if (API::gotargs('childid')) {
         API::action('get-ancestry');
     }
     break;

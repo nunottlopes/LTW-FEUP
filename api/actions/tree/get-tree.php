@@ -1,6 +1,4 @@
 <?php
-$action = 'get-tree';
-
 $auth = Auth::demandLevel('free');
 
 $parentid = $args['parentid'];

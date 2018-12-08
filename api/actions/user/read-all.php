@@ -1,6 +1,4 @@
 <?php
-$action = 'read-all';
-
 $auth = Auth::demandLevel('free');
 
 $users = User::readAll();
