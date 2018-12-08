@@ -18,8 +18,20 @@
             <img src="images/users/user.png">
             <form action="#" method="post">
                 <textarea name="comment" placeholder="Add your comment here..."></textarea>
-                <input type="submit" value="Add comment">
+                <input type="submit" value="Add comment" class="submit_comment_button">
             </form>
+        </div>
+
+        <div class="sort_by">
+            <div id="sortby">Sort by</div>
+            <div id="typesortby">BEST</div>
+            <div class="triangle_down"></div>
+            <div id="sort-dropdown" class="sort-dropdown-content">
+                <a href="">BEST</a>
+                <a href="">TOP</a>
+                <a href="">NEW</a>
+                <a href="">OLD</a>
+            </div>
         </div>
 
         <section id="post_comments">
@@ -29,6 +41,7 @@
                 <footer>
                     <button class="comment_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> Upvote</button>
                     <button class="comment_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> Downvote</button>
+                    <button class="comment_button" onclick="reply()"><i class="fa fa-comment"></i> Reply</button>
                     <button class="comment_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
                 </footer>
             </article>
@@ -39,6 +52,7 @@
                 <footer>
                     <button class="comment_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> Upvote</button>
                     <button class="comment_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> Downvote</button>
+                    <button class="comment_button" onclick="reply()"><i class="fa fa-comment"></i> Reply</button>
                     <button class="comment_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
                 </footer>
             </article>
@@ -49,6 +63,7 @@
                 <footer>
                     <button class="comment_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> Upvote</button>
                     <button class="comment_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> Downvote</button>
+                    <button class="comment_button" onclick="reply()"><i class="fa fa-comment"></i> Reply</button>
                     <button class="comment_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
                 </footer>
             </article>
@@ -56,7 +71,8 @@
         </section>
     </div>
 
-        <script src="javascript/post_buttons.js"></script>
+    <script src="javascript/post_buttons.js"></script>
+    <script src="javascript/post_page.js"></script>
 
     <div id="post_page_aside">
         <div id="channel_subscription" class="aside_div">

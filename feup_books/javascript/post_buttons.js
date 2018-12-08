@@ -17,3 +17,7 @@ function share() {
 function save() {
     console.log("save");
 }
+
+function reply() {
+    console.log("reply");
+}

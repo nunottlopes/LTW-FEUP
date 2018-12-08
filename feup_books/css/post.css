@@ -12,21 +12,21 @@
 }
 
 
-.post_preview header{
-    padding-left: 1em;
-    background-color: rgb(201, 209, 216);
+.post_preview header, .post_complete header{
+    margin: 1em;
+    font-weight: lighter;
+    opacity: 0.5;
+    font-size: 15px;
 }
 
 .post_preview footer, .post_complete footer{
-    padding-left: 5px;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding: 0.6em 1em;
     background-color: rgb(201, 209, 216);
 }
 
 .post_preview h1, .post_complete h1{
     margin: 0;
-    padding: 0.5em 0px 0.5em 1.5em;
+    padding: 0em 0px 0.5em 1em;
     border-bottom: 2px solid;
     border-color: inherit;
 }

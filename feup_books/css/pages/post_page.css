@@ -44,7 +44,7 @@
 #add_comment{
     display: flex;
     flex-direction: row;
-    border-bottom: 1px solid rgb(214, 213, 213);
+    max-width: 50em;
 }
 
 #add_comment img{
@@ -61,13 +61,97 @@
 
 #add_comment > form textarea{
     width: 50em;
+    resize:vertical;
 }
 
 #add_comment > form input{
     margin: 1em 0;
     margin-left: 2em;
+    width: 10em;
+    height: 2em;
 }
 
-.post_complete header{
+.submit_comment_button{
+    display: inline-block;
+    padding: 0.3em 1.2em;
+    margin: 0 0.1em 0.1em 0;
+    box-sizing: border-box;
+    text-decoration:none;
+    font-family:'Roboto',sans-serif;
+    font-weight:300;
+    font-size:12px;
+    color:#FFFFFF;
+    text-shadow: 0 0.04em 0.04em rgba(0,0,0,0.35);
+    text-align:center;
+    transition: all 0.2s;
+    background-color: #A5483E;
+    outline: none;
+}
+
+.submit_comment_button:hover{
+    border-color: rgb(0, 0, 0);
+    cursor: pointer;
+}
+
+.sort_by{
     padding-left: 1em;
+    padding-bottom: .5em;
+    border-bottom: 1px solid rgb(214, 213, 213);
+    display: flex;
+    flex-direction: row;
+}
+
+#sortby{
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    line-height: 12px;
+    text-transform: uppercase;
+    margin: auto 0;
+    padding-right: 5px; 
+}
+
+#typesortby{
+    font-size: 15px;
+    font-weight: 1000;
+    line-height: 12px;
+    text-transform: uppercase;
+    margin: auto 0;
+    padding-right: 2px;
+    cursor: pointer;
+}
+
+.triangle_down{
+    width: 0; 
+    height: 0; 
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #A5483E;
+    margin: auto 0;
+    cursor: pointer;
+}
+
+.sort_by {
+    position: relative;
+}
+
+.sort-dropdown-content {
+    display: none;
+    background-color: black;
+    color: white;
+    min-width: 160px;
+    position: absolute;
+    z-index: 1;
+    margin-top: 20px;
+}
+
+.sort-dropdown-content a {
+    color: inherit;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.sort-dropdown-content a:hover {
+    background-color: gray
 }

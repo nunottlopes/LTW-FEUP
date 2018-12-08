@@ -31,3 +31,9 @@ register_popup.querySelector("#close_popup").addEventListener('click', () => {
 //         user_dropdown.style.display = "block";
 //     }
 // })
+
+// window.onclick = function(event) {
+//     if (!event.target.matches('#profile_button')) {
+//         user_dropdown.style.display = "none";
+//     }
+// }

@@ -18,6 +18,7 @@
 
         <article class="post_preview">
             <header>Posted by Amadeu 4 hours ago</header>
+            <a href="post.php">
             <h1>Title</h1>
             <img src="images/posts/random.png" alt="post image">
             </a>
