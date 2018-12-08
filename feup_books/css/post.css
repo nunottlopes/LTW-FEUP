@@ -12,12 +12,13 @@
 }
 
 
-.post_preview header, .post_complete header{
+.post_preview header{
     padding-left: 1em;
     background-color: rgb(201, 209, 216);
 }
 
 .post_preview footer, .post_complete footer{
+    padding-left: 5px;
     padding-top: 5px;
     padding-bottom: 5px;
     background-color: rgb(201, 209, 216);

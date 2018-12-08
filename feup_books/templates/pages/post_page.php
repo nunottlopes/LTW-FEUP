@@ -1,6 +1,6 @@
 <div id="view_post">
 
-    <div id="post">
+    <div id="post_page_post">
         <article class="post_complete">
             <header>Posted by Amadeu 4 hours ago</header>
             <h1>Title</h1>
@@ -13,6 +13,14 @@
                 <button class="post_button" onclick="share()"><i class="fa fa-share-alt"></i> Share</button>
             </footer>
         </article>
+
+        <div id="add_comment">
+            <img src="images/users/user.png">
+            <form action="#" method="post">
+                <textarea name="comment" placeholder="Add your comment here..."></textarea>
+                <input type="submit" value="Add comment">
+            </form>
+        </div>
 
         <section id="post_comments">
             <article class="post_comment">
@@ -46,8 +54,9 @@
             </article>
             
         </section>
-
     </div>
+
+        <script src="javascript/post_buttons.js"></script>
 
     <div id="post_page_aside">
         <div id="channel_subscription" class="aside_div">

@@ -53,6 +53,7 @@ body > footer p{
 
 #log_in_button{
   background-color:white;
+  outline: none;
 }
 #log_in_button:hover{
   background-color:rgb(161, 78, 68);
@@ -75,6 +76,7 @@ body > footer p{
 
 #sign_up_button{
   background-color:rgb(212, 102, 90);
+  outline: none;
 }
 #sign_up_button:hover{
   background-color:rgb(134, 64, 56);
