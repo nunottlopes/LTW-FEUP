@@ -25,14 +25,14 @@ case 'HEAD':
     if (got('userid')) {
         API::action('read');
     }
+    if (got('all')) {
+        API::action('read-all');
+    }
     if (got('username')) {
         API::action('get-by-username');
     }
     if (got('email')) {
         API::action('get-by-email');
-    }
-    if (got('all')) {
-        API::action('read-all');
     }
     break;
 case 'POST':

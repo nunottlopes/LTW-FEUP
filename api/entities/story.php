@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/apientity.php';
+require_once __DIR__ . '/entity.php';
 
 class Story extends APIEntity {    
     /**
@@ -17,7 +18,7 @@ class Story extends APIEntity {
         try {
             DB::get()->beginTransaction();
             $stmt->execute([$channelid, $authorid, $title, $type, $content]);
-            $id = DB::get()->lastInsertId();
+            $id = (int)DB::get()->lastInsertId();
             DB::get()->commit();
             return $id;
         } catch (PDOException $e) {

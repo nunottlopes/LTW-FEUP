@@ -1,13 +1,14 @@
 <?php
 require_once __DIR__ . '/../utils/http.php';
 require_once API::entity('story');
+require_once API::entity('comment');
 
-$resource = 'story';
+$resource = 'comment';
 
 $supported = ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE'];
 
-$parameters = ['storyid', 'authorid', 'channelid', 'storyTitle', 'storyType',
-                'content', 'confirm-delete', 'all'];
+$parameters = ['commentid', 'authorid', 'parentid', 'content',
+                'confirm-delete', 'all'];
 
 $method = HTTPRequest::method($supported, true);
 
@@ -19,35 +20,34 @@ case 'HEAD':
     if ($args === []) {
         API::action('look');
     }
-    if (got('storyid')) {
+    if (got('commentid')) {
         API::action('read');
     }
     if (got('all')) {
         API::action('read-all');
     }
-    if (got('authorid') && got('channelid')) {
-        API::action('get-channel-user');
+    if (got('authorid') && got('parentid')) {
+        API::action('get-children-user');
     }
     if (got('authorid')) {
         API::action('get-user');
     }
-    if (got('channelid')) {
-        API::action('get-channel');
+    if (got('parentid')) {
+        API::action('get-children');
     }
     break;
 case 'POST':
-    if (got('channelid') && got('storyTitle') &&
-        got('storyType') && got('content')) {
+    if (got('parentid') && got('content')) {
         API::action('create');
     }
     break;
 case 'PATCH':
-    if (got('storyid') && got('content')) {
+    if (got('commentid') && got('content')) {
         API::action('update');
     }
     break;
 case 'DELETE':
-    if (got('storyid') && got('confirm-delete')) {
+    if (got('commentid') && got('confirm-delete')) {
         API::action('delete');
     }
     break;

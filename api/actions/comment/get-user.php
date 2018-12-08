@@ -9,7 +9,7 @@ if (!User::read($authorid)) {
     HTTPResponse::adjacentNotFound("User with id $authorid");
 }
 
-$stories = Story::getUser($authorid);
+$comments = Comment::getUser($authorid);
 
-HTTPResponse::ok("Stories of user $authorid", $stories);
+HTTPResponse::ok("Comments of user $authorid", $comments);
 ?>

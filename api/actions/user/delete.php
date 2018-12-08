@@ -3,7 +3,7 @@ $action = 'delete';
 
 $auth = Auth::demandLevel('admin');
 
-$userid = $args['userid'];
+$userid = (int)$args['userid'];
 
 User::delete($userid);
 

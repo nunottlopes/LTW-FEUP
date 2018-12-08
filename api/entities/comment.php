@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/apientity.php';
+require_once __DIR__ . '/entity.php';
 
 class Comment extends APIEntity {    
     /**
@@ -12,7 +13,17 @@ class Comment extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        return $stmt->execute([$parentid, $authorid, $content]);
+
+        try {
+            DB::get()->beginTransaction();
+            $stmt->execute([$parentid, $authorid, $content]);
+            $id = (int)DB::get()->lastInsertId();
+            DB::get()->commit();
+            return $id;
+        } catch (PDOException $e) {
+            DB::get()->rollback();
+            return false;
+        }
     }
 
     /**

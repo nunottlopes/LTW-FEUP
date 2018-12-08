@@ -72,7 +72,7 @@ class User extends APIEntity {
         try {
             DB::get()->beginTransaction();
             $stmt->execute([$username, $email, $hash]);
-            $id = DB::get()->lastInsertId();
+            $id = (int)DB::get()->lastInsertId();
             DB::get()->commit();
             return $id;
         } catch (PDOException $e) {
