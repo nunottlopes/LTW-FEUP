@@ -1,11 +1,28 @@
 <?php
 $action = 'delete';
 
-$auth = Auth::demandLevel('admin');
+if (got('userid')) {
+    $auth = Auth::demandLevel('authid', $args['userid']);
+    $userid = $args['userid'];
+} else {
+    $auth = Auth::demandLevel('auth');
+    $userid = $auth['userid'];
+}
 
-$userid = (int)$args['userid'];
+$user = User::read($userid);
 
-User::delete($userid);
+if (!$user) {
+    HTTPResponse::notFound("User with id $userid");
+}
 
-HTTPResponse::deleted("Successfully deleted user account $userid");
+$count = User::delete($userid);
+
+if (!Auth::admin()) Auth::logout();
+
+$data = [
+    'count' => $count,
+    'user' => $user
+];
+
+HTTPResponse::deleted("Successfully deleted user account");
 ?>

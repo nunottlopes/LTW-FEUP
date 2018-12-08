@@ -91,8 +91,8 @@ class Save extends APIEntity {
 
     public static function getStory(int $entityid) {
         $query = '
-            SELECT * FROM SaveStory
-            WHERE entityid = ?
+            SELECT * FROM Save
+            WHERE entityid = ? AND entityid IN (SELECT entityid FROM Story)
             ORDER BY savedat DESC
             ';
 
@@ -103,8 +103,8 @@ class Save extends APIEntity {
 
     public static function getComment(int $entityid) {
         $query = '
-            SELECT * FROM SaveComment
-            WHERE entityid = ?
+            SELECT * FROM Save
+            WHERE entityid = ? AND entityid IN (SELECT entityid FROM Comment)
             ORDER BY savedat DESC
             ';
 
@@ -113,7 +113,7 @@ class Save extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getEntity(int $entityid) {
+    public static function read(int $entityid) {
         if (Story::read($entityid)) {
             return static::getStory($entityid);
         } else {
@@ -145,7 +145,8 @@ class Save extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        return $stmt->execute([$entityid, $userid]);
+        $stmt->execute([$entityid, $userid]);
+        return DB::get()->rowCount();
     }
 
     /**
@@ -157,7 +158,8 @@ class Save extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        return $stmt->execute([$userid]);
+        $stmt->execute([$userid]);
+        return DB::get()->rowCount();
     }
 }
 ?>

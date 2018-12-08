@@ -3,15 +3,20 @@ $action = 'delete';
 
 $auth = Auth::demandLevel('admin');
 
-$channelid = (int)$args['channelid'];
+$channelid = $args['channelid'];
 
 $channel = Channel::read($channelid);
 
-if ($channel) {
-    Channel::delete($channelid);
-
-    HTTPResponse::deleted("Deleted channel $channelid");
+if (!$channel) {
+    HTTPResponse::notFound("Channel with id $channelid");
 }
 
-HTTPResponse::notFound("Channel with id $channelid");
+$count = Channel::delete($channelid);
+
+$data = [
+    'count' => $count,
+    'channel' => $channel
+];
+
+HTTPResponse::deleted("Deleted channel $channelid", $data);
 ?>

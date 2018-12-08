@@ -6,19 +6,20 @@ $content = $args['content'];
 
 $story = Story::read($storyid);
 
-if ($story) {
-    $authorid = $story['authorid'];
-
-    $auth = Auth::demandLevel('authid', $authorid);
-
-    $result = Story::update($storyid, $content);
-
-    if ($result) {
-        HTTPResponse::updated("Story successfully updated");
-    }
-    
-    HTTPResponse::badRequest("Invalid story new content");
+if (!$story) {
+    HTTPResponse::notFound("Story with id $storyid");
 }
 
-HTTPResponse::notFound("Story with id $storyid");
+$authorid = $story['authorid'];
+
+$auth = Auth::demandLevel('authid', $authorid);
+
+$count = Story::update($storyid, $content);
+
+$data = [
+    'count' => $count,
+    'previous' => $story
+];
+
+HTTPResponse::updated("Story successfully updated", $data);
 ?>

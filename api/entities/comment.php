@@ -109,7 +109,8 @@ class Comment extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        return $stmt->execute([$id]);
+        $stmt->execute([$id]);
+        return DB::get()->rowCount();
     }
 }
 ?>

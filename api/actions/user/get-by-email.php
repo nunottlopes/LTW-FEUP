@@ -1,5 +1,5 @@
 <?php
-$action = 'read';
+$action = 'get-by-email';
 
 $user = Auth::demandLevel('free');
 

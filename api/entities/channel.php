@@ -89,7 +89,8 @@ class Channel extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        return $stmt->execute([$channelid]);
+        $stmt->execute([$channelid]);
+        return DB::get()->rowCount();
     }
 }
 ?>

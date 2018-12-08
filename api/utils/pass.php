@@ -8,7 +8,8 @@ $passes = [
     '12121212',
     'bruno',
     'amadeu',
-    'nuno'
+    'nuno',
+    'admin'
 ];
 
 $hashes = [];
@@ -18,7 +19,9 @@ foreach ($passes as $pass) {
     array_push($hashes, ['pass' => $pass, 'hash' => $hash]);
 }
 
+echo '<pre>';
 echo json_encode($hashes, JSON_PRETTY_PRINT);
+echo '</pre>'
 
 // This is an old file used to generate password hashes for db/sql/populate.sql
 ?>

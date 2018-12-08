@@ -12,8 +12,8 @@ $valid_string = $valid ? "valid" : "invalid";
 $data = [
     'channelname' => $channelname,
     'valid' => $valid,
-    'message' => $valid_string
+    'text' => $valid_string
 ];
 
-HTTPResponse::ok("Channel name $channelname $valid_string", $data);
+HTTPResponse::ok("Channel name $channelname is $valid_string", $data);
 ?>

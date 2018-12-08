@@ -3,7 +3,7 @@ $action = 'read';
 
 $auth = Auth::demandLevel('free');
 
-$storyid = (int)$args['storyid'];
+$storyid = $args['storyid'];
 
 $story = Story::read($storyid);
 

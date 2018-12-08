@@ -1,11 +1,9 @@
 <?php
-require_once API::entity('channel');
-
 $action = 'get-channel';
 
 $auth = Auth::demandLevel('free');
 
-$channelid = (int)$args['channelid'];
+$channelid = $args['channelid'];
 
 if (!Channel::read($channelid)) {
     HTTPResponse::adjacentNotFound("Channel with id $channelid");

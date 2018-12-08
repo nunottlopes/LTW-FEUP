@@ -1,19 +1,34 @@
 <?php
 $action = 'create';
 
-$auth = Auth::demandLevel('auth');
+if (got('userid')) { // admin impersonation
+    $auth = Auth::demandLevel('authid', $args['userid']);
+    $creatorid = $args['userid'];
+} else {
+    $auth = Auth::demandLevel('auth');
+    $creatorid = $auth['userid'];
+}
 
 $channelname = $args['channelname'];
-$creatorid = (int)$auth['userid'];
+
+if (!Channel::valid($channelname)) {
+    HTTPResponse::badArgument('channelname', $channelname);
+}
+
+if (Channel::get($channelname)) {
+    HTTPResponse::conflict("Already existing channel", 'channelname', $channelname);
+}
 
 $channelid = Channel::create($channelname, $creatorid);
 
 if (!$channelid) {
-    HTTPResponse::conflict("Already existing channel", 'channelname', $channelname);
+    HTTPResponse::serverError();
 }
 
 $data = [
-    'channelid' => $channelid
+    'channelid' => $channelid,
+    'channelname' => $channelname,
+    'creatorid' => $creatorid
 ];
 
 HTTPResponse::created("Created channel $channelid", $data);

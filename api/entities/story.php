@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/apientity.php';
 require_once __DIR__ . '/entity.php';
+require_once __DIR__ . '/channel.php';
 
 class Story extends APIEntity {    
     /**
@@ -102,7 +103,8 @@ class Story extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        return $stmt->execute([$id]);
+        $stmt->execute([$id]);
+        return DB::get()->rowCount();
     }
 }
 ?>

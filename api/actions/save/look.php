@@ -3,5 +3,5 @@ $action = 'look';
 
 $auth = Auth::demandLevel('free');
 
-HTTPResponse::look("Resource [user]");
+HTTPResponse::look("Resource [save]");
 ?>

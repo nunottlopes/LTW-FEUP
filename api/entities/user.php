@@ -198,7 +198,8 @@ class User extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        return $stmt->execute([$userid]);
+        $stmt->execute([$userid]);
+        return DB::get()->rowCount();
     }
 }
 ?>

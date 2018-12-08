@@ -4,12 +4,24 @@ require_once API::entity('story');
 
 $resource = 'story';
 
-$supported = ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE'];
+$methods = ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE'];
 
 $parameters = ['storyid', 'authorid', 'channelid', 'storyTitle', 'storyType',
                 'content', 'confirm-delete', 'all'];
 
-$method = HTTPRequest::method($supported, true);
+$actions = [
+    'create'           => ['POST', 'channelid', 'storyTitle', 'storyType', 'content'],
+    'delete'           => ['DELETE', 'storyid', 'confirm-delete'],
+    'get-channel-user' => ['GET', 'authorid', 'channelid'],
+    'get-channel'      => ['GET', 'channelid'],
+    'get-user'         => ['GET', 'authorid'],
+    'read-all'         => ['GET', 'all'],
+    'read'             => ['GET', 'storyid'],
+    'look'             => ['GET'],
+    'update'           => ['PATCH', 'storyid', 'content'],
+];
+
+$method = HTTPRequest::method($methods, true);
 
 $args = HTTPRequest::parse($parameters);
 
@@ -50,8 +62,9 @@ case 'DELETE':
     if (got('storyid') && got('confirm-delete')) {
         API::action('delete');
     }
+    HTTPResponse::noConfirmDelete();
     break;
 }
 
-HTTPResponse::noAction($method);
+HTTPResponse::noAction();
 ?>

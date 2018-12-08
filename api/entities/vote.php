@@ -80,7 +80,8 @@ class Vote extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        return $stmt->execute([$entityid, $userid]);
+        $stmt->execute([$entityid, $userid]);
+        return DB::get()->rowCount();
     }
 }
 ?>
