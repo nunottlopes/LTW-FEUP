@@ -1,13 +1,20 @@
 <?php
 require_once __DIR__ . '/session.php';
+require_once __DIR__ . '/db.php';
 
+/**
+ * Error reporting.
+ */
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-function got(string $key) {
+function got(string ...$keys) {
     global $args;
-    return isset($args[$key]);
+    foreach ($keys as $key) {
+        if (!isset($args[$key])) return false;
+    }
+    return true;
 }
 
 class API {

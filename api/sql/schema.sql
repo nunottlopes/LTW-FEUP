@@ -61,7 +61,7 @@ CREATE TABLE Save (
     'savedat'       INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
     FOREIGN KEY('entityid') REFERENCES Entity('entityid') ON DELETE CASCADE,
     FOREIGN KEY('userid') REFERENCES User('userid') ON DELETE CASCADE,
-    PRIMARY KEY('entityid','userid')
+    PRIMARY KEY('entityid','userid') ON CONFLICT IGNORE
 );
 
 CREATE TABLE Vote (

@@ -1,6 +1,4 @@
 <?php
-require_once API::entity('comment');
-
 $action = 'get-comment';
 
 $auth = Auth::demandLevel('admin');

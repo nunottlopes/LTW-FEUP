@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../api.php';
-require_once API::entity('story');
 require_once API::entity('comment');
 
 $resource = 'comment';
@@ -38,7 +37,7 @@ case 'HEAD':
     if (got('all')) {
         API::action('read-all');
     }
-    if (got('authorid') && got('parentid')) {
+    if (got('authorid', 'parentid')) {
         API::action('get-children-user');
     }
     if (got('authorid')) {
@@ -49,17 +48,17 @@ case 'HEAD':
     }
     break;
 case 'POST':
-    if (got('parentid') && got('content')) {
+    if (got('parentid', 'content')) {
         API::action('create');
     }
     break;
 case 'PATCH':
-    if (got('commentid') && got('content')) {
+    if (got('commentid', 'content')) {
         API::action('update');
     }
     break;
 case 'DELETE':
-    if (got('commentid') && got('confirm-delete')) {
+    if (got('commentid', 'confirm-delete')) {
         API::action('delete');
     }
     HTTPResponse::noConfirmDelete();

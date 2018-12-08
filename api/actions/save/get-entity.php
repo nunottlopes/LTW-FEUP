@@ -1,6 +1,4 @@
 <?php
-require_once API::entity('entity');
-
 $action = 'get-entity';
 
 $auth = Auth::demandLevel('admin');

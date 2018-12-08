@@ -1,6 +1,4 @@
 <?php
-require_once API::entity('story');
-
 $action = 'get-story';
 
 $auth = Auth::demandLevel('admin');

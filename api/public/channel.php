@@ -34,7 +34,7 @@ case 'HEAD':
     if (got('all')) {
         API::action('read-all');
     }
-    if (got('valid') && got('channelname')) {
+    if (got('valid', 'channelname')) {
         API::action('valid');
     }
     if (got('channelname')) {
@@ -42,13 +42,13 @@ case 'HEAD':
     }
     break;
 case 'POST':
-    if (got('channelname') && got('confirm')) {
+    if (got('channelname', 'confirm')) {
         API::action('create');
     }
     HTTPResponse::noConfirm("Channel creation");
     break;
 case 'DELETE':
-    if (got('channelid') && got('confirm-delete')) {
+    if (got('channelid', 'confirm-delete')) {
         API::action('delete');
     }
     HTTPResponse::noConfirmDelete();

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/apientity.php';
 require_once __DIR__ . '/tree.php';
 
 /**

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/apientity.php';
 require_once __DIR__ . '/story.php';
 require_once __DIR__ . '/comment.php';
+require_once __DIR__ . '/entity.php';
 
 class Save extends APIEntity {
     private static function mergeSaves($stories, $comments) {

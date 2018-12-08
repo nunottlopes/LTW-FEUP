@@ -29,7 +29,7 @@ case 'HEAD':
     if ($args === []) {
         API::action('look');
     }
-    if (got('userid') && got('entityid')) {
+    if (got('userid', 'entityid')) {
         API::action('get');
     }
     if (got('userid')) {
@@ -43,10 +43,10 @@ case 'HEAD':
     }
     break;
 case 'PUT':
-    if (got('entityid') && got('upvote')) {
+    if (got('entityid', 'upvote')) {
         API::action('upvote');
     }
-    if (got('entityid') && got('downvote')) {
+    if (got('entityid', 'downvote')) {
         API::action('downvote');
     }
     break;

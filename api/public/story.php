@@ -37,7 +37,7 @@ case 'HEAD':
     if (got('all')) {
         API::action('read-all');
     }
-    if (got('authorid') && got('channelid')) {
+    if (got('authorid', 'channelid')) {
         API::action('get-channel-user');
     }
     if (got('authorid')) {
@@ -48,18 +48,18 @@ case 'HEAD':
     }
     break;
 case 'POST':
-    if (got('channelid') && got('storyTitle') &&
-        got('storyType') && got('content')) {
+    if (got('channelid', 'storyTitle') &&
+        got('storyType', 'content')) {
         API::action('create');
     }
     break;
 case 'PATCH':
-    if (got('storyid') && got('content')) {
+    if (got('storyid', 'content')) {
         API::action('update');
     }
     break;
 case 'DELETE':
-    if (got('storyid') && got('confirm-delete')) {
+    if (got('storyid', 'confirm-delete')) {
         API::action('delete');
     }
     HTTPResponse::noConfirmDelete();

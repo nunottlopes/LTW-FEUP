@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/apientity.php';
 require_once __DIR__ . '/entity.php';
+require_once __DIR__ . '/story.php';
 
 class Comment extends APIEntity {    
     /**

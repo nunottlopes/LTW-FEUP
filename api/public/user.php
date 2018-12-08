@@ -43,13 +43,13 @@ case 'HEAD':
     if (got('all')) {
         API::action('read-all');
     }
-    if (got('valid') && got('username') && got('email')) {
+    if (got('valid', 'username', 'email')) {
         API::action('valid');
     }
-    if (got('valid') && got('username')) {
+    if (got('valid', 'username')) {
         API::action('valid-username');
     }
-    if (got('valid') && got('email')) {
+    if (got('valid', 'email')) {
         API::action('valid-email');
     }
     if (got('username')) {
@@ -63,7 +63,7 @@ case 'HEAD':
     }
     break;
 case 'POST':
-    if (got('username') && got('email') && got('password') && got('confirm')) {
+    if (got('username', 'email', 'password', 'confirm')) {
         API::action('create');
     }
     HTTPResponse::noConfirm("Account creation");
