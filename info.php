@@ -1,7 +1,5 @@
 <?php
 
-echo "SERVER NAME: " . $_SERVER['SERVER_NAME'];
-
 echo phpinfo();
 
 /**

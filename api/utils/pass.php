@@ -19,4 +19,6 @@ foreach ($passes as $pass) {
 }
 
 echo json_encode($hashes, JSON_PRETTY_PRINT);
+
+// This is an old file used to generate password hashes for db/sql/populate.sql
 ?>

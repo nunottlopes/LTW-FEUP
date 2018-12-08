@@ -24,7 +24,7 @@ class Tree extends APIEntity {
     /**
      * READ
      */
-    public static function getAscendants(int $child) {
+    public static function getAscendants(int $childid) {
         $query = '
             WITH RECURSIVE Subtree(id) AS (
                 VALUES(?)
@@ -38,7 +38,7 @@ class Tree extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$child]);
+        $stmt->execute([$childid]);
         $comments = static::fetchAll($stmt);
 
         $story = Story::read($comments[0]['parentid']);
@@ -51,7 +51,7 @@ class Tree extends APIEntity {
         return $line;
     }
 
-    public static function getDescendants(int $parent) {
+    public static function getDescendants(int $parentid) {
         $query = '
             WITH RECURSIVE Subtree(id) AS (
                 VALUES(?)
@@ -65,26 +65,25 @@ class Tree extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$parent, $parent]);
+        $stmt->execute([$parentid, $parentid]);
         return static::fetchAll($stmt);
     }
 
-    public static function getTree(int $parent) {
-        $descendants = static::getDescendants($parent);
-        if ($descendants == null) return null;
-
-        $entities = keyfy($descendants, 'entityid');
-
-        $top = Story::read($parent);
+    public static function getTree(int $parentid) {
+        $top = Story::read($parentid);
 
         if ($top == null) {
-            $top = Comment::read($parent);
+            $top = Comment::read($parentid);
             if ($top == null) return false;
         }
 
-        $entities[$parent] = $top;
+        $descendants = static::getDescendants($parentid);
 
-        return static::buildTree($entities, $parent);
+        $entities = keyfy($descendants, 'entityid');
+
+        $entities[$parentid] = $top;
+
+        return static::buildTree($entities, $parentid);
     }
 }
 ?>

@@ -160,7 +160,7 @@ class User extends APIEntity {
         $user = static::getHash($name);
 
         if (!$user) {
-            $error = 'User not found'; // API distinguishes errors
+            $error = 'Invalid username'; // no it doesn't
             return false;
         }
 
