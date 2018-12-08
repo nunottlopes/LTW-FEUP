@@ -35,7 +35,7 @@ class Entity extends APIEntity {
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$id]);
-        return DB::get()->rowCount();
+        return $stmt->rowCount();
     }
 }
 ?>

@@ -88,7 +88,8 @@ class Comment extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        return $stmt->execute([$content, $id]);
+        $stmt->execute([$content, $id]);
+        return $stmt->rowCount();
     }
 
     public static function clear(int $id) {
@@ -110,7 +111,7 @@ class Comment extends APIEntity {
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$id]);
-        return DB::get()->rowCount();
+        return $stmt->rowCount();
     }
 }
 ?>

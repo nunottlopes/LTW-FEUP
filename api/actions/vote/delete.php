@@ -15,7 +15,7 @@ if (!Entity::read($entityid)) {
     HTTPResponse::notFound("Entity with id $entityid");
 }
 
-$count = Save::delete($entityid, $userid);
+$count = Vote::delete($entityid, $userid);
 
 $data = [
     'count' => $count,
@@ -23,5 +23,5 @@ $data = [
     'userid' => $userid
 ];
 
-HTTPResponse::deleted("Deleted save of entity $entityid by user $userid", $data);
+HTTPResponse::deleted("Deleted vote for entity $entityid by user $userid", $data);
 ?>

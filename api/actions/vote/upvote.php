@@ -1,5 +1,5 @@
 <?php
-$action = 'delete';
+$action = 'upvote';
 
 if (got('userid')) { // admin impersonation
     $auth = Auth::demandLevel('authid', $args['userid']);
@@ -11,17 +11,21 @@ if (got('userid')) { // admin impersonation
 
 $entityid = $args['entityid'];
 
-if (!Entity::read($entityid)) {
+$entity = Entity::read($entityid);
+
+if (!$entity) {
     HTTPResponse::notFound("Entity with id $entityid");
 }
 
-$count = Save::delete($entityid, $userid);
+$count = Vote::upvote($entityid, $userid);
 
 $data = [
     'count' => $count,
+    'userid' => $userid,
     'entityid' => $entityid,
-    'userid' => $userid
+    'entity' => $entity,
+    'vote' => '+'
 ];
 
-HTTPResponse::deleted("Deleted save of entity $entityid by user $userid", $data);
+HTTPResponse::created("Upvoted entity $entityid by user $userid", $data);
 ?>

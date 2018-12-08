@@ -51,7 +51,8 @@ class Save extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        return $stmt->execute([$entityid, $userid]);
+        $stmt->execute([$entityid, $userid]);
+        return $stmt->rowCount();
     }
 
     /**
@@ -146,7 +147,7 @@ class Save extends APIEntity {
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$entityid, $userid]);
-        return DB::get()->rowCount();
+        return $stmt->rowCount();
     }
 
     /**
@@ -159,7 +160,7 @@ class Save extends APIEntity {
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$userid]);
-        return DB::get()->rowCount();
+        return $stmt->rowCount();
     }
 }
 ?>

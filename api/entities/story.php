@@ -90,8 +90,8 @@ class Story extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        $result = $stmt->execute([$content, $id]);
-        return $result ? static::read($id) : false;
+        $stmt->execute([$content, $id]);
+        return $stmt->rowCount();
     }
     
     /**
@@ -104,7 +104,7 @@ class Story extends APIEntity {
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$id]);
-        return DB::get()->rowCount();
+        return $stmt->rowCount();
     }
 }
 ?>

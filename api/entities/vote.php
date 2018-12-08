@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/apientity.php';
+require_once __DIR__ . '/entity.php';
 
 class Vote extends APIEntity {
     /**
@@ -12,7 +13,8 @@ class Vote extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        return $stmt->execute([$entityid, $userid, $vote]);
+        $stmt->execute([$entityid, $userid, $vote]);
+        return $stmt->rowCount();
     }
 
     public static function upvote(int $entityid, int $userid) {
@@ -81,7 +83,7 @@ class Vote extends APIEntity {
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$entityid, $userid]);
-        return DB::get()->rowCount();
+        return $stmt->rowCount();
     }
 }
 ?>
