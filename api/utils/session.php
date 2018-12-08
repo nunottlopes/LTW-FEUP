@@ -1,5 +1,5 @@
 <?php
-session_set_cookie_params(0, '/', $_SESSION['SERVER_NAME'], true, true);
+session_set_cookie_params(0, '/', $_SERVER['SERVER_NAME'], true, true);
 
 session_start();
 

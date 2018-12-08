@@ -13,7 +13,17 @@ class Story extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        return $stmt->execute([$channelid, $authorid, $title, $type, $content]);
+
+        try {
+            DB::get()->beginTransaction();
+            $stmt->execute([$channelid, $authorid, $title, $type, $content]);
+            $id = DB::get()->lastInsertId();
+            DB::get()->commit();
+            return $id;
+        } catch (PDOException $e) {
+            DB::get()->rollback();
+            return false;
+        }
     }
 
     /**
@@ -78,7 +88,8 @@ class Story extends APIEntity {
             ';
 
         $stmt = DB::get()->prepare($query);
-        return $stmt->execute([$content, $id]);
+        $result = $stmt->execute([$content, $id]);
+        return $result ? static::read($id) : false;
     }
     
     /**

@@ -12,7 +12,7 @@ function keyfy(array $array, string $key) {
 }
 
 class APIEntity {
-    protected static function cast(array $fetch) {
+    public static function cast(array $fetch, bool $strict = false) {
         $object = [];
 
         foreach ($fetch as $key => $value) {
@@ -63,7 +63,12 @@ class APIEntity {
                 break;
 
             default:
-                throw new Error("Unhandled APIEntity cast case: < $key >");
+                if ($strict) {
+                    throw new Error("Unhandled APIEntity cast case: < $key >");
+                }
+
+                $object[$key] = $value;
+                break;
             }
         }
 
@@ -74,7 +79,7 @@ class APIEntity {
         $fetch = $stmt->fetch();
         if ($fetch == null || $fetch === false) return $fetch;
 
-        return static::cast($fetch);
+        return static::cast($fetch, true);
     }
 
     protected static function fetchAll(PDOStatement &$stmt) {
@@ -84,20 +89,12 @@ class APIEntity {
         $object = [];
         
         foreach ($fetches as $fetch) {
-            $casted = static::cast($fetch);
+            $casted = static::cast($fetch, true);
 
             array_push($object, $casted);
         }
 
         return $object;
-    }
-
-    protected static function execute(PDOStatement &$stmt, array $args = null) {
-        if (!$args) {
-            return $stmt->execute();
-        } else {
-            return $stmt->execute($args);
-        }
     }
 }
 ?>
