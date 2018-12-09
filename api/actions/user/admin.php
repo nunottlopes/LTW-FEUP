@@ -5,7 +5,7 @@ if (!$admin) {
     HTTPResponse::unauthorized(0);
 }
 
-$auth = Auth::demandLevel('admin');
+$auth = Auth::demandLevel('admin'); // populate $auth
 
 HTTPResponse::ok("Authenticated as administrator", []);
 ?>

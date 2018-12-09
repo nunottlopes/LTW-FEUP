@@ -43,6 +43,13 @@ class API {
             // Numbers
             if (preg_match('/^(?:\w*number\w*|\w+num)$/', $key)) {
                 $casted[$key] = (int)$value;
+                continue;
+            }
+
+            // Clauses
+            if (preg_match('/^(?:limit|orderby|since|offset)$/', $key)) {
+                $casted[$key] = (int)$value;
+                continue;
             }
 
             // Default text
@@ -79,7 +86,15 @@ class API {
     }
 
     /**
-     * Check if global $args has the specified keys.
+     * Look into a resource
+     */
+    public static function look() {
+        global $resource, $supported, $parameters, $method, $args, $auth, $action;
+        HTTPResponse::look("Resource [$resource]");
+    }
+
+    /**
+     * Check if global $args has all the specified keys.
      */
     public static function gotargs(string ...$keys) {
         global $args;
@@ -87,6 +102,13 @@ class API {
             if (!isset($args[$key])) return false;
         }
         return true;
+    }
+
+    /**
+     * 
+     */
+    public static function checkargs(string ...$keys) {
+        $got = static::$gotargs(...$keys);
     }
 
     /**
@@ -99,6 +121,26 @@ class API {
             $object[$el[$key]] = $el;
         }
         return $object;
+    }
+
+    /**
+     * Convert global $actions to a cleaner format
+     */
+    public static function makeActions() {
+        global $actions, $method;
+
+        $converted = [];
+
+        foreach ($actions as $action => $spec) {
+            $converted[$action] = [
+                'method' => $spec[0],
+                'query' => $spec[1],
+                'clauses' => $spec[2],
+                'body' => $spec[3]
+            ];
+        }
+
+        return $converted;
     }
 }
 
@@ -576,7 +618,17 @@ class Auth {
      * Idempotent, does not fail if there is no login.
      */
     public static function logout() {
-        session_reset();
+        session_destroy();
+        session_start();
+
+        if (isset($_SESSION['userid'])) unset($_SESSION['userid']);
+        if (isset($_SESSION['username'])) unset($_SESSION['username']);
+        if (isset($_SESSION['useremail'])) unset($_SESSION['useremail']);
+        if (isset($_SESSION['login_timestamp'])) unset($_SESSION['login_timestamp']);
+        if (isset($_SESSION['authkey'])) unset($_SESSION['authkey']);
+        if (isset($_SESSION['authkey_timestamp'])) unset($_SESSION['authkey_timestamp']);
+
+        return true;
     }
 }
 
@@ -590,75 +642,50 @@ class HTTPRequest {
     public static $methodBackdoor = false;
 
     /**
-     * Assume GET or HEAD and parse the query's key value pairs into a JSON.
+     * Parse the query's key value pairs into a JSON.
      *
      * If $force is set all parameters searched must be present.
      */
     public static function parseQuery(array $parameters, bool $force = false) {
         $args = [];
 
-        foreach ($parameters as $param) {
-            if (!isset($_GET[$param])) {
-                if ($force) HTTPResponse::missingParameter($param, $parameters);
-            } else {
-                $args[$param] = $_GET[$param];
+        foreach ($_GET as $param) {
+            if ($force && !isset($parameters[$param])) {
+                HTTPResponse::missingParameter($param, $parameters);
             }
+            
+            $args[$param] = $_GET[$param];
         }
 
         return API::cast($args);
     }
 
     /**
-     * Assume POST and parse the the request's body into a JSON.
-     *
-     * If $force is set all parameters searched must be present.
+     * Parse 
      */
-    public static function parsePOST(array $parameters, bool $force = false) {
-        $args = [];
+    public static function parseBody(array $required = []) {
+        $body = static::bodyString();
 
-        foreach ($parameters as $param) {
-            if (!isset($_GET[$param])) {
-                if ($force) HTTPResponse::missingParameter($param, $parameters);
-            } else {
-                $args[$param] = $_POST[$param];
-            }
+        $json = json_decode($body, true);
+
+        if ($json === null) {
+            $json = ['content' => $body, $body => true];
         }
 
-        return API::cast($args);
-    }
-
-    /**
-     * Assume POST, PUT, ... and parse the request's body into a JSON.
-     *
-     * If $force is set all parameters searched must be present.
-     */
-    public static function parseBodyJSON(array $parameters, bool $force = false) {
-        $args = [];
-
-        $json = static::bodyJSON();
-
-        foreach ($parameters as $param) {
+        foreach ($required as $param) {
             if (!isset($json[$param])) {
-                if ($force) HTTPResponse::missingParameter($param, $parameters);
-            } else {
-                $args[$param] = $json[$param];
+                HTTPResponse::missingInput($param, $required);
             }
         }
-
-        return API::cast($args);
+        
+        return API::cast($json);
     }
 
     /**
-     * Get request parameters according to request method.
+     * Shorthand
      */
-    public static function parse(array $parameters, bool $force = false) {
-        $method = static::method();
-
-        if ($method === 'GET' || $method === 'HEAD') {
-            return static::parseQuery($parameters, $force);
-        } else {
-            return static::parseBodyJSON($parameters, $force);
-        }
+    public static function getContent() {
+        return static::parseBody(['content'])['content'];
     }
 
     /**
@@ -702,21 +729,6 @@ class HTTPRequest {
      */
     public static function bodyString() {
         return file_get_contents('php://input');
-    }
-
-    /**
-     * Assume application/json and return the request's body as JSON.
-     * If the body has invalid JSON a 400 HTTP response is sent to the client.
-     */
-    public static function bodyJSON() {
-        $body = static::bodyString();
-        $json = json_decode($body, true);
-
-        if ($json === null) {
-            HTTPResponse::malformedJSON($body, $parameters);
-        }
-
-        return $json;
     }
 
     /**
@@ -891,7 +903,7 @@ class HTTPResponse {
     /**
      * 202 Accepted
      */
-    public static function accepted(string $message, array $data = []) {
+    public static function accepted(string $message, array $data = null) {
         http_response_code(202);
 
         static::success('Accepted', $message, $data);
@@ -948,7 +960,7 @@ class HTTPResponse {
         $missing = [];
 
         foreach ($parameters as $param) {
-            if (!gotargs($param)) $missing[] = $param;
+            if (!API::gotargs($param)) $missing[] = $param;
         }
 
         $missingstring = implode(', ', $missing);
@@ -992,6 +1004,23 @@ class HTTPResponse {
         ];
 
         static::error('Bad Argument', $error, $data);
+    }
+
+    /**
+     * 400 Bad Request
+     */
+    public static function invalid(string $what, string $requirement) {
+        http_response_code(400);
+
+        $error = "Invalid $what";
+
+        $data = [
+            'param' => $what,
+            'key' => $what,
+            'requires' => $requirement,
+        ];
+
+        static::error('Invalid', $error, $data);
     }
 
     /**

@@ -16,7 +16,7 @@ $count = Story::delete($storyid);
 $data = [
     'count' => $count,
     'story' => $story
-]
+];
 
 HTTPResponse::deleted("Deleted story $storyid", $data);
 ?>

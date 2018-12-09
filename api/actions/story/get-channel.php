@@ -4,7 +4,7 @@ $auth = Auth::demandLevel('free');
 $channelid = $args['channelid'];
 
 if (!Channel::read($channelid)) {
-    HTTPResponse::adjacentNotFound("Channel with id $channelid");
+    HTTPResponse::notFound("Channel with id $channelid");
 }
 
 $stories = Story::getChannel($channelid);

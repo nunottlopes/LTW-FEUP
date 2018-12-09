@@ -15,7 +15,7 @@ $count = Comment::delete($commentid);
 
 $data = [
     'count' => $count,
-    'comment' => $comment
+    'old' => $comment
 ];
 
 HTTPResponse::deleted("Deleted comment $commentid", $data);

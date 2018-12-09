@@ -1,11 +1,11 @@
 <?php
-if (API::gotargs('userid')) { // admin impersonation
-    $auth = Auth::demandLevel('authid', $args['userid']);
-    $creatorid = $args['userid'];
-} else {
-    $auth = Auth::demandLevel('auth');
-    $creatorid = $auth['userid'];
+$creatorid = $auth['creatorid'];
+
+if (!User::read($creatorid)) {
+    HTTPRequest::notFound("User with id $creatorid");
 }
+
+$auth = Auth::demandLevel('authid', $creatorid);
 
 $channelname = $args['channelname'];
 
@@ -23,10 +23,11 @@ if (!$channelid) {
     HTTPResponse::serverError();
 }
 
+$channel = Channel::read($channelid);
+
 $data = [
     'channelid' => $channelid,
-    'channelname' => $channelname,
-    'creatorid' => $creatorid
+    'channel' => $channel
 ];
 
 HTTPResponse::created("Created channel $channelid", $data);

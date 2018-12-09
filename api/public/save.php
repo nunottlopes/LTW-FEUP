@@ -6,7 +6,7 @@ $resource = 'save';
 
 $methods = ['GET', 'HEAD', 'PUT', 'DELETE'];
 
-$parameters = ['entityid', 'commentid', 'storyid', 'comments', 'entities', 'stories'];
+$parameters = ['entityid', 'userid', 'commentid', 'storyid', 'comments', 'entities', 'stories', 'all'];
 
 $actions = [
     'create'            => ['PUT', 'entityid'],
@@ -17,6 +17,7 @@ $actions = [
     'get-user-comments' => ['GET', 'comments'],
     'get-user-entities' => ['GET', 'entities'],
     'get-user-stories'  => ['GET', 'stories'],
+    'read-all'          => ['GET', 'all'],
     'look'              => ['GET']
 ];
 
@@ -29,6 +30,9 @@ case 'GET':
 case 'HEAD':
     if ($args === []) {
         API::action('look');
+    }
+    if (API::gotargs('all')) {
+        API::action('read-all');
     }
     if (API::gotargs('stories')) {
         API::action('get-user-stories');

@@ -7,6 +7,10 @@ if (API::gotargs('userid')) {
     $userid = $auth['userid'];
 }
 
+if ($userid === 0) {
+    HTTPResponse::badRequest("Cannot delete admin account");
+}
+
 $user = User::read($userid);
 
 $count = User::delete($userid);

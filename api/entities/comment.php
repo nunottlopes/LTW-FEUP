@@ -114,5 +114,35 @@ class Comment extends APIEntity {
         $stmt->execute([$id]);
         return $stmt->rowCount();
     }
+
+    public static function deleteUser(int $authorid) {
+        $query = '
+            DELETE FROM Comment WHERE authorid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$authorid]);
+        return $stmt->rowCount();
+    }
+
+    public static function deleteChildren(int $parentid) {
+        $query = '
+            DELETE FROM Comment WHERE parentid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$parentid]);
+        return $stmt->rowCount();
+    }
+
+    public static function deleteChildrenUser(int $parentid, int $authorid) {
+        $query = '
+            DELETE FROM Comment WHERE parentid = ? AND authorid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$parentid, $authorid]);
+        return $stmt->rowCount();
+    }
 }
 ?>

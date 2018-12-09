@@ -1,18 +1,19 @@
 <?php
-if (API::gotargs('userid')) { // admin impersonation
-    $auth = Auth::demandLevel('authid', $args['userid']);
-    $authorid = $args['userid'];
-} else {
-    $auth = Auth::demandLevel('auth');
-    $authorid = $auth['userid'];
+$authorid = $auth['authorid'];
+
+if (!User::read($authorid)) {
+    HTTPRequest::notFound("User with id $authorid");
 }
+
+$auth = Auth::demandLevel('authid', $authorid);
 
 $parentid = $args['parentid'];
-$content = $args['content'];
 
 if (!Entity::read($parentid)) {
-    HTTPResponse::adjacentNotFound("Parent Entity with id $parentid");
+    HTTPResponse::notFound("Parent Entity with id $parentid");
 }
+
+$content = HTTPRequest::getContent();
 
 $commentid = Comment::create($parentid, $authorid, $content);
 
@@ -20,12 +21,11 @@ if (!$commentid) {
     HTTPResponse::serverError();
 }
 
+$comment = Comment::read($commentid);
+
 $data = [
     'commentid' => $commentid,
-    'entityid' => $commentid,
-    'parentid' => $parentid,
-    'authorid' => $authorid,
-    'content' => $content
+    'comment' => $comment
 ];
 
 HTTPResponse::created("Created comment $commentid, child of $parentid", $data);

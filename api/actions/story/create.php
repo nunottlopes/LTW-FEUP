@@ -1,32 +1,35 @@
 <?php
-if (API::gotargs('userid')) { // admin impersonation
-    $auth = Auth::demandLevel('authid', $args['userid']);
-    $authorid = $args['userid'];
-} else {
-    $auth = Auth::demandLevel('auth');
-    $authorid = $auth['userid'];
+$authorid = $auth['authorid'];
+
+if (!User::read($authorid)) {
+    HTTPRequest::notFound("User with id $authorid");
 }
+
+$auth = Auth::demandLevel('authid', $authorid);
 
 $channelid = $args['channelid'];
-$title = $args['storyTitle'];
-$type = $args['storyType'];
-$content = $args['content'];
 
 if (!Channel::read($channelid)) {
-    HTTPResponse::adjacentNotFound("Channel with id $channelid");
+    HTTPResponse::notFound("Channel with id $channelid");
 }
+
+$body = HTTPRequest::parseBody(['storyTitle', 'storyType', 'content']);
+$title = $body['storyTitle'];
+$type = $body['storyType'];
+$content = $body['content'];
 
 $storyid = Story::create($channelid, $authorid, $title, $type, $content);
 
+if (!$storyid) {
+    HTTPResponse::serverError();
+}
+
+$story = Story::read($storyid);
+
 $data = [
     'storyid' => $storyid,
-    'entityid' => $storyid,
-    'authorid' => $authorid,
-    'channelid' => $channelid,
-    'title' => $title,
-    'type' => $type,
-    'content' => $content
+    'story' => $story
 ];
 
-HTTPResponse::created("Created story $storyid", $data);
+HTTPResponse::created("Created story $storyid in channel $channelid", $data);
 ?>

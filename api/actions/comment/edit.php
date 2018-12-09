@@ -1,6 +1,5 @@
 <?php
 $commentid = $args['commentid'];
-$content = $args['content'];
 
 $comment = Comment::read($commentid);
 
@@ -12,12 +11,17 @@ $authorid = $comment['authorid'];
 
 $auth = Auth::demandLevel('authid', $authorid);
 
+$content = HTTPRequest::getContent();
+
 $count = Comment::update($commentid, $content);
+
+$new = Comment::read($commentid);
 
 $data = [
     'count' => $count,
-    'previous' => $comment
+    'old' => $comment,
+    'new' => $new
 ];
 
-HTTPResponse::updated("Comment successfully updated", $data);
+HTTPResponse::updated("Comment $commentid successfully edited", $data);
 ?>

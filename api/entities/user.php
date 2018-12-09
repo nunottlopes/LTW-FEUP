@@ -3,7 +3,13 @@ require_once __DIR__ . '/apientity.php';
 
 class User extends APIEntity {
     private static $usernameRegex = '/^[a-zA-Z][a-zA-Z0-9_+-]{2,31}$/i';
+    private static $passwordRegex = '/^(?:.){6,}$/i';
     private static $hashOpt = ['cost' => 10];
+    
+    public static $usernameRequires = "At least 3 characters starting with a letter";
+    public static $passwordRequires = "At least 6 characters";
+
+    // https://stackoverflow.com/questions/19605150/regex-for-password-must-contain-at-least-eight-characters-at-least-one-number-a
 
     /**
      * VALIDATION
@@ -20,6 +26,10 @@ class User extends APIEntity {
 
     public static function validEmail(string $email) {
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+
+    public static function validPassword(string $password) {
+        return preg_match(static::$passwordRegex, $password) === 1;
     }
 
     public static function valid(string $username, string $email, &$error = null) {
@@ -45,6 +55,12 @@ class User extends APIEntity {
     public static function checkEmail(string $email) {
         if (!static::validEmail($email)) {
             throw new Error('Invalid email');
+        }
+    }
+
+    public static function checkPassword(string $password) {
+        if (!static::validPassword($username)) {
+            throw new Error('Invalid password');
         }
     }
 

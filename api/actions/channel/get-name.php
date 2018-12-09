@@ -6,7 +6,7 @@ $channelname = $args['channelname'];
 $channel = Channel::get($channelname);
 
 if (!$channel) {
-    HTTPResponse::notFound("Channel with name $channelname");
+    HTTPResponse::notFound("Channel $channelname");
 }
 
 HTTPResponse::ok("Channel $channelname", $channel);

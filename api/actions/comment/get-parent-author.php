@@ -5,11 +5,11 @@ $authorid = $args['authorid'];
 $parentid = $args['parentid'];
 
 if (!User::read($authorid)) {
-    HTTPResponse::adjacentNotFound("User with id $authorid");
+    HTTPResponse::notFound("User with id $authorid");
 }
 
 if (!Entity::read($parentid)) {
-    HTTPResponse::adjacentNotFound("Parent Entity with id $parentid");
+    HTTPResponse::notFound("Parent Entity with id $parentid");
 }
 
 $comments = Comment::getChildrenUser($parentid, $authorid);

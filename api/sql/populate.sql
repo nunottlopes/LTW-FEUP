@@ -10,6 +10,7 @@
  * 7  Nuno       nuno
  */
 INSERT INTO User(userid, username, email, hash) VALUES
+    (0, 'admin', 'admin@feupnews.com', '$2y$10$p2It7atX5xmjgOCj1ueLLOO9ImNkg5jC/O84yu9yU/578RekCoY62'),
     (1, 'Emanuel', 'emanuel@gmail.com', '$2y$10$xCpKMa8XygdBr3VOxsIOhOyl9HLzw8WgmxCdAs4rhEsjcQsMW87hO'),
     (2, 'David', 'david.andrade@gmail.com', '$2y$10$xesrOHbPqklXV1I7FNfERuA37Indy1PJBIrxqqZ7tY7/qIJOxb5Ge'),
     (3, 'Tiago', 'tiago@live.com.pt', '$2y$10$raS40nxOFgUViuNF61HRMOn6bDrJIobJM7TXsWyp0RXNuTtdEOTS.'),

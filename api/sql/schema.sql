@@ -70,7 +70,8 @@ CREATE TABLE Vote (
     'vote'          CHAR NOT NULL DEFAULT '+',
     FOREIGN KEY('entityid') REFERENCES Entity('entityid') ON DELETE CASCADE,
     FOREIGN KEY('userid') REFERENCES User('userid') ON DELETE CASCADE,
-    PRIMARY KEY('entityid','userid')
+    PRIMARY KEY('entityid','userid'),
+    CHECK(vote IN ('+','-'))
 );
 
 CREATE TABLE Subscribe (

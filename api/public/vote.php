@@ -6,7 +6,7 @@ $resource = 'vote';
 
 $methods = ['GET', 'HEAD', 'PUT', 'DELETE'];
 
-$parameters = ['entityid', 'userid', 'vote', 'upvote', 'downvote', 'all'];
+$parameters = ['entityid', 'userid', 'upvote', 'downvote', 'all'];
 
 $actions = [
     'upvote'          => ['PUT', 'entityid', 'upvote'],

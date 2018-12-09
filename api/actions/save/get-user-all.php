@@ -7,7 +7,7 @@ if (!User::read($userid)) {
 
 $auth = Auth::demandLevel('authid', $userid);
 
-$comments = Save::getUserComments($userid);
+$saves = Save::getUser($userid);
 
-HTTPResponse::ok("All comment saves of user $userid", $comments);
+HTTPResponse::ok("All entity saves of user $userid", $saves);
 ?>

@@ -1,11 +1,11 @@
 <?php
-if (API::gotargs('userid')) { // admin impersonation
-    $auth = Auth::demandLevel('authid', $args['userid']);
-    $userid = $args['userid'];
-} else {
-    $auth = Auth::demandLevel('auth');
-    $userid = $auth['userid'];
+$userid = $auth['userid'];
+
+if (!User::read($userid)) {
+    HTTPRequest::notFound("User with id $userid");
 }
+
+$auth = Auth::demandLevel('authid', $userid);
 
 $userid = $auth['userid'];
 

@@ -4,21 +4,18 @@ require_once API::entity('comment');
 
 $resource = 'comment';
 
-$methods = ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE'];
-
-$parameters = ['parentid', 'commentid', 'content', 'userid', 'authorid',
-                'all', 'confirm-delete'];
+$methods = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE'];
 
 $actions = [
-    'create'            => ['POST', 'parentid', 'content'],
-    'delete'            => ['DELETE', 'commentid', 'confirm-delete'],
+    'create'            => ['POST', ['parentid', 'content']],
+    'delete'            => ['DELETE', ['commentid'], [], ['confirm-delete']],
     'get-children-user' => ['GET', 'parentid', 'authorid'],
     'get-children'      => ['GET', 'parentid'],
     'get-user'          => ['GET', 'authorid'],
     'read-all'          => ['GET', 'all'],
     'read'              => ['GET', 'commentid'],
     'look'              => ['GET'],
-    'update'            => ['PATCH', 'commentid', 'content']
+    'update'            => ['PUT', 'commentid', 'content']
 ];
 
 $method = HTTPRequest::method($methods, true);
@@ -53,7 +50,7 @@ case 'POST':
     }
     HTTPResponse::missingParameter(['parentid', 'content']);
     break;
-case 'PATCH':
+case 'PUT':
     if (API::gotargs('commentid', 'content')) {
         API::action('update');
     }

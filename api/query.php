@@ -24,7 +24,7 @@ case 'HEAD':
         $auth = Auth::demandLevel('free');
         HTTPResponse::look("Utility [query]");
     }
-    if (gotargs('method', 'resource')) {
+    if (API::gotargs('method', 'resource')) {
         HTTPRequest::$methodBackdoor = $args['method'];
         require_once API::resource($args['resource']);
     }

@@ -1,6 +1,5 @@
 <?php
 $storyid = $args['storyid'];
-$content = $args['content'];
 
 $story = Story::read($storyid);
 
@@ -12,12 +11,14 @@ $authorid = $story['authorid'];
 
 $auth = Auth::demandLevel('authid', $authorid);
 
+$content = HTTPRequest::getContent();
+
 $count = Story::update($storyid, $content);
 
 $data = [
     'count' => $count,
-    'previous' => $story
+    'old' => $story
 ];
 
-HTTPResponse::updated("Story successfully updated", $data);
+HTTPResponse::updated("Story $storyid successfully edited", $data);
 ?>

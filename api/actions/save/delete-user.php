@@ -7,7 +7,12 @@ if (!User::read($userid)) {
 
 $auth = Auth::demandLevel('authid', $userid);
 
-$comments = Save::getUserComments($userid);
+$count = Save::deleteUser($userid);
 
-HTTPResponse::ok("All comment saves of user $userid", $comments);
+$data = [
+    'count' => $count,
+    'userid' => $userid
+];
+
+HTTPResponse::deleted("Deleted all saves by user $userid", $data);
 ?>

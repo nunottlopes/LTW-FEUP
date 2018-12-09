@@ -1,16 +1,21 @@
 <?php
 $auth = Auth::demandLevel('none');
 
-$username = $args['username'];
-$useremail = $args['email'];
-$password = $args['password'];
+$body = HTTPRequest::parseBody(['username', 'email', 'password']);
+$username = $body['username'];
+$useremail = $body['useremail'];
+$password = $body['password'];
 
 if (!User::validUsername($username)) {
-    HTTPResponse::badArgument('username', $username);
+    HTTPResponse::invalid('username', User::$usernameRequires);
 }
 
 if (!User::validEmail($useremail)) {
-    HTTPResponse::badArgument('email', $useremail);
+    HTTPResponse::invalid('email', 'Valid email');
+}
+
+if (!User::validPassword($password)) {
+    HTTPResponse::invalid('password', User::$passwordRequires);
 }
 
 if (User::getByUsername($username)) {
@@ -27,11 +32,11 @@ if (!$userid) {
     HTTPResponse::serverError();
 }
 
+$user = User::self($userid);
+
 $data = [
     'userid' => $userid,
-    'username' => $username,
-    'useremail' => $useremail,
-    'admin' => false
+    'user' => $user
 ];
 
 HTTPResponse::created("Successfully created account $userid", $data);
