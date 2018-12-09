@@ -25,7 +25,7 @@ class Tree extends APIEntity {
     /**
      * READ
      */
-    public static function getAscendants(int $childid) {
+    public static function getAncestry(int $childid) {
         $query = '
             WITH RECURSIVE Subtree(id) AS (
                 VALUES(?)

@@ -115,7 +115,7 @@ class Save extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function read(int $entityid) {
+    public static function getEntity(int $entityid) {
         if (Story::read($entityid)) {
             return static::getStory($entityid);
         } else {
@@ -123,9 +123,32 @@ class Save extends APIEntity {
         }
     }
 
+    public static function readAllStories() {
+        $query = '
+            SELECT * FROM SaveStory
+            ORDER BY savedat
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute();
+        return static::fetchAll($stmt);
+    }
+
+    public static function readAllComments() {
+        $query = '
+            SELECT * FROM SaveComment
+            ORDER BY savedat
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute();
+        return static::fetchAll($stmt);
+    }
+
     public static function readAll() {
         $query = '
             SELECT * FROM Save
+            ORDER BY savedat
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -151,16 +174,33 @@ class Save extends APIEntity {
         return $stmt->rowCount();
     }
 
-    /**
-     * EXTRA
-     */
-    public static function deleteAllUser(int $userid) {
+    public static function deleteUser(int $userid) {
         $query = '
             DELETE FROM Save WHERE userid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$userid]);
+        return $stmt->rowCount();
+    }
+
+    public static function deleteEntity(int $entityid) {
+        $query = '
+            DELETE FROM Save WHERE entityid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$entityid]);
+        return $stmt->rowCount();
+    }
+
+    public static function deleteAll() {
+        $query = '
+            DELETE FROM Save
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute();
         return $stmt->rowCount();
     }
 }

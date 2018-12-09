@@ -14,6 +14,36 @@ error_reporting(E_ALL);
  * Little functionality, name might be misleading.
  */
 class API {
+    private static function singleCast(string $key, string $value) {
+        // IDs
+        if (preg_match('/^\w*id$/', $key)) {
+            return (int)$value;
+        }
+
+        // Votes
+        if (preg_match('/^\w*votes\w*$/', $key)) {
+            return (int)$value;
+        }
+
+        // Timestamps
+        if (preg_match('/^(?:\w+at|\w*date|\w*time|timestamp)$/', $key)) {
+            return (int)$value;
+        }
+
+        // Numbers
+        if (preg_match('/^(?:\w*number\w*|\w+num)$/', $key)) {
+            return (int)$value;
+        }
+
+        // Clauses
+        if (preg_match('/^(?:limit|orderby|since|offset)$/', $key)) {
+            return (int)$value;
+        }
+
+        // Default text
+        return $value;
+    }
+
     /**
      * Cast array keys to appropriate type.
      * Used by database entities for database fetches and client argument parsing.
@@ -22,51 +52,10 @@ class API {
         $casted = [];
 
         foreach ($data as $key => $value) {
-            // IDs
-            if (preg_match('/^\w*id$/', $key)) {
-                $casted[$key] = (int)$value;
-                continue;
-            }
-
-            // Votes
-            if (preg_match('/^\w*votes\w*$/', $key)) {
-                $casted[$key] = (int)$value;
-                continue;
-            }
-
-            // Timestamps
-            if (preg_match('/^(?:\w+at|\w*date|\w*time|timestamp)$/', $key)) {
-                $casted[$key] = (int)$value;
-                continue;
-            }
-
-            // Numbers
-            if (preg_match('/^(?:\w*number\w*|\w+num)$/', $key)) {
-                $casted[$key] = (int)$value;
-                continue;
-            }
-
-            // Clauses
-            if (preg_match('/^(?:limit|orderby|since|offset)$/', $key)) {
-                $casted[$key] = (int)$value;
-                continue;
-            }
-
-            // Default text
-            $casted[$key] = $value;
+            $casted[$key] = static::singleCast($key, $value);
         }
 
         return $casted;
-    }
-
-    /**
-     * Redirect to chosen action file.
-     */
-    public static function action(string $chosen) {
-        global $resource, $supported, $parameters, $method, $args, $auth, $action;
-        $action = $chosen;
-        $file = $_SERVER['DOCUMENT_ROOT'] . "/api/actions/$resource/$chosen.php";
-        require_once $file;
     }
 
     /**
@@ -81,34 +70,53 @@ class API {
      * Directory of resource
      */
     public static function resource(string $resource) {
-        $file = $_SERVER['DOCUMENT_ROOT'] . "/api/public/$resource.php";
+        $file = $_SERVER['DOCUMENT_ROOT'] . "/api/new/$resource.php";
         return $file;
     }
 
     /**
      * Look into a resource
      */
-    public static function look() {
-        global $resource, $supported, $parameters, $method, $args, $auth, $action;
+    public static function look(string $resource) {
         HTTPResponse::look("Resource [$resource]");
     }
 
     /**
-     * Check if global $args has all the specified keys.
+     * Check if $args has all the listed keys.
+     * A string key must be present.
+     * An array key is an array of strings, at least on of which must be present.
      */
-    public static function gotargs(string ...$keys) {
-        global $args;
+    public static function got(array $args, array $keys) {
         foreach ($keys as $key) {
-            if (!isset($args[$key])) return false;
+            if (is_string($key)) {
+                if (!isset($args[$key])) return false;
+            } else {
+                $found = false;
+                foreach ($key as $subkey) {
+                    if (isset($args[$subkey])) {
+                        $found = true;
+                        break;
+                    }
+                }
+                if (!$found) return false;
+            }
         }
         return true;
     }
 
     /**
-     * 
+     * Check if global $args has all the listed keys.
      */
-    public static function checkargs(string ...$keys) {
-        $got = static::$gotargs(...$keys);
+    public static function gotargs(string ...$keys) {
+        global $args;
+        return static::got($args, $keys);
+    }
+
+    /**
+     * Like got(), but the array must have exactly those keys..
+     */
+    public static function gotexac(array $args, array $keys) {
+        return (count($args) === count($keys)) && static::got($args, $keys);
     }
 
     /**
@@ -124,22 +132,18 @@ class API {
     }
 
     /**
-     * Convert global $actions to a cleaner format
+     * Convert $actions array to a cleaner format (see 1.1 in a resource)
      */
-    public static function makeActions() {
-        global $actions, $method;
-
+    public static function prettyActions(array $actions) {
         $converted = [];
-
         foreach ($actions as $action => $spec) {
             $converted[$action] = [
                 'method' => $spec[0],
                 'query' => $spec[1],
-                'clauses' => $spec[2],
-                'body' => $spec[3]
+                'body' => $spec[2],
+                'clauses' => $spec[3]
             ];
         }
-
         return $converted;
     }
 }
@@ -324,7 +328,6 @@ class Auth {
      *     userid       Accessible if the user is authorized as particular user.
      *   - privileged,
      *     admin        Authorized as admin.
-     *   - none         Authorized as admin or not authorized.
      *
      * Returns
      *     true       if authentication is not achieved and not required.
@@ -336,7 +339,7 @@ class Auth {
         $auth = static::authorization();
 
         if (!$auth) {
-            return $level === 'open' || $level === 'free' || $level === 'none';
+            return $level === 'open' || $level === 'free';
         }
 
         $authid = $auth['userid'];
@@ -362,7 +365,6 @@ class Auth {
             break;
         case 'privileged':
         case 'admin':
-        case 'none':
             $allow = $admin;
             break;
         default:
@@ -392,7 +394,6 @@ class Auth {
      *     loggedinid   Accessible if the user is logged in as a particular user.
      *   - privileged,
      *     admin        Logged in as admin.
-     *   - none         Logged in as admin or not logged in.
      *
      * Returns
      *     true       if authentication is not achieved and not required.
@@ -404,7 +405,7 @@ class Auth {
         $auth = static::session();
 
         if (!$auth) {
-            return $level === 'open' || $level === 'free' || $level === 'none';
+            return $level === 'open' || $level === 'free';
         }
 
         $authid = $auth['userid'];
@@ -434,7 +435,6 @@ class Auth {
             break;
         case 'privileged':
         case 'admin':
-        case 'none':
             $allow = $admin;
             break;
         default:
@@ -464,7 +464,6 @@ class Auth {
      *     loggedinid   Accessible if the user is logged in as a particular user.
      *   - privileged,
      *     admin        Authenticated as admin.
-     *   - none         Authenticated as admin or not authenticated.
      *
      * Returns
      *     true       if authentication is not achieved and not required.
@@ -472,19 +471,13 @@ class Auth {
      *     user array if authentication is achieved and required.
      */
     public static function level(string $level, int $userid = null, bool $force = true) {
-        if ($level === 'none') {
-            $auth = static::authLevel($level, $userid, $force);
-            $session = static::sessionLevel($level, $userid, $force);
-            return ($auth && $session) ? $auth : false;
-        } else {
-            $auth = static::authLevel($level, $userid, $force);
-            if ($auth) return $auth;
+        $auth = static::authLevel($level, $userid, $force);
+        if ($auth) return $auth;
 
-            $session = static::sessionLevel($level, $userid, $force);
-            if ($session) return $session;
+        $session = static::sessionLevel($level, $userid, $force);
+        if ($session) return $session;
 
-            return false;
-        }
+        return false;
     }
 
     /**
@@ -637,67 +630,73 @@ class Auth {
  */
 class HTTPRequest {
     /**
-     * Used to "set" the HTTP request method. Used for testing in query.php only.
+     * Get the request's query string.
      */
-    public static $methodBackdoor = false;
+    public static function queryString() {
+        return $_SERVER['QUERY_STRING'];
+    }
 
     /**
-     * Parse the query's key value pairs into a JSON.
-     *
-     * If $force is set all parameters searched must be present.
+     * Get the request's body string.
      */
-    public static function parseQuery(array $parameters, bool $force = false) {
-        $args = [];
+    public static function bodyString() {
+        return file_get_contents('php://input');
+    }
 
-        foreach ($_GET as $param) {
-            if ($force && !isset($parameters[$param])) {
-                HTTPResponse::missingParameter($param, $parameters);
-            }
-            
-            $args[$param] = $_GET[$param];
+    /**
+     * Parse $_GET for resources.
+     */
+    public static function query(string $method, array $actions, string &$chosen = null) {
+        global $resource;
+
+        if ($_GET === []) {
+            HTTPResponse::look("Resource [$resource]");
         }
 
-        return API::cast($args);
+        foreach ($actions as $action => $spec) {
+            if ($method !== $spec[0]) continue; // actual method check
+            if (API::gotexac($_GET, $spec[1])) {
+                $chosen = $action;
+                return API::cast($_GET);
+            }
+        }
+
+        // Action not found
+        HTTPResponse::look("Resource [$resource]");
     }
 
     /**
      * Parse 
      */
-    public static function parseBody(array $required = []) {
+    public static function body(string ...$keys) {
         $body = static::bodyString();
 
         $json = json_decode($body, true);
 
-        if ($json === null) {
-            $json = ['content' => $body, $body => true];
+        if ($json === false) {
+            HTTPResponse::malformedJSON();
         }
 
-        foreach ($required as $param) {
-            if (!isset($json[$param])) {
-                HTTPResponse::missingInput($param, $required);
-            }
+        if (!API::got($json,  $keys)) {
+            HTTPResponse::missingParameters($keys);
         }
-        
+
         return API::cast($json);
     }
 
     /**
-     * Shorthand
+     * Get the request method
      */
-    public static function getContent() {
-        return static::parseBody(['content'])['content'];
+    public static function method() {
+        return $_SERVER['REQUEST_METHOD'];
     }
 
     /**
-     * Get the request method.
+     * Impose method to belong to this supported list.
+     * Make a backdoor for query.php
      */
-    public static function method(array $supported = null, bool $force = false) {
-        $method = $_SERVER['REQUEST_METHOD'];
-
-        // Backdoor method for query.php
-        if ($force && static::$methodBackdoor !== false) {
-            return static::$methodBackdoor;
-        } 
+    public static function requireMethod(array $supported = null) {
+        $method = static::method();
 
         // Just querying the actual method
         if ($supported === null) {
@@ -710,25 +709,7 @@ class HTTPRequest {
         }
 
         // Method must be supported, answer client
-        if ($force) {
-            HTTPResponse::badMethod($supported);
-        }
-        
-        return false;
-    }
-
-    /**
-     * Get the request's query string.
-     */
-    public static function queryString() {
-        return $_SERVER['QUERY_STRING'];
-    }
-
-    /**
-     * Get the request's body string.
-     */
-    public static function bodyString() {
-        return file_get_contents('php://input');
+        HTTPResponse::badMethod($supported);
     }
 
     /**
@@ -793,7 +774,7 @@ class HTTPResponse {
      * Redirects to json() for output. plain() not used as of now.
      */
     private static function success(string $code, string $message, array $data = null) {
-        global $resource, $methods, $method, $parameters, $args, $auth, $actions, $action;
+        global $resource, $methods, $method, $args, $auth, $actions, $action;
 
         $json = [
             'message' => $message,          // User readable [success] message
@@ -804,7 +785,6 @@ class HTTPResponse {
             'action' => $action,            // Action performed on this resource
             'method' => $method,            // HTTP request method
             //'methods' => $methods,          // Methods supported on this resource
-            //'parameters' => $parameters,    // Parameters supported on this resource
             //'actions' => $actions,          // Actions supported on this resource
             'data' => $data
         ];
@@ -816,7 +796,7 @@ class HTTPResponse {
      * Like output() but intended for error messages.
      */
     private static function error(string $code, string $error, array $data = null) {
-        global $resource, $methods, $method, $parameters, $args, $auth, $actions, $action;
+        global $resource, $methods, $method, $args, $auth, $actions, $action;
 
         $json = [
             'message' => $error,            // User readable [error] message
@@ -828,7 +808,6 @@ class HTTPResponse {
             'action' => $action,            // Action performed on this resource
             'method' => $method,            // HTTP request method
             'methods' => $methods,          // Methods supported on this resource
-            'parameters' => $parameters,    // Parameters supported on this resource
             'actions' => $actions,          // Actions supported on this resource
             'data' => $data
         ];
@@ -849,13 +828,15 @@ class HTTPResponse {
      * No arguments provided, querying resource.
      */
     public static function look(string $message, array $extra = []) {
-        http_response_code(200);
+        http_response_code(300);
 
-        global $methods, $parameters, $actions;
+        global $methods, $method, $actions, $action, $args;
+
+        $action = 'look';
+        $args = $_GET;
 
         $look = [
             'methods' => $methods,
-            'parameters' => $parameters,
             'actions' => $actions
         ];
 

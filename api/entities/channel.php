@@ -20,7 +20,7 @@ class Channel extends APIEntity {
     /**
      * CREATE
      */
-    public static function create(string $channelname, int $creator) {
+    public static function create(string $channelname, int $creatorid) {
         static::check($channelname);
 
         $query = '
@@ -32,7 +32,7 @@ class Channel extends APIEntity {
 
         try {
             DB::get()->beginTransaction();
-            $stmt->execute([$channelname, $creator]);
+            $stmt->execute([$channelname, $creatorid]);
             $id = (int)DB::get()->lastInsertId();
             DB::get()->commit();
             return $id;
@@ -90,6 +90,16 @@ class Channel extends APIEntity {
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$channelid]);
+        return $stmt->rowCount();
+    }
+
+    public static function deleteAll() {
+        $query = '
+            DELETE FROM Channel
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute();
         return $stmt->rowCount();
     }
 }

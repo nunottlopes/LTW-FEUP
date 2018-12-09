@@ -30,7 +30,7 @@ class Comment extends APIEntity {
     /**
      * READ
      */
-    public static function getUser(int $authorid) {
+    public static function getAuthor(int $authorid) {
         $query = '
             SELECT * FROM CommentAll WHERE authorid = ?
             ';
@@ -50,7 +50,7 @@ class Comment extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getChildrenUser(int $parentid, int $authorid) {
+    public static function getChildrenAuthor(int $parentid, int $authorid) {
         $query = '
             SELECT * FROM CommentAll WHERE parentid = ? AND authorid = ?
             ';
@@ -115,7 +115,7 @@ class Comment extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function deleteUser(int $authorid) {
+    public static function deleteAuthor(int $authorid) {
         $query = '
             DELETE FROM Comment WHERE authorid = ?
             ';
@@ -135,13 +135,23 @@ class Comment extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function deleteChildrenUser(int $parentid, int $authorid) {
+    public static function deleteChildrenAuthor(int $parentid, int $authorid) {
         $query = '
             DELETE FROM Comment WHERE parentid = ? AND authorid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$parentid, $authorid]);
+        return $stmt->rowCount();
+    }
+
+    public static function deleteAll() {
+        $query = '
+            DELETE FROM Comment
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute();
         return $stmt->rowCount();
     }
 }
