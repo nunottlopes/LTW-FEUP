@@ -2,36 +2,53 @@
 require_once __DIR__ . '/../api.php';
 require_once API::entity('entity');
 
+/**
+ * 1.1. LOAD resource description variables
+ */
 $resource = 'entity';
 
-$methods = ['GET', 'HEAD'];
-
-$parameters = ['entityid', 'all'];
+$methods = ['GET'];
 
 $actions = [
-    'read'     => ['GET', 'entityid'],
-    'read-all' => ['GET', 'all'],
-    'look'     => ['GET']
+    'get-id'  => ['GET', ['entityid']],
+    'get-all' => ['GET', ['all']]
 ];
 
-$method = HTTPRequest::method($methods, true);
+/**
+ * 1.2. LOAD request description variables
+ */
+$method = HTTPRequest::requireMethod($methods);
 
-$args = HTTPRequest::parse($parameters);
+$args = HTTPRequest::query($method, $actions, $action);
 
-switch ($method) {
-case 'GET':
-case 'HEAD':
-    if ($args === []) {
-        API::action('look');
+$auth = Auth::demandLevel('free');
+
+/**
+ * 2. GET: Check query parameter identifying resources
+ * ENTITY: entityid, all
+ */
+// entityid
+if (API::gotargs('entityid')) {
+    $entityid = $args['entityid'];
+
+    $entity = Entity::read($entityid);
+
+    if (!$entity) {
+        HTTPResponse::notFound("Entity with id $entityid");
     }
-    if (API::gotargs('entityid')) {
-        API::action('read');
-    }
-    if (API::gotargs('all')) {
-        API::action('read-all');
-    }
-    break;
 }
 
-HTTPResponse::noAction();
+/**
+ * 3. ANSWER: HTTPResponse
+ */
+// GET
+if ($action === 'get-id') {
+    HTTPResponse::ok("Entity $entityid", $entity);
+}
+
+if ($action === 'get-all') {
+    $entities = Entity::readAll();
+
+    HTTPResponse::ok("All entities", $entities);
+}
 ?>

@@ -2,36 +2,66 @@
 require_once __DIR__ . '/../api.php';
 require_once API::entity('tree');
 
+/**
+ * 1.1. LOAD resource description variables
+ */
 $resource = 'tree';
 
-$methods = ['GET', 'HEAD'];
-
-$parameters = ['parentid', 'childid'];
+$methods = ['GET'];
 
 $actions = [
-    'get-tree'     => ['GET', 'parentid'],
-    'get-ancestry' => ['GET', 'childid'],
-    'look'         => ['GET']
+    'get-tree'     => ['GET', ['parentid']],
+    'get-ancestry' => ['GET', ['childid']]
 ];
 
-$method = HTTPRequest::method($methods, true);
+/**
+ * 1.2. LOAD request description variables
+ */
+$method = HTTPRequest::requireMethod($methods);
 
-$args = HTTPRequest::parse($parameters);
+$args = HTTPRequest::query($method, $actions, $action);
 
-switch ($method) {
-case 'GET':
-case 'HEAD':
-    if ($args === []) {
-        API::action('look');
+$auth = Auth::demandLevel('free');
+
+/**
+ * 2. GET: Check query parameter identifying resources
+ * TREE: parentid, childid
+ */
+// parentid
+if (API::gotargs('parentid')) {
+    $parentid = $args['parentid'];
+
+    $parent = Entity::read($parentid);
+
+    if (!$parent) {
+        HTTPResponse::notFound("Parent Entity with id $parentid");
     }
-    if (API::gotargs('parentid')) {
-        API::action('get-tree');
-    }
-    if (API::gotargs('childid')) {
-        API::action('get-ancestry');
-    }
-    break;
 }
 
-HTTPResponse::noAction();
+// childid
+if (API::gotargs('childid')) {
+    $childid = $args['childid'];
+
+    $child = Comment::read($childid);
+
+    if (!$child) {
+        HTTPResponse::notFound("Child comment with id $childid");
+    }
+}
+
+/**
+ * 3. ANSWER: HTTPResponse
+ */
+// GET
+if ($action === 'get-tree') {
+    $tree = Tree::getTree($parentid);
+
+    HTTPResponse::ok("Comment tree on $parentid", $tree);
+}
+
+if ($action === 'get-ancestry') {
+    $ancestry = Tree::getAncestry($childid);
+
+    HTTPResponse::ok("Ancestry of $childid", $ancestry);
+}
 ?>

@@ -2,58 +2,168 @@
 require_once __DIR__ . '/../api.php';
 require_once API::entity('channel');
 
+/**
+ * 1.1. LOAD resource description variables
+ */
 $resource = 'channel';
 
-$methods = ['GET', 'HEAD', 'POST', 'DELETE'];
-
-$parameters = ['channelid', 'channelname', 'valid', 'confirm-delete', 'all'];
+$methods = ['GET', 'PUT', 'DELETE'];
 
 $actions = [
-    'create'   => ['POST', 'channelname', 'confirm'],
-    'delete'   => ['DELETE', 'channelid', 'confirm-delete'],
-    'get'      => ['GET', 'channelname'],
-    'read-all' => ['GET', 'all'],
-    'read'     => ['GET', 'channelid'],
-    'look'     => ['GET'],
-    'valid'    => ['GET', 'channelname', 'valid']
+    'create'      => ['PUT', ['creatorid'], ['channelname']],
+
+    'get-id'      => ['GET', ['channelid']],
+    'get-name'    => ['GET', ['channelname']],
+    'get-valid'   => ['GET', ['valid']],
+    'get-all'     => ['GET', ['all']],
+
+    'delete-id'   => ['DELETE', ['channelid']],
+    'delete-name' => ['DELETE', ['channelname']],
+    'delete-all'  => ['DELETE', ['all']]
 ];
 
-$method = HTTPRequest::method($methods, true);
+/**
+ * 1.2. LOAD request description variables
+ */
+$method = HTTPRequest::requireMethod($methods);
 
-$args = HTTPRequest::parse($parameters);
+$args = HTTPRequest::query($method, $actions, $action);
 
-switch ($method) {
-case 'GET':
-case 'HEAD':
-    if ($args === []) {
-        API::action('look');
+$auth = Auth::demandLevel('free');
+
+/**
+ * 2. GET: Check query parameter identifying resources
+ * CHANNEL: creatorid, channelid, channelname, valid, all
+ */
+// creatorid
+if (API::gotargs('creatorid')) {
+    $creatorid = $args['creatorid'];
+
+    $creator = User::read($creatorid);
+
+    if (!$creator) {
+        HTTPRequest::notFound("User with id $creatorid");
     }
-    if (API::gotargs('channelid')) {
-        API::action('read');
+
+    $creatorname = $creator['username'];
+}
+// channelid
+if (API::gotargs('channelid')) {
+    $channelid = $args['channelid'];
+
+    $channel = Channel::read($channelid);
+
+    if (!$channel) {
+        HTTPRequest::notFound("Channel with id $channelid");
     }
-    if (API::gotargs('all')) {
-        API::action('read-all');
+
+    $channelname = $channel['channelname'];
+}
+// channelname
+if (API::gotargs('channelname')) {
+    $channelname = $args['channelname'];
+
+    $channel = Channel::get($channelname);
+
+    if (!$channel) {
+        HTTPRequest::notFound("Channel $channelname");
     }
-    if (API::gotargs('valid', 'channelname')) {
-        API::action('valid');
-    }
-    if (API::gotargs('channelname')) {
-        API::action('get');
-    }
-    break;
-case 'POST':
-    if (API::gotargs('channelname', 'confirm')) {
-        API::action('create');
-    }
-    HTTPResponse::missingParameters(['channelname', 'confirm']);
-    break;
-case 'DELETE':
-    if (API::gotargs('channelid', 'confirm-delete')) {
-        API::action('delete');
-    }
-    HTTPResponse::missingParameters(['channelid', 'confirm-delete']);
-    break;
+
+    $channelid = $channel['channelid'];
+}
+// valid
+if (API::gotargs('valid')) {
+    $channelname = $args['valid'];
+
+    $valid = Channel::valid($channelname);
+
+    $validString = $valid ? "valid" : "invalid";
 }
 
-HTTPResponse::noAction();
+/**
+ * 3. ANSWER: HTTPResponse
+ */
+// PUT
+if ($action === 'create') {
+    $auth = Auth::demandLevel('authid', $creatorid);
+
+    $channelname = HTTPRequest::body('channelname');
+
+    $channelid = Channel::create($channelname, $creatorid);
+
+    if (!$channelid) {
+        HTTPResponse::serverError();
+    }
+
+    $channel = Channel::read($channelid);
+
+    $data = [
+        'channelid' => $channelid,
+        'channel' => $channel
+    ];
+
+    HTTPResponse::created("Created channel $channelid", $data);
+}
+
+// ***** GET
+if ($action === 'get-id') {
+    HTTPResponse::ok("Channel with id $channelid", $channel);
+}
+
+if ($action === 'get-name') {
+    HTTPResponse::ok("Channel $channelname", $channel);
+}
+
+if ($action === 'get-all') {
+    $channels = Channel::readAll();
+
+    HTTPResponse::ok("All channels", $channels);
+}
+
+if ($action === 'valid') {
+    $data = [
+        'channelname' => $channelname,
+        'valid' => $valid,
+        'text' => $valid_string
+    ];
+
+    HTTPResponse::ok("Channel name $channelname is $validString", $data);
+}
+
+// ***** DELETE
+if ($action === 'delete-id') {
+    Auth::demandLevel('admin');
+
+    $count = Channel::delete($channelid);
+
+    $data = [
+        'count' => $count
+    ];
+
+    HTTPResponse::deleted("Deleted channel $channelid", $data);
+}
+
+if ($action === 'delete-name') {
+    Auth::demandLevel('admin');
+
+    $count = Channel::delete($channelid);
+
+    $data = [
+        'count' => $count
+    ];
+
+    HTTPResponse::deleted("Deleted channel $channelname", $data);
+}
+
+if ($action === 'delete-all') {
+    Auth::demandLevel('admin');
+
+    $count = Channel::deleteAll();
+
+    $data = [
+        'count' => $count
+    ];
+
+    HTTPResponse::deleted("Deleted all channels", $data);
+}
 ?>
