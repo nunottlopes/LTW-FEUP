@@ -47,7 +47,7 @@ if (API::gotargs('storyid')) {
     $story = Story::read($storyid);
 
     if (!$story) {
-        HTTPRequest::notFound("Story with id $storyid");
+        HTTPResponse::notFound("Story with id $storyid");
     }
 
     $authorid = $story['authorid'];
@@ -59,7 +59,7 @@ if (API::gotargs('channelid')) {
     $channel = Channel::read($channelid);
 
     if (!$channel) {
-        HTTPRequeset::notFound("Channel with id $channelid");
+        HTTPResponse::notFound("Channel with id $channelid");
     }
 }
 // authorid
@@ -69,7 +69,7 @@ if (API::gotargs('authorid')) {
     $author = User::read($authorid);
 
     if (!$author) {
-        HTTPRequest::notFound("User with id $authorid");
+        HTTPResponse::notFound("User with id $authorid");
     }
 
     $authorname = $author['username'];

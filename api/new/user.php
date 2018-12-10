@@ -13,8 +13,8 @@ $actions = [
     'create'          => ['PUT', [], ['username', 'email', 'password']],
 
     'get-id'          => ['GET', ['userid']],
-    'get-by-username' => ['GET', ['username']],
-    'get-by-email'    => ['GET', ['email']],
+    'get-username'    => ['GET', ['username']],
+    'get-email'       => ['GET', ['email']],
     'get-all'         => ['GET', ['all']],
     'get-self'        => ['GET', ['self']],
     'valid-username'  => ['GET', ['valid-username']],
@@ -163,11 +163,11 @@ if ($action === 'get-id') {
     HTTPResponse::ok("User $userid", $user);
 }
 
-if ($action === 'get-by-username') {
+if ($action === 'get-username') {
     HTTPResponse::ok("User $username", $user);
 }
 
-if ($action === 'get-by-email') {
+if ($action === 'get-email') {
     HTTPResponse::ok("User $useremail", $user);
 }
 

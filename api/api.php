@@ -8,13 +8,14 @@ require_once __DIR__ . '/db.php';
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+$DEBUGGING = false;
 
 /**
  * API generic utilities
  * Little functionality, name might be misleading.
  */
 class API {
-    private static function singleCast(string $key, string $value) {
+    private static function singleCast(string $key, $value) {
         // IDs
         if (preg_match('/^\w*id$/', $key)) {
             return (int)$value;
@@ -84,21 +85,18 @@ class API {
     /**
      * Check if $args has all the listed keys.
      * A string key must be present.
-     * An array key is an array of strings, at least on of which must be present.
+     * An array key is an array of strings, exactly one of which must be present.
      */
     public static function got(array $args, array $keys) {
         foreach ($keys as $key) {
             if (is_string($key)) {
                 if (!isset($args[$key])) return false;
             } else {
-                $found = false;
+                $count = 0;
                 foreach ($key as $subkey) {
-                    if (isset($args[$subkey])) {
-                        $found = true;
-                        break;
-                    }
+                    if (isset($args[$subkey])) ++$count;
                 }
-                if (!$found) return false;
+                if ($count !== 1) return false;
             }
         }
         return true;
@@ -137,12 +135,10 @@ class API {
     public static function prettyActions(array $actions) {
         $converted = [];
         foreach ($actions as $action => $spec) {
-            $converted[$action] = [
-                'method' => $spec[0],
-                'query' => $spec[1],
-                'body' => $spec[2],
-                'clauses' => $spec[3]
-            ];
+            $converted[$action] = ['method' => $spec[0]];
+            if (isset($spec[1])) $converted[$action]['query'] = $spec[1];
+            if (isset($spec[2])) $converted[$action]['body'] = $spec[2];
+            if (isset($spec[3])) $converted[$action]['extra'] = $spec[3];
         }
         return $converted;
     }
@@ -750,7 +746,7 @@ class HTTPResponse {
         header("Content-Type: application/json");
 
         if (HTTPRequest::method() !== 'HEAD') {
-            echo json_encode($json, JSON_PRETTY_PRINT);
+            echo json_encode($json);
         }
 
         exit(0);
@@ -776,8 +772,12 @@ class HTTPResponse {
     private static function success(string $code, string $message, array $data = null) {
         global $resource, $methods, $method, $args, $auth, $actions, $action;
 
+        $pretty = API::prettyActions($actions);
+        $status = http_response_code();
+
         $json = [
             'message' => $message,          // User readable [success] message
+            'status' => $status,            // HTTP response status
             'code' => $code,                // Machine readable [success] message
             'args' => $args,                // Client provided arguments
             'auth' => $auth,                // Request performed as this user
@@ -785,7 +785,7 @@ class HTTPResponse {
             'action' => $action,            // Action performed on this resource
             'method' => $method,            // HTTP request method
             //'methods' => $methods,          // Methods supported on this resource
-            //'actions' => $actions,          // Actions supported on this resource
+            //'actions' => $pretty,           // Actions supported on this resource
             'data' => $data
         ];
 
@@ -798,17 +798,21 @@ class HTTPResponse {
     private static function error(string $code, string $error, array $data = null) {
         global $resource, $methods, $method, $args, $auth, $actions, $action;
 
+        $pretty = API::prettyActions($actions);
+        $status = http_response_code();
+
         $json = [
             'message' => $error,            // User readable [error] message
             'error' => $error,              // User readable [error] message
-            'code' => $code,                // Machine readable [error] message
+            'status' => $status,            // HTTP response status
+            'code' => $code,                // Indicates origin method
             'args' => $args,                // Client provided arguments, possibly null
             'auth' => $auth,                // Request performed as this user
             'resource' => $resource,        // Resource accessed
             'action' => $action,            // Action performed on this resource
             'method' => $method,            // HTTP request method
             'methods' => $methods,          // Methods supported on this resource
-            'actions' => $actions,          // Actions supported on this resource
+            'actions' => $pretty,           // Actions supported on this resource
             'data' => $data
         ];
 
