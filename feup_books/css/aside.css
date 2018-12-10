@@ -26,5 +26,5 @@
 
 #page_authors{
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 }
