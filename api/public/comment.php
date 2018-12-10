@@ -60,7 +60,7 @@ if (API::gotargs('parentid')) {
     $parent = Entity::read($parentid);
 
     if (!$parent) {
-        HTTPRequeset::notFound("Parent Entity with id $parentid");
+        HTTPResponse::notFound("Parent Entity with id $parentid");
     }
 }
 // authorid
@@ -70,7 +70,7 @@ if (API::gotargs('authorid')) {
     $author = User::read($authorid);
 
     if (!$author) {
-        HTTPRequest::notFound("User with id $authorid");
+        HTTPResponse::notFound("User with id $authorid");
     }
 
     $authorname = $author['username'];

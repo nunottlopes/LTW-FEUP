@@ -1,34 +1,59 @@
 var api = {
+    "settings": {
+        credentials: "omit",
+        redirect: "follow",
+        expect: [200, 401, 404]
+    },
+
     "resource": function(resource, query) {
-        const url = new URL('api/new/' + resource + '.php', window.location.origin);
+        const url = new URL('api/public/' + resource + '.php', window.location.origin);
         url.search = new URLSearchParams(query);
         return url;
     },
 
     "fetch": function(resource, query, userInit, userExpect) {
-        const url = this.resource(resource, query);
-        const expect = new Set(userExpect || [200, 404]);
+        const url = api.resource(resource, query);
+        const expect = new Set(userExpect || this.settings.expect);
         const init = Object.assign({
             method: 'GET',
             mode: 'same-origin',
-            credentials: 'same-origin',
-            redirect: 'follow'
+            credentials: this.settings.credentials,
+            redirect: this.settings.redirect
         }, userInit || {});
         
-        return window.fetch(url, init).then(function(response) {
-            api.log.push(response);
+        const promise = window.fetch(url, init).then(function(response) {
+            const status = response.status;
+
+            api.log.responses.push({
+                status: status,
+                response: response
+            });
+
+            api.log.jsons.push(response.json());
 
             // The user will handle this response.
-            if (expect.has(response.status)) {
+            if (expect.has(status)) {
                 return response;
             }
 
             // The user claims it should not handle this response normally.
-            console.error("Unexpected response status %d", status, expect);
-            api.unhandled.push(response);
-
-            throw response;
+            console.warn("Unexpected response status %d", status, expect);
+            
+            api.log.unhandled.push({
+                status: status,
+                response: response
+            });
         });
+
+        this.log.requests.push({
+            resource: resource,
+            query: query,
+            init: init,
+            expect: expect,
+            promise: promise
+        });
+
+        return promise;
     },
 
     "get": function(resource, query, userExpect) {
@@ -50,7 +75,7 @@ var api = {
     },
 
     "put": function(resource, query, data, userExpect) {
-        userExpect = userExpect || [200, 404];
+        userExpect = userExpect || [200, 201, 404];
         return this.fetch(resource, query, {
             method: 'PUT',
             headers: {
@@ -78,9 +103,12 @@ var api = {
         }, userExpect);
     },
 
-    "log": [],
-
-    "unhandled": [],
+    log: {
+        responses: [],
+        requests: [],
+        unhandled: [],
+        jsons: []
+    },
 
     "user": {
         "get": function(query, expect) {
@@ -172,3 +200,7 @@ var api = {
         }
     }
 };
+
+function last() {
+    return api.log.jsons[api.log.jsons.length - 1];
+}

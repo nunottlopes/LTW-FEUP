@@ -119,7 +119,7 @@ if ($action === 'create') {
     $body = HTTPRequest::body('username', 'email', 'password');
 
     $username = $body['username'];
-    $useremail = $body['useremail'];
+    $useremail = $body['email'];
     $password = $body['password'];
 
     if (!User::validUsername($username)) {

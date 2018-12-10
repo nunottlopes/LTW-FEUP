@@ -5,10 +5,7 @@ require_once __DIR__ . '/db.php';
 /**
  * Error reporting.
  */
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-$DEBUGGING = false;
 
 /**
  * API generic utilities
@@ -645,13 +642,13 @@ class HTTPRequest {
     public static function query(string $method, array $actions, string &$chosen = null) {
         global $resource;
 
-        if ($_GET === []) {
+        if ($_GET === [] && $method === 'GET') {
             HTTPResponse::look("Resource [$resource]");
         }
 
         foreach ($actions as $action => $spec) {
             if ($method !== $spec[0]) continue; // actual method check
-            if (API::gotexac($_GET, $spec[1])) {
+            if (API::got($_GET, $spec[1])) {
                 $chosen = $action;
                 return API::cast($_GET);
             }
@@ -677,7 +674,9 @@ class HTTPRequest {
             HTTPResponse::missingParameters($keys);
         }
 
-        return API::cast($json);
+        $casted = API::cast($json);
+        if (count($keys) === 1) return $casted[$keys[0]];
+        else return $casted;
     }
 
     /**
@@ -994,7 +993,7 @@ class HTTPResponse {
     /**
      * 400 Bad Request
      */
-    public static function invalid(string $what, string $requirement) {
+    public static function invalid(string $what, string $reason) {
         http_response_code(400);
 
         $error = "Invalid $what";
@@ -1002,10 +1001,29 @@ class HTTPResponse {
         $data = [
             'param' => $what,
             'key' => $what,
-            'requires' => $requirement,
+            'reason' => $reason,
         ];
 
         static::error('Invalid', $error, $data);
+    }
+
+    /**
+     * 400 Bad Request
+     * The request tried to create a resource that conflicted with an already existing
+     * resource.
+     */
+    public static function conflict(string $error, string $entity, string $culprit) {
+        http_response_code(400);
+
+        $error = "Conflict: $error";
+
+        $data = [
+            'culprit' => $culprit,
+            'entity' => $entity,
+            'reason' => $error
+        ];
+
+        static::error('Conflict', $error, $data);
     }
 
     /**
@@ -1107,6 +1125,7 @@ class HTTPResponse {
     /**
      * 403 Forbidden
      * The resource requires privileged (admin) access, so the user cannot access it.
+     * Obviously this isn't actually sent to an admin.
      */
     public static function forbidden() {
         http_response_code(403);
@@ -1114,24 +1133,6 @@ class HTTPResponse {
         $error = "Forbidden request: requires privileged access";
 
         static::error('Forbidden', $error);
-    }
-
-    /**
-     * 403 Forbidden
-     * The request tried to create a resource that conflicted with an already existing
-     * resource.
-     */
-    public static function conflict(string $error, string $entity, string $culprit) {
-        http_response_code(403);
-
-        $error = "Conflict: $error";
-
-        $data = [
-            'culprit' => $culprit,
-            'entity' => $entity
-        ];
-
-        static::error('Conflict', $error, $data);
     }
 
     /**
@@ -1148,25 +1149,6 @@ class HTTPResponse {
         ];
 
         static::error('Not Found', $error, $data);
-    }
-
-    /**
-     * 404 Not Found
-     * The requested action on the resource seems valid, but said action requires
-     * the existence of another resource as specified by the client's arguments
-     * and that resource does not exist.
-     */
-    public static function adjacentNotFound(string $adjacent) {
-        http_response_code(404);
-
-        $error = "Implied adjacent entity does not exist: $adjacent";
-
-        $data = [
-            'resource' => $adjacent,
-            'adjacent' => $adjacent
-        ];
-
-        static::error('Adjacent Not Found', $error, $data);
     }
 
     /**

@@ -42,7 +42,7 @@ if (API::gotargs('creatorid')) {
     $creator = User::read($creatorid);
 
     if (!$creator) {
-        HTTPRequest::notFound("User with id $creatorid");
+        HTTPResponse::notFound("User with id $creatorid");
     }
 
     $creatorname = $creator['username'];
@@ -54,7 +54,7 @@ if (API::gotargs('channelid')) {
     $channel = Channel::read($channelid);
 
     if (!$channel) {
-        HTTPRequest::notFound("Channel with id $channelid");
+        HTTPResponse::notFound("Channel with id $channelid");
     }
 
     $channelname = $channel['channelname'];
@@ -66,7 +66,7 @@ if (API::gotargs('channelname')) {
     $channel = Channel::get($channelname);
 
     if (!$channel) {
-        HTTPRequest::notFound("Channel $channelname");
+        HTTPResponse::notFound("Channel $channelname");
     }
 
     $channelid = $channel['channelid'];
