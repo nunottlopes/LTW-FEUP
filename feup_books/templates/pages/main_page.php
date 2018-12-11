@@ -7,13 +7,7 @@
             <h1>Title</h1>
             <p>Husbands ask repeated resolved but laughter debating. She end cordial visitor noisier fat subject general picture. Or if offering confined entrance no. Nay rapturous him see something residence. Highly talked do so vulgar. Her use behaved spirits and natural attempt say feeling. Exquisite mr incommode immediate he something ourselves it of. Law conduct yet chiefly beloved examine village proceed. </p>
             </a>
-            <footer>
-                <button class="post_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> Upvote</button>
-                <button class="post_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> Downvote</button>
-                <button class="post_button" onclick="comments()"><i class="fa fa-comment"></i> Comments</button>
-                <button class="post_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
-                <button class="post_button" onclick="share()"><i class="fa fa-share-alt"></i> Share</button>
-            </footer>
+            <?php include('templates/common/post_buttons.php')?>
         </article>
 
         <article class="post_preview">
@@ -22,61 +16,10 @@
             <h1>Title</h1>
             <img src="images/posts/random.png" alt="post image">
             </a>
-            <footer>
-                <button class="post_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> Upvote</button>
-                <button class="post_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> Downvote</button>
-                <button class="post_button" onclick="comments()"><i class="fa fa-comment"></i> Comments</button>
-                <button class="post_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
-                <button class="post_button" onclick="share()"><i class="fa fa-share-alt"></i> Share</button>
-            </footer>
+            <?php include('templates/common/post_buttons.php')?>
         </article>
-
-        <article class="post_preview">
-            <header>Posted by Amadeu 4 hours ago</header>
-            <a href="post.php">
-            <h1>Title</h1>
-            <p>Husbands ask repeated resolved but laughter debating. She end cordial visitor noisier fat subject general picture. Or if offering confined entrance no. Nay rapturous him see something residence. Highly talked do so vulgar. Her use behaved spirits and natural attempt say feeling. Exquisite mr incommode immediate he something ourselves it of. Law conduct yet chiefly beloved examine village proceed. </p>
-            </a>
-            <footer>
-                <button class="post_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> Upvote</button>
-                <button class="post_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> Downvote</button>
-                <button class="post_button" onclick="comments()"><i class="fa fa-comment"></i> Comments</button>
-                <button class="post_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
-                <button class="post_button" onclick="share()"><i class="fa fa-share-alt"></i> Share</button>
-            </footer>
-        </article>
-
-        <article class="post_preview">
-            <header>Posted by Amadeu 4 hours ago</header>
-            <a href="post.php">
-            <h1>Title</h1>
-            <img src="images/posts/random.png" alt="post image">
-            </a>
-            <footer>
-                <button class="post_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> Upvote</button>
-                <button class="post_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> Downvote</button>
-                <button class="post_button" onclick="comments()"><i class="fa fa-comment"></i> Comments</button>
-                <button class="post_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
-                <button class="post_button" onclick="share()"><i class="fa fa-share-alt"></i> Share</button>
-            </footer>
-        </article>
-
-        <article class="post_preview">
-            <header>Posted by Amadeu 4 hours ago</header>
-            <a href="post.php">
-            <h1>Title</h1>
-            <p>Husbands ask repeated resolved but laughter debating. She end cordial visitor noisier fat subject general picture. Or if offering confined entrance no. Nay rapturous him see something residence. Highly talked do so vulgar. Her use behaved spirits and natural attempt say feeling. Exquisite mr incommode immediate he something ourselves it of. Law conduct yet chiefly beloved examine village proceed. </p>
-            </a>
-            <footer>
-                <button class="post_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> Upvote</button>
-                <button class="post_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> Downvote</button>
-                <button class="post_button" onclick="comments()"><i class="fa fa-comment"></i> Comments</button>
-                <button class="post_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
-                <button class="post_button" onclick="share()"><i class="fa fa-share-alt"></i> Share</button>
-            </footer>
-        </article>
-
     </div>
+    <script src="javascript/main_page.js"></script>
 
     <script src="javascript/post_buttons.js"></script>
 

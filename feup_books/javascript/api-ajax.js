@@ -2,7 +2,8 @@ var api = {
     "settings": {
         credentials: "omit",
         redirect: "follow",
-        expect: [200, 201, 202]
+        expect: [200, 201, 202],
+        origin: window.location.origin
     },
 
     "handlers": {
@@ -76,7 +77,8 @@ var api = {
     },
 
     "resource": function(resource, query) {
-        const url = new URL('feup_books/api/public/' + resource + '.php', window.location.origin);
+        const url = new URL('feup_books/api/public/' + resource + '.php', api.settings.origin);
+        console.log(url);
         url.search = new URLSearchParams(query);
         return url;
     },
