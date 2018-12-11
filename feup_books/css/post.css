@@ -15,7 +15,7 @@
 .post_preview header, .post_complete header{
     margin: 1em;
     font-weight: lighter;
-    opacity: 0.5;
+    color: rgb(134, 131, 131);
     font-size: 15px;
 }
 
@@ -38,7 +38,6 @@
 }
 
 .post_preview p, .post_complete p{
-    margin: 0;
     padding: 1em; 
 }
   
@@ -112,5 +111,21 @@
 }
 
 .post_comment {
-    margin-bottom: 2em;
+    padding-bottom: 1em;
+    padding-left: 1em;
+    border-left: 1px solid rgb(124, 123, 123);
+}
+
+.post_comment > header{
+    font-size: 12px;
+}
+
+.post_comment > p{
+    margin: 0.5em 0;
+}
+
+.post_comment > .post_comment{
+    padding-bottom: 1em;
+    padding-top: 0.5em;
+    margin-left: 1em;
 }
