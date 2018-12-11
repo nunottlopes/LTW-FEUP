@@ -78,7 +78,6 @@ var api = {
 
     "resource": function(resource, query) {
         const url = new URL('feup_books/api/public/' + resource + '.php', api.settings.origin);
-        console.log(url);
         url.search = new URLSearchParams(query);
         return url;
     },

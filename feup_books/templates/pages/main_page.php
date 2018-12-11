@@ -1,24 +1,6 @@
 <div id="main_page">
 
-    <div id="main_page_posts">
-        <article class="post_preview">
-            <header>Posted by Amadeu 4 hours ago</header>
-            <a href="post.php">
-            <h1>Title</h1>
-            <p>Husbands ask repeated resolved but laughter debating. She end cordial visitor noisier fat subject general picture. Or if offering confined entrance no. Nay rapturous him see something residence. Highly talked do so vulgar. Her use behaved spirits and natural attempt say feeling. Exquisite mr incommode immediate he something ourselves it of. Law conduct yet chiefly beloved examine village proceed. </p>
-            </a>
-            <?php include('templates/common/post_buttons.php')?>
-        </article>
-
-        <article class="post_preview">
-            <header>Posted by Amadeu 4 hours ago</header>
-            <a href="post.php">
-            <h1>Title</h1>
-            <img src="images/posts/random.png" alt="post image">
-            </a>
-            <?php include('templates/common/post_buttons.php')?>
-        </article>
-    </div>
+    <div id="main_page_posts"></div>
     <script src="javascript/main_page.js"></script>
 
     <script src="javascript/post_buttons.js"></script>
