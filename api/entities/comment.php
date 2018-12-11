@@ -12,6 +12,29 @@ class Comment extends APIEntity {
     protected const defaultOffset = 0;
 
     /**
+     * Extend a normal query's arguments $args with since, limit and offset.
+     * The query string ends with:
+     *
+     *      [AND|WHERE] createdat >= ? LIMIT ? OFFSET ?
+     *                               ^       ^        ^- $offset
+     *                               |       +--- $limit
+     *                               +--- $since
+     * 
+     * So we push to $args array values $since, $limit and $offset IN THIS ORDER.
+     */
+    protected static function extend(array $args = [], array $more = null) {
+        $since = static::since($more['since']);
+        $limit = static::limit($more['limit']);
+        $offset = static::offset($more['offset']);
+
+        $args[] = $since;
+        $args[] = $limit;
+        $args[] = $offset;
+
+        return $args;
+    }
+
+    /**
      * AUXILIARY
      * 
      * Select the appropriate story table view based on sorting desired.
@@ -38,7 +61,7 @@ class Comment extends APIEntity {
      */
     public static function create(int $parentid, int $authorid, string $content) {
         $query = '
-            INSERT INTO Comment(parentid, authorid, content)
+            INSERT INTO CommentEntity(parentid, authorid, content)
             VALUES (?, ?, ?)
             ';
 
@@ -64,7 +87,7 @@ class Comment extends APIEntity {
         
         $query = "
             SELECT * FROM $sorttable WHERE parentid = ? AND authorid = ?
-            WHERE createdat > ? LIMIT ? OFFSET ?
+            WHERE createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([$parentid, $authorid], $more);
@@ -79,7 +102,7 @@ class Comment extends APIEntity {
         
         $query = "
             SELECT * FROM $sorttable WHERE parentid = ?
-            WHERE createdat > ? LIMIT ? OFFSET ?
+            WHERE createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([$parentid], $more);
@@ -94,7 +117,7 @@ class Comment extends APIEntity {
 
         $query = "
             SELECT * FROM $sorttable WHERE authorid = ?
-            WHERE createdat > ? LIMIT ? OFFSET ?
+            WHERE createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([$authorid], $more);
@@ -119,7 +142,7 @@ class Comment extends APIEntity {
 
         $query = "
             SELECT * FROM $sorttable
-            WHERE createdat > ? LIMIT ? OFFSET ?
+            WHERE createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([], $more);
@@ -134,7 +157,7 @@ class Comment extends APIEntity {
      */
     public static function update(int $id, string $content) {
         $query = '
-            UPDATE Comment SET content = ? WHERE entityid = ?
+            UPDATE CommentEntity SET content = ? WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -144,7 +167,7 @@ class Comment extends APIEntity {
 
     public static function clear(int $id) {
         $query = '
-            UPDATE Comment SET content = "" WHERE entityid = ?
+            UPDATE CommentEntity SET content = "" WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);

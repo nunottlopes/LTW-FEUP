@@ -18,27 +18,27 @@ error_reporting(E_ALL);
 class API {
     private static function singleCast(string $key, $value) {
         // IDs
-        if (preg_match('/^\w*id$/', $key)) {
+        if (preg_match('/^\w*id$/i', $key)) {
             return (int)$value;
         }
 
         // Votes
-        if (preg_match('/^(?:\w*votes\w*|score)$/', $key)) {
+        if (preg_match('/^(?:\w*votes\w*|score)$/i', $key)) {
             return (int)$value;
         }
 
         // Timestamps
-        if (preg_match('/^(?:\w+at|\w*date|\w*time|timestamp)$/', $key)) {
+        if (preg_match('/^(?:\w+at|\w*date|\w*time|timestamp)$/i', $key)) {
             return (int)$value;
         }
 
         // Numbers
-        if (preg_match('/^(?:limit|since|offset)$/', $key)) {
+        if (preg_match('/^(?:limit|since|offset)$/i', $key)) {
             return (int)$value;
         }
 
         // Floats
-        if (preg_match('/^(?:lowerbound|average)$/', $key)) {
+        if (preg_match('/^(?:lowerbound|average)$/i', $key)) {
             return (float)$value;
         }
 

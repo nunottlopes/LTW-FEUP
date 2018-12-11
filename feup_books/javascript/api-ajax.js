@@ -246,8 +246,8 @@ var api = {
         "post": function(query, data, expect) {
             return api.post('story', query, data, expect);
         },
-        "put": function(query, data, expect) {
-            return api.put('story', query, data, expect);
+        "patch": function(query, data, expect) {
+            return api.patch('story', query, data, expect);
         },
         "delete": function(query, expect) {
             return api.delete('story', query, expect);

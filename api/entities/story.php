@@ -12,6 +12,29 @@ class Story extends APIEntity {
     protected const defaultOffset = 0;
 
     /**
+     * Extend a normal query's arguments $args with since, limit and offset.
+     * The query string ends with:
+     *
+     *      [AND|WHERE] createdat >= ? LIMIT ? OFFSET ?
+     *                               ^       ^        ^- $offset
+     *                               |       +--- $limit
+     *                               +--- $since
+     * 
+     * So we push to $args array values $since, $limit and $offset IN THIS ORDER.
+     */
+    protected static function extend(array $args = [], array $more = null) {
+        $since = static::since($more['since']);
+        $limit = static::limit($more['limit']);
+        $offset = static::offset($more['offset']);
+
+        $args[] = $since;
+        $args[] = $limit;
+        $args[] = $offset;
+
+        return $args;
+    }
+
+    /**
      * AUXILIARY
      * 
      * Select the appropriate story table view based on sorting desired.
@@ -38,7 +61,7 @@ class Story extends APIEntity {
     public static function create(string $channelid, int $authorid, string $title,
             string $type, string $content) {
         $query = '
-            INSERT INTO Story(channelid, authorid, storyTitle, storyType, content)
+            INSERT INTO StoryEntity(channelid, authorid, storyTitle, storyType, content)
             VALUES (?, ?, ?, ?, ?)
             ';
 
@@ -65,7 +88,7 @@ class Story extends APIEntity {
         $query = "
             SELECT * FROM $sorttable
             WHERE channelid = ? AND authorid = ?
-            AND createdat > ? LIMIT ? OFFSET ?
+            AND createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $stmt = DB::get()->prepare($query);
@@ -79,7 +102,7 @@ class Story extends APIEntity {
         $query = "
             SELECT * FROM $sorttable
             WHERE channelid = ?
-            AND createdat > ? LIMIT ? OFFSET ?
+            AND createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $stmt = DB::get()->prepare($query);
@@ -93,7 +116,7 @@ class Story extends APIEntity {
         $query = "
             SELECT * FROM $sorttable
             WHERE authorid = ?
-            AND createdat > ? LIMIT ? OFFSET ?
+            AND createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $stmt = DB::get()->prepare($query);
@@ -117,7 +140,7 @@ class Story extends APIEntity {
 
         $query = "
             SELECT * FROM $sorttable
-            WHERE createdat > ? LIMIT ? OFFSET ?
+            WHERE createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $stmt = DB::get()->prepare($query);
@@ -130,7 +153,7 @@ class Story extends APIEntity {
      */
     public static function update(int $id, string $content) {
         $query = '
-            UPDATE Story SET content = ? WHERE entityid = ?
+            UPDATE StoryEntity SET content = ? WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);

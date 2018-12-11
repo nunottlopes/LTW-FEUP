@@ -5,6 +5,38 @@ require_once __DIR__ . '/comment.php';
 
 class Tree extends APIEntity {
     /**
+     * $more Default Constants
+     */
+    protected const defaultSince = 0;
+    protected const defaultLimit = 25;
+    protected const defaultOffset = 0;
+    protected const defaultMaxDepth = 5;
+
+    /**
+     * Extend a normal query's arguments $args with since, limit and offset.
+     * The query string ends with:
+     *
+     *  [AND|WHERE] createdat >= ? AND depth <= ? LIMIT ? OFFSET ?
+     *                           ^              ^       ^        ^- $offset
+     *                           |              |       +--- $limit
+     *                           |              +--- $maxdepth
+     *                           +--- $since
+     * 
+     * So we push to $args array values $since, $limit and $offset IN THIS ORDER.
+     */
+    protected static function extend(array $args = [], array $more = null) {
+        $since = static::since($more['since']);
+        $limit = static::limit($more['limit']);
+        $offset = static::offset($more['offset']);
+
+        $args[] = $since;
+        $args[] = $limit;
+        $args[] = $offset;
+
+        return $args;
+    }
+
+    /**
      * AUXILIARY
      */
     private static function buildTree(array $entities, int $id) {
@@ -54,15 +86,7 @@ class Tree extends APIEntity {
 
     public static function getDescendants(int $parentid) {
         $query = '
-            WITH RECURSIVE Subtree(id) AS (
-                VALUES(?)
-                UNION
-                SELECT entityid FROM Comment JOIN Subtree
-                WHERE Comment.parentid = Subtree.id
-            )
-            SELECT * FROM CommentAll
-            WHERE entityid IN Subtree AND entityid != ?
-            ORDER BY createdat DESC
+            SELECT * FROM 
             ';
 
         $stmt = DB::get()->prepare($query);
