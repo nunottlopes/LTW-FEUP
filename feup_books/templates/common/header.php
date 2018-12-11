@@ -26,17 +26,17 @@
     <input class="search_bar" type="text" placeholder="Search.." name="search"/>
     <section id="user-header">
       <div class="dropdown">
-        <!-- <div id="profile_button">
-        <img src="images/users/user.png" alt="User profile picture">
-        <p> Amadeu Pereira </p>
+        <div id="profile_button">
+          <img id="client_image" src="images/users/user.png" alt="User profile picture">
+          <p id="client_name"> Amadeu Pereira </p>
         </div>
-        <?php //include('templates/user/dropdown.php'); ?>
-      </div> -->
+        <?php include('templates/user/dropdown.php'); ?>
+      </div>
 
-      <button id="log_in_button" class="header_button" type="button">LOG IN</button>
-      <?php include('templates/user/login.php'); ?>
+      <!-- <button id="log_in_button" class="header_button" type="button">LOG IN</button>
+      <?php //include('templates/user/login.php'); ?>
       <button id="sign_up_button" class="header_button" type="button">SIGN UP</button>
-      <?php include('templates/user/register.php'); ?>
+      <?php //include('templates/user/register.php'); ?> -->
 
       <script src="javascript/user_header.js"></script> 
       

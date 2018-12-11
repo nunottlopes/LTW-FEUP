@@ -120,4 +120,5 @@ section#user-header img{
   min-width: 160px;
   justify-content: space-around;
   align-items: center;
+  cursor: pointer;
 }
