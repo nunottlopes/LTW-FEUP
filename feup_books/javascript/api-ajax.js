@@ -2,7 +2,7 @@ var api = {
     "settings": {
         credentials: "omit",
         redirect: "follow",
-        expect: [200, 201]
+        expect: [200, 201, 202]
     },
 
     "handlers": {
