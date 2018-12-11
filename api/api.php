@@ -1191,6 +1191,7 @@ class HTTPResponse {
     /**
      * 503 Service Unavailable
      * Database schema change (debugging only, presumably...)
+     * Not used.
      */
     public static function schemaChanged(array $data = null) {
         http_response_code(503);
@@ -1203,6 +1204,7 @@ class HTTPResponse {
 
     /**
      * 503 Service Unavailable
+     * Not used.
      */
     public static function unavailable(string $message, int $time, array $data = null) {
         http_response_code(503);
