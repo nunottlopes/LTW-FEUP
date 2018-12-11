@@ -121,4 +121,5 @@ section#user-header img{
   justify-content: space-around;
   align-items: center;
   cursor: pointer;
+  margin-right: 1em; 
 }

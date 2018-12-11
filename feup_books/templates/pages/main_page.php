@@ -1,7 +1,7 @@
 <div id="main_page">
 
     <div id="main_page_posts"></div>
-    <script src="javascript/main_page.js"></script>
+    <script src="javascript/pages/main_page.js"></script>
 
     <script src="javascript/post_buttons.js"></script>
 
