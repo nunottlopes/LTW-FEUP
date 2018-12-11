@@ -3,7 +3,35 @@ require_once __DIR__ . '/apientity.php';
 require_once __DIR__ . '/entity.php';
 require_once __DIR__ . '/channel.php';
 
-class Story extends APIEntity {    
+class Story extends APIEntity {
+    /**
+     * $more Default Constants
+     */
+    protected const defaultSince = 0;
+    protected const defaultLimit = 25;
+    protected const defaultOffset = 0;
+
+    /**
+     * AUXILIARY
+     * 
+     * Select the appropriate story table view based on sorting desired.
+     *
+     * Switch statement prevents SQL injection.
+     */
+    private static function sortTablename($orderby) {
+        if (!is_string($orderby)) return 'StoryAll';
+
+        switch ($orderby) {
+        case 'top': return 'StorySortTop';
+        case 'bot': return 'StorySortBot';
+        case 'average': return 'StorySortAverage';
+        case 'new': return 'StorySortNew';
+        case 'old': return 'StorySortOld';
+        case 'hot': return 'StorySortHot';
+        default: return 'StoryAll';
+        }
+    }
+
     /**
      * CREATE
      */
@@ -31,39 +59,52 @@ class Story extends APIEntity {
     /**
      * READ
      */
-    public static function getChannel(int $channelid) {
-        $query = '
-            SELECT * FROM StoryAll WHERE channelid = ?
-            ';
+    public static function getChannelUser(int $channelid, int $authorid, array $more = null) {
+        $sorttable = static::sortTablename($more['orderby']);
+
+        $query = "
+            SELECT * FROM $sorttable
+            WHERE channelid = ? AND authorid = ?
+            AND createdat > ? LIMIT ? OFFSET ?
+            ";
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$channelid]);
+        $stmt->execute(static::extend([$channelid, $authorid], $more));
         return static::fetchAll($stmt);
     }
 
-    public static function getUser(int $authorid) {
-        $query = '
-            SELECT * FROM StoryAll WHERE authorid = ?
-            ';
+    public static function getChannel(int $channelid, array $more = null) {
+        $sorttable = static::sortTablename($more['orderby']);
+
+        $query = "
+            SELECT * FROM $sorttable
+            WHERE channelid = ?
+            AND createdat > ? LIMIT ? OFFSET ?
+            ";
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$authorid]);
+        $stmt->execute(static::extend([$channelid], $more));
         return static::fetchAll($stmt);
     }
 
-    public static function getChannelUser(int $channelid, int $authorid) {
-        $query = '
-            SELECT * FROM StoryAll WHERE channelid = ? AND authorid = ?
-            ';
+    public static function getUser(int $authorid, array $more = null) {
+        $sorttable = static::sortTablename($more['orderby']);
+
+        $query = "
+            SELECT * FROM $sorttable
+            WHERE authorid = ?
+            AND createdat > ? LIMIT ? OFFSET ?
+            ";
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$channelid, $authorid]);
+        $stmt->execute(static::extend([$authorid], $more));
         return static::fetchAll($stmt);
     }
 
     public static function read(int $id) {
         $query = '
-            SELECT * FROM StoryAll WHERE entityid = ?
+            SELECT * FROM StoryAll
+            WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -71,10 +112,13 @@ class Story extends APIEntity {
         return static::fetch($stmt);
     }
 
-    public static function readAll() {
-        $query = '
-            SELECT * FROM StoryAll
-            ';
+    public static function readAll(array $more = null) {
+        $sorttable = static::sortTablename($more['orderby']);
+
+        $query = "
+            SELECT * FROM $sorttable
+            WHERE createdat > ? LIMIT ? OFFSET ?
+            ";
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute();

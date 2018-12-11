@@ -1,18 +1,8 @@
-<div id="view_post">
+<div id="view_post" class="page">
 
-    <div id="post_page_post">
-        <article class="post_complete">
-            <header>Posted by Amadeu 4 hours ago</header>
-            <h1>Title</h1>
-            <p>Husbands ask repeated resolved but laughter debating. She end cordial visitor noisier fat subject general picture. Or if offering confined entrance no. Nay rapturous him see something residence. Highly talked do so vulgar. Her use behaved spirits and natural attempt say feeling. Exquisite mr incommode immediate he something ourselves it of. Law conduct yet chiefly beloved examine village proceed. </p>
+    <div id="post_page_post" story-id="<?php echo $_GET['id']?>">
 
-            <footer>
-                <button class="post_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> Upvote</button>
-                <button class="post_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> Downvote</button>
-                <button class="post_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
-                <button class="post_button" onclick="share()"><i class="fa fa-share-alt"></i> Share</button>
-            </footer>
-        </article>
+        <article class="post_complete"></article>
 
         <div id="add_comment">
             <img src="images/users/user.png">
@@ -22,57 +12,24 @@
             </form>
         </div>
 
-        <div class="sort_by">
-            <div id="sortby">Sort by</div>
-            <div id="typesortby">BEST</div>
+        <div class="default_dropdown">
+            <header>Sort by</header>
+            <div id="dropdown_selection">BEST</div>
             <div class="triangle_down"></div>
-            <div id="sort-dropdown" class="sort-dropdown-content">
-                <a href="">BEST</a>
-                <a href="">TOP</a>
-                <a href="">NEW</a>
-                <a href="">OLD</a>
+            <div id="dropdown_options" class="default-dropdown-content">
+                <div>BEST</div>
+                <div>TOP</div>
+                <div>NEW</div>
+                <div>OLD</div>
             </div>
         </div>
+        <script src="javascript/dropdown.js"></script>
 
-        <section id="post_comments">
-            <article class="post_comment">
-                <header><a href="profile.php">Username</a> 14 day ago</header>
-                <p>Comment here! Merry alone do it burst me songs. Sorry equal charm joy her those folly ham. In they no is many both. Recommend new contented intention improving bed performed age. Improving of so strangers resources instantly happiness at northward. Danger nearer length oppose really add now either. But ask regret eat branch fat garden. Become am he except wishes. Past so at door we walk want such sang. Feeling colonel get her garrets own.</p>
-                <footer>
-                    <button class="comment_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> Upvote</button>
-                    <button class="comment_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> Downvote</button>
-                    <button class="comment_button" onclick="reply()"><i class="fa fa-comment"></i> Reply</button>
-                    <button class="comment_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
-                </footer>
-            </article>
-
-            <article class="post_comment">
-                <header><a href="profile.php">Username</a> 14 day ago</header>
-                <p>Comment here! Merry alone do it burst me songs. Sorry equal charm joy her those folly ham. In they no is many both. Recommend new contented intention improving bed performed age. Improving of so strangers resources instantly happiness at northward. Danger nearer length oppose really add now either. But ask regret eat branch fat garden. Become am he except wishes. Past so at door we walk want such sang. Feeling colonel get her garrets own.</p>
-                <footer>
-                    <button class="comment_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> Upvote</button>
-                    <button class="comment_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> Downvote</button>
-                    <button class="comment_button" onclick="reply()"><i class="fa fa-comment"></i> Reply</button>
-                    <button class="comment_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
-                </footer>
-            </article>
-
-            <article class="post_comment">
-                <header><a href="profile.php">Username</a> 14 day ago</header>
-                <p>Comment here! Merry alone do it burst me songs. Sorry equal charm joy her those folly ham. In they no is many both. Recommend new contented intention improving bed performed age. Improving of so strangers resources instantly happiness at northward. Danger nearer length oppose really add now either. But ask regret eat branch fat garden. Become am he except wishes. Past so at door we walk want such sang. Feeling colonel get her garrets own.</p>
-                <footer>
-                    <button class="comment_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> Upvote</button>
-                    <button class="comment_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> Downvote</button>
-                    <button class="comment_button" onclick="reply()"><i class="fa fa-comment"></i> Reply</button>
-                    <button class="comment_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
-                </footer>
-            </article>
-            
-        </section>
+        <section id="post_comments"></section>
     </div>
 
+    <script src="javascript/pages/post_page.js"></script>
     <script src="javascript/post_buttons.js"></script>
-    <script src="javascript/post_page.js"></script>
 
     <div id="post_page_aside">
         <div id="channel_subscription" class="aside_div">

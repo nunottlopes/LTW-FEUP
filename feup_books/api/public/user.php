@@ -19,7 +19,6 @@ $actions = [
     'get-self'        => ['GET', ['self']],
     'valid-username'  => ['GET', ['valid-username']],
     'valid-email'     => ['GET', ['valid-email']],
-    'admin'           => ['GET', ['admin']],
 
     'delete-id'       => ['DELETE', ['userid']],
     'delete-name'     => ['DELETE', ['username']],
@@ -101,12 +100,6 @@ if (API::gotargs('valid-email')) {
     $valid = User::validEmail($useremail);
 
     $validString = $valid ? "valid" : "invalid";
-}
-// admin
-if (API::gotargs('admin')) {
-    if ($auth === true || !$auth['admin']) {
-        HTTPResponse::unauthorized();
-    }
 }
 
 /**

@@ -34,6 +34,18 @@ class DB {
         static::$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 
         static::$db->query('PRAGMA foreign_keys=ON');
+
+        // Add SQRT function
+        static::$db->sqliteCreateFunction('SQRT', 'sqrt', 1);
+
+        // Add BEST sorting function
+        static::$db->sqliteCreateFunction('WILSONBEST', 'wilsonBestSort', 2);
     }
+}
+
+function wilsonBestSort(int $upvotes, int $downvotes) {
+    return (($upvotes + 1.9208) / ($upvotes + $downvotes) -
+        1.96 * sqrt(($upvotes * $downvotes) / ($upvotes + $downvotes) + 0.9604) /
+        ($upvotes + $downvotes)) / (1 + 3.8416 / ($upvotes + $downvotes))
 }
 ?>

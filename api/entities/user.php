@@ -181,15 +181,10 @@ class User extends APIEntity {
      * AUTHENTICATE
      */
     public static function authenticate(string $name, string $password, &$error = null) {
-        if (!static::validUsername($name)) {
-            $error = 'Invalid username';
-            return false;
-        }
-
         $user = static::getHash($name);
 
         if (!$user) {
-            $error = 'Invalid username'; // no it doesn't
+            $error = 'User $username does not exist'; // no it doesn't
             return false;
         }
 

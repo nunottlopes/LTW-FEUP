@@ -3,13 +3,17 @@ require_once __DIR__ . '/session.php';
 require_once __DIR__ . '/db.php';
 
 /**
+ * Authentication mode: Authorization or session?
+ */
+$AUTH_MODE = 'SESSION';
+
+/**
  * Error reporting.
  */
 error_reporting(E_ALL);
 
 /**
- * API generic utilities
- * Little functionality, name might be misleading.
+ * API generic utilities (name might be misleading)
  */
 class API {
     private static function singleCast(string $key, $value) {
@@ -19,7 +23,7 @@ class API {
         }
 
         // Votes
-        if (preg_match('/^\w*votes\w*$/', $key)) {
+        if (preg_match('/^(?:\w*votes\w*|score)$/', $key)) {
             return (int)$value;
         }
 
@@ -29,13 +33,13 @@ class API {
         }
 
         // Numbers
-        if (preg_match('/^(?:\w*number\w*|\w+num)$/', $key)) {
+        if (preg_match('/^(?:limit|since|offset)$/', $key)) {
             return (int)$value;
         }
 
-        // Clauses
-        if (preg_match('/^(?:limit|orderby|since|offset)$/', $key)) {
-            return (int)$value;
+        // Floats
+        if (preg_match('/^(?:lowerbound|average)$/', $key)) {
+            return (float)$value;
         }
 
         // Default text
@@ -150,9 +154,6 @@ require_once API::entity('user');
 class Auth {
     private static $authRegex = '/^Basic ((?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?)$/';
 
-    private static $authorizationParsed = false;
-    private static $authorizationUser = null;
-
     /**
      * Check if userid is an admin.
      * Admin specs might change in the future, e.g. another column on the
@@ -172,11 +173,9 @@ class Auth {
         if (User::authenticate($name, $password, $error)) {
             $user = User::get($name);
 
-            if (static::isAdminUser($user['userid'])) {
-                $user['admin'] = true;
-            } else {
-                $user['admin'] = false;
-            }
+            $admin = static::isAdminUser($user['userid']);
+
+            $user['admin'] = $admin;
 
             return $user;
         }
@@ -202,14 +201,12 @@ class Auth {
             $_SESSION['username'] = $user['username'];
             $_SESSION['useremail'] = $user['email'];
             $_SESSION['login_timestamp'] = time();
+            newCSRF();
 
-            if (static::isAdminUser($user['userid'])) {
-                $_SESSION['admin'] = true;
-                $user['admin'] = true;
-            } else {
-                $_SESSION['admin'] = false;
-                $user['admin'] = false;
-            }
+            $admin = static::isAdminUser($user['userid']);
+
+            $_SESSION['admin'] = $admin;
+            $user['admin'] = $admin;
 
             return $user;
         }
@@ -220,16 +217,19 @@ class Auth {
     /**
      * Attempt to authenticate a user using the HTTP header 'Authorization'.
      *
-     * If the header is not present the authentication fails.
+     * If the header is not present the authentication fails, returning false.
      * If the header is present but the credentials are incorrect it fails too.
+     *   In this case an answer may be sent.
      *
      * Returns an array representing the authenticated user if successful, or false.
      */
-    public static function authorization(bool $force = false) {
-        // Cache
-        if (static::$authorizationParsed) return static::$authorizationUser;
+    public static function authorization(bool $answerFail = true) {
+        static $authorizationParsed = false;
+        static $authorizationUser = false;
 
-        static::$authorizationParsed = true;
+        // Cache
+        if ($authorizationParsed) return $authorizationUser;
+        $authorizationParsed = true;
 
         $header = HTTPRequest::header('Authorization');
 
@@ -258,11 +258,11 @@ class Auth {
 
             $user = static::autho($username, $password, $error);
 
-            if (!$user && $force) {
-                HTTPResponse::unauthorized();
+            if (!$user && $answerFail) {
+                HTTPResponse::wrongCredentials($error);
             }
 
-            static::$authorizationUser = $user;
+            $authorizationUser = $user;
             return $user;
         }
         
@@ -274,11 +274,11 @@ class Auth {
      * 
      * Returns an array representing the authenticated user if successful, or false.
      */
-    public static function session(bool $force = false) {
-        $auth = isset($_SESSION) && isset($_SESSION['userid']);
+    public static function session() {
+        // If $_SESSION has the field 'userid' set, then this is the login.
+        $set = isset($_SESSION['userid']);
 
-        if (!$auth && $force) HTTPResponse::unauthorized();
-        if (!$auth) return false;
+        if (!$set) return false;
 
         $userid = $_SESSION['userid'];
 
@@ -291,81 +291,16 @@ class Auth {
     }
 
     /**
-     * Practical authentication function. Authenticate the user using a mix of
-     * session and basic authorization.
-     *
-     * If the session is not authenticated, authorization() is called.
-     *
-     * It is assumed that a session has already been started.
+     * Forward to session or authorization.
      */
     public static function authenticate() {
-        $auth = static::session();
-        if ($auth) return $auth;
+        global $AUTH_MODE;
 
-        $auth = static::authorization();
-        if ($auth) return $auth;
-
-        return false;
-    }
-
-    /**
-     * Checks whether the sent authorization header, if existent, provides
-     * authorization to access a resource with a certain authorization level.
-     *
-     * Levels
-     *   - open,
-     *     free         Anyone can access the resource.
-     *   - auth,
-     *     user         Accessible if the user is authorized.
-     *   - authid,
-     *     userid       Accessible if the user is authorized as particular user.
-     *   - privileged,
-     *     admin        Authorized as admin.
-     *
-     * Returns
-     *     true       if authentication is not achieved and not required.
-     *     false      if authentication is not achieved and is required.
-     *     user array if authentication is achieved and required.
-     */
-    public static function authLevel(string $level, int $userid = null,
-            bool $force = true) {
-        $auth = static::authorization();
-
-        if (!$auth) {
-            return $level === 'open' || $level === 'free';
+        if ($AUTH_MODE === 'SESSION') {
+            return static::session();
+        } else {
+            return static::authorization();
         }
-
-        $authid = $auth['userid'];
-        $admin = $auth['admin'];
-
-        switch ($level) {
-        case 'open':
-        case 'free':
-        case 'auth':
-        case 'user':
-            $allow = true;
-            break;
-        case 'authid':
-        case 'userid':
-            if ($admin) { // admin impersonation
-                $allow = User::read($userid) != null; // user exists?
-                if (!$allow && $force) { // allow user not to exist?
-                    HTTPResponse::notFound("User with id $userid");
-                }
-            } else {
-                $allow = $authid === $userid; // equality implies existence.
-            }
-            break;
-        case 'privileged':
-        case 'admin':
-            $allow = $admin;
-            break;
-        default:
-            $allow = false;
-            break;
-        }
-
-        return $allow ? $auth : false;
     }
 
     /**
@@ -373,60 +308,32 @@ class Auth {
      * a certain authorization level.
      *
      * Levels
-     *   - open,
-     *     free         Anyone can access the resource.
-     *   - auth,
-     *     user,
-     *     login,
-     *     logged,
-     *     loggedin     Accessible if the user is logged in.
-     *   - authid,
-     *     userid,
-     *     loginid,
-     *     loggedid,
-     *     loggedinid   Accessible if the user is logged in as a particular user.
-     *   - privileged,
-     *     admin        Logged in as admin.
+     *   - open       Anyone can access the resource.
+     *   - auth       Accessible if the user is logged in.
+     *   - authid     Accessible if the user is logged in as a particular user.
+     *   - admin      Logged in as admin.
      *
      * Returns
      *     true       if authentication is not achieved and not required.
      *     false      if authentication is not achieved and is required.
      *     user array if authentication is achieved and required.
      */
-    public static function sessionLevel(string $level, int $userid = null,
-            bool $force = true) {
-        $auth = static::session();
+    public static function level(string $level, int $userid = null) {
+        $auth = static::authenticate();
 
-        if (!$auth) {
-            return $level === 'open' || $level === 'free';
-        }
+        if ($auth === false) return $level === 'free';
 
         $authid = $auth['userid'];
         $admin = $auth['admin'];
 
         switch ($level) {
-        case 'open':
         case 'free':
         case 'auth':
-        case 'login':
-        case 'logged':
-        case 'loggedin':
             $allow = true;
             break;
         case 'authid':
-        case 'loginid':
-        case 'user':
-            // Action as another user
-            if ($admin) {
-                $allow = User::read($userid) != null; // user exists?
-                if (!$allow && $force) { // allow user not to exist?
-                    HTTPResponse::notFound("User with id $userid");
-                }
-            } else {
-                $allow = $authid === $userid; // equality implies existence.
-            }
+            $allow = $admin || ($authid === $userid);
             break;
-        case 'privileged':
         case 'admin':
             $allow = $admin;
             break;
@@ -436,75 +343,6 @@ class Auth {
         }
 
         return $allow ? $auth : false;
-    }
-
-    /**
-     * Checks whether the client has authorization to access a resource with
-     * a certain authorization level.
-     *
-     * Levels
-     *   - open,
-     *     free         Anyone can access the resource.
-     *   - auth,
-     *     user         Accessible if the user is authenticated.
-     *   - login,
-     *     logged,
-     *     loggedin     Accessible if the user is logged in.
-     *   - authid,
-     *     userid       Accessible if the user is authenticated as a particular user.
-     *   - loginid,
-     *     loggedid,
-     *     loggedinid   Accessible if the user is logged in as a particular user.
-     *   - privileged,
-     *     admin        Authenticated as admin.
-     *
-     * Returns
-     *     true       if authentication is not achieved and not required.
-     *     false      if authentication is not achieved and is required.
-     *     user array if authentication is achieved and required.
-     */
-    public static function level(string $level, int $userid = null, bool $force = true) {
-        $auth = static::authLevel($level, $userid, $force);
-        if ($auth) return $auth;
-
-        $session = static::sessionLevel($level, $userid, $force);
-        if ($session) return $session;
-
-        return false;
-    }
-
-    /**
-     * Force authLevel to succeed.
-     *
-     * If it does not, an appropriate response is sent to the user.
-     *
-     * Response:
-     *   - open,
-     *     free         Succeeds.
-     *   - auth,
-     *     user         401 Unauthorized.
-     *   - authid,
-     *     userid       401 Unauthorized, user identified.
-     *   - privileged,
-     *     admin        403 Forbidden.
-     */
-    public static function demandAuthLevel(string $level, int $userid = null) {
-        $auth = static::authLevel($level, $userid);
-
-        if ($auth) return $auth;
-
-        switch ($level) {
-        case 'auth':
-        case 'user':
-        case 'none':
-            HTTPResponse::unauthorized();
-        case 'authid':
-        case 'userid':
-            HTTPResponse::unauthorized($userid);
-        case 'privileged':
-        case 'admin':
-            HTTPResponse::forbidden();
-        }
     }
 
     /**
@@ -513,87 +351,31 @@ class Auth {
      * If it does not, an appropriate response is sent to the user.
      *
      * Response:
-     *   - open,
-     *     free         Succeeds.
-     *   - auth,
-     *     user,
-     *     login,
-     *     logged,
-     *     loggedin     401 Unauthorized.
-     *   - authid,
-     *     userid,
-     *     loginid,
-     *     loggedid,
-     *     loggedinid   401 Unauthorized, user identified.
-     *   - privileged,
-     *     admin        403 Forbidden.
-     */
-    public static function demandSessionLevel(string $level, int $userid = null) {
-        $auth = static::sessionLevel($level, $userid);
-
-        if ($auth) return $auth;
-
-        switch ($level) {
-        case 'auth':
-        case 'user':
-        case 'login':
-        case 'logged':
-        case 'loggedin':
-        case 'none':
-            HTTPResponse::unauthorized();
-        case 'authid':
-        case 'userid':
-        case 'loginid':
-        case 'loggedid':
-        case 'loggedinid':
-            HTTPResponse::unauthorized($userid);
-        case 'privileged':
-        case 'admin':
-            HTTPResponse::forbidden();
-        }
-    }
-
-    /**
-     * Force level to succeed.
-     *
-     * If it does not, an appropriate response is sent to the user.
-     *
-     * Response:
-     *   - open,
-     *     free         Succeeds.
-     *   - auth,
-     *     user,
-     *     login,
-     *     logged,
-     *     loggedin     401 Unauthorized.
-     *   - authid,
-     *     userid,
-     *     loginid,
-     *     loggedid,
-     *     loggedinid   401 Unauthorized, user identified.
-     *   - privileged,
-     *     admin        403 Forbidden.
+     *   - free         Succeeds.
+     *   - auth         401 Unauthorized OR 403 Forbidden.
+     *   - authid       401 Unauthorized OR 403 Forbidden.
+     *   - admin        403 Forbidden.
      */
     public static function demandLevel(string $level, int $userid = null) {
         $auth = static::level($level, $userid);
 
         if ($auth) return $auth;
 
+        global $AUTH_MODE;
+
         switch ($level) {
         case 'auth':
-        case 'user':
-        case 'login':
-        case 'logged':
-        case 'loggedin':
-        case 'none':
-            HTTPResponse::unauthorized();
+            if ($AUTH_MODE === 'SESSION') {
+                HTTPResponse::forbidden("Unauthorized request: requires login");
+            } else {
+                HTTPResponse::unauthorized();
+            }
         case 'authid':
-        case 'userid':
-        case 'loginid':
-        case 'loggedid':
-        case 'loggedinid':
-            HTTPResponse::unauthorized($userid);
-        case 'privileged':
+            if ($AUTH_MODE === 'SESSION') {
+                HTTPResponse::forbidden("Unauthorized access");
+            } else {
+                HTTPResponse::unauthorized($userid);
+            }
         case 'admin':
             HTTPResponse::forbidden();
         }
@@ -613,6 +395,7 @@ class Auth {
         if (isset($_SESSION['login_timestamp'])) unset($_SESSION['login_timestamp']);
         if (isset($_SESSION['authkey'])) unset($_SESSION['authkey']);
         if (isset($_SESSION['authkey_timestamp'])) unset($_SESSION['authkey_timestamp']);
+        newCSRF();
 
         return true;
     }
@@ -637,7 +420,7 @@ class HTTPRequest {
     }
 
     /**
-     * Parse $_GET for resources.
+     * Parse $_GET.
      */
     public static function query(string $method, array $actions, string &$chosen = null) {
         global $resource;
@@ -655,7 +438,7 @@ class HTTPRequest {
         }
 
         // Action not found
-        HTTPResponse::look("Resource [$resource]");
+        HTTPResponse::noAction();
     }
 
     /**
@@ -730,10 +513,6 @@ class HTTPRequest {
 
 /**
  * API's HTTP response abstractions.
- *
- * Calling any public method will terminate the script and answer the client.
- *
- * Every method assumes -nothing- has been echoed yet.
  */
 class HTTPResponse {
     private static $authenticationRealm = 'FEUP News';
@@ -778,7 +557,7 @@ class HTTPResponse {
             'message' => $message,          // User readable [success] message
             'status' => $status,            // HTTP response status
             'code' => $code,                // Machine readable [success] message
-            'args' => $args,                // Client provided arguments
+            'query' => $args,               // Client provided arguments
             'auth' => $auth,                // Request performed as this user
             'resource' => $resource,        // Resource accessed
             'action' => $action,            // Action performed on this resource
@@ -805,7 +584,7 @@ class HTTPResponse {
             'error' => $error,              // User readable [error] message
             'status' => $status,            // HTTP response status
             'code' => $code,                // Indicates origin method
-            'args' => $args,                // Client provided arguments, possibly null
+            'query' => $args,               // Client provided arguments, possibly null
             'auth' => $auth,                // Request performed as this user
             'resource' => $resource,        // Resource accessed
             'action' => $action,            // Action performed on this resource
@@ -817,14 +596,6 @@ class HTTPResponse {
 
         static::json($json);
     }
-
-    /**
-     * HTTP Server Response Methods
-     *
-     * Most methods accept argument $message, holding a human readable description
-     * of the result, and $data, holding the specifically requested resource
-     * or other willingly given data.
-     */
     
     /**
      * 200 OK
@@ -1097,6 +868,22 @@ class HTTPResponse {
 
     /**
      * 401 Unauthorized
+     * Wrong credentials
+     */
+    public static function wrongCredentials(string $reason) {
+        http_response_code(401);
+        $realm = static::$authenticationRealm;
+        header("WWW-Authenticate: Basic realm=\"$realm\"");
+
+        $error = "Invalid credentials: $reason";
+
+        $data = ['reason' => $reason];
+
+        static::error('Wrong credentials', $error, $data);
+    }
+
+    /**
+     * 401 Unauthorized
      * The resource requested is not accessible to the client, or an
      * authentication attempt failed. Required header WWW-Authenticate is present.
      */
@@ -1127,10 +914,12 @@ class HTTPResponse {
      * The resource requires privileged (admin) access, so the user cannot access it.
      * Obviously this isn't actually sent to an admin.
      */
-    public static function forbidden() {
+    public static function forbidden(string $error = null) {
         http_response_code(403);
 
-        $error = "Forbidden request: requires privileged access";
+        if (!$error) {
+            $error = "Forbidden request: requires privileged access";
+        }
 
         static::error('Forbidden', $error);
     }
@@ -1200,19 +989,6 @@ class HTTPResponse {
         $error = "Database schema changed, try again immediately.";
 
         static::error('Schema changed', $error, $data);
-    }
-
-    /**
-     * 503 Service Unavailable
-     * Not used.
-     */
-    public static function unavailable(string $message, int $time, array $data = null) {
-        http_response_code(503);
-        header("Retry-After: $time");
-
-        $error = "Service unavailable: $message";
-
-        static::error('Service Unavailable', $error, $data);
     }
 }
 ?>
