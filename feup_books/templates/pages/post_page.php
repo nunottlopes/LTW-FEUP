@@ -1,4 +1,4 @@
-<div id="view_post">
+<div id="view_post" class="page">
 
     <div id="post_page_post">
         <article class="post_complete">
@@ -16,17 +16,18 @@
             </form>
         </div>
 
-        <div class="sort_by">
-            <div id="sortby">Sort by</div>
-            <div id="typesortby">BEST</div>
+        <div class="default_dropdown">
+            <header>Sort by</header>
+            <div id="dropdown_selection">BEST</div>
             <div class="triangle_down"></div>
-            <div id="sort-dropdown" class="sort-dropdown-content">
-                <a href="">BEST</a>
-                <a href="">TOP</a>
-                <a href="">NEW</a>
-                <a href="">OLD</a>
+            <div id="dropdown_options" class="default-dropdown-content">
+                <div>BEST</div>
+                <div>TOP</div>
+                <div>NEW</div>
+                <div>OLD</div>
             </div>
         </div>
+        <script src="javascript/dropdown.js"></script>
 
         <section id="post_comments">
             <article class="post_comment">
@@ -51,7 +52,6 @@
     </div>
 
     <script src="javascript/post_buttons.js"></script>
-    <script src="javascript/post_page.js"></script>
 
     <div id="post_page_aside">
         <div id="channel_subscription" class="aside_div">

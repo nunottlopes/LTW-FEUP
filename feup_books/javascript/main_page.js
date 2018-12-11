@@ -34,7 +34,6 @@ function getStories(data) {
             </footer>
         </article>`;
 
-        console.log(a1+a2+a3);
         main_page_posts.innerHTML += a1 + a2 + a3;
         
     }

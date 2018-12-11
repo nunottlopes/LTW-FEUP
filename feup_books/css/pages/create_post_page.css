@@ -1,0 +1,20 @@
+#create_post {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+}
+
+#create_post_main{
+    background-color: white;
+    margin: 1em;
+}
+
+#create_post_main > h1{
+    margin: 0;
+    padding: 1em 0 0.2em 0.3em;
+    background-color: rgb(201, 209, 216);
+    border-bottom: 2px solid black;
+}
+
+#channel_select {
+    padding: 1em;
+}

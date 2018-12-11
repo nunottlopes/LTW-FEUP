@@ -1,4 +1,4 @@
-<section id="account">
+<section id="account" class="page">
   <nav id="account_menu">
     <div id="image_name">
       <img src="images/users/user.png" alt="">
