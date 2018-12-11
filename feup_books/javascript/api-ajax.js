@@ -1,11 +1,78 @@
-// STILL DEBUGGING, fetch is messy
-var DEBUG_API = true;
-
 var api = {
     "settings": {
         credentials: "omit",
         redirect: "follow",
-        expect: [200, 201, 300, 401, 403, 404]
+        expect: [200, 201]
+    },
+
+    "handlers": {
+        counter: 0,
+
+        200: function(response) {
+            console.warn("API.FETCH UNHANDLED --- 200 OK");
+            console.log(response); ++api.counter;
+            response.json().then(json => console.log(json));
+        },
+
+        201: function(response) {
+            console.warn("API.FETCH UNHANDLED --- 201 Created");
+            console.log(response); ++api.counter;
+            response.json().then(json => console.log(json));
+        },
+
+        202: function(response) {
+            console.warn("API.FETCH UNHANDLED --- 202 Accepted");
+            console.log(response); ++api.counter;
+            response.json().then(json => console.log(json));
+        },
+
+        300: function(response) {
+            console.warn("API.FETCH UNHANDLED --- 300 Multiple Choices");
+            console.log(response); ++api.counter;
+            response.json().then(json => console.log(json));
+        },
+
+        400: function(response) {
+            console.warn("API.FETCH UNHANDLED --- 400 Bad Request");
+            console.log(response); ++api.counter;
+            response.json().then(json => console.log(json));
+        },
+
+        401: function(response) {
+            console.warn("API.FETCH UNHANDLED --- 401 Unauthorized");
+            console.log(response); ++api.counter;
+            response.json().then(json => console.log(json));
+        },
+
+        403: function(response) {
+            console.warn("API.FETCH UNHANDLED --- 403 Forbidden");
+            console.log(response); ++api.counter;
+            response.json().then(json => console.log(json));
+        },
+
+        404: function(response) {
+            console.warn("API.FETCH UNHANDLED --- 404 Not Found");
+            console.log(response); ++api.counter;
+            response.json().then(json => console.log(json));
+        },
+
+        405: function(response) {
+            console.warn("API.FETCH UNHANDLED --- 405 Method Not Allowed");
+            console.log(response); ++api.counter;
+            response.json().then(json => console.log(json));
+        },
+
+        500: function(response) {
+            console.warn("API.FETCH UNHANDLED --- 500 Server Error");
+            console.log(response); ++api.counter;
+            response.text().then(text => console.log(text));
+        },
+
+        503: function(response) {
+            console.warn("API.FETCH UNHANDLED --- 503 Service Unavailable");
+            console.log(response); ++api.counter;
+            response.text().then(text => console.log(text));
+        }
     },
 
     "resource": function(resource, query) {
@@ -14,8 +81,8 @@ var api = {
         return url;
     },
 
-    "fetch": function(resource, query, userInit, userExpect) {
-        const url = api.resource(resource, query);
+    "test": function(resource, query, userInit, userExpect) {
+        const url = this.resource(resource, query);
         const expect = new Set(userExpect || this.settings.expect);
         const init = Object.assign({
             method: 'GET',
@@ -27,16 +94,51 @@ var api = {
         return window.fetch(url, init).then(function(response) {
             const status = response.status;
 
-            if (DEBUG_API) {
-                response.json().then(function(json) {
-                    let string = '<pre>' + init.method + ' ' + url + ' ';
-                    string += status + ' ' + response.statusText + '</pre>';
-                    string += '<pre>' + JSON.stringify(json, null, 4) + '</pre>';
+            response.json().then(function(json) {
+                let string = '<pre style="font-size:150%">';
+                string += init.method + ' ' + url + ' ';
+                string += status + ' ' + response.statusText;
+                string += '</pre>';
+                string += '<pre>' + JSON.stringify(json, null, 4) + '</pre>';
 
-                    document.querySelector('body').innerHTML = string;
-                });
+                document.querySelector('body').innerHTML = string;
+            });
+        });
+    },
+
+    "ajax": function(resource, query, userInit, userExpect) {
+        const url = this.resource(resource, query);
+        const expect = new Set(userExpect || this.settings.expect);
+        const init = Object.assign({
+            method: 'GET',
+            mode: 'same-origin',
+            credentials: this.settings.credentials,
+            redirect: this.settings.redirect
+        }, userInit || {});
+        
+        return window.fetch(url, init).then(function(response) {
+            const status = response.status;
+
+            if (expect.has(status)) {
+                return response;
+            } else {
+                if (api.handlers[status]) {
+                    api.handlers[status].call(this, response);
+                } else {
+                    api.handlers.other.call(this, response);
+                }
+
+                throw response;
             }
         });
+    },
+
+    "fetch": function(resource, query, userInit, userExpect) {
+        if (window.APITEST) {
+            return this.test(resource, query, userInit, userExpect);
+        } else {
+            return this.ajax(resource, query, userInit, userExpect);
+        }
     },
 
     /**
