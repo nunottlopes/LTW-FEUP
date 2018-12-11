@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="css/pages/main_page.css">
     <link rel="stylesheet" href="css/pages/profile_page.css">
     <link rel="stylesheet" href="css/pages/post_page.css">
+    <link rel="stylesheet" href="css/pages/create_post_page.css">
     <link rel="stylesheet" href="css/post.css">
     <link rel="stylesheet" href="css/aside.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
