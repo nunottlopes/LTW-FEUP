@@ -85,5 +85,35 @@ class Vote extends APIEntity {
         $stmt->execute([$entityid, $userid]);
         return $stmt->rowCount();
     }
+
+    public static function deleteEntity(int $entityid) {
+        $query = '
+            DELETE FROM Vote WHERE entityid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$entityid]);
+        return $stmt->rowCount();
+    }
+
+    public static function deleteUser(int $userid) {
+        $query = '
+            DELETE FROM Vote WHERE userid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$userid]);
+        return $stmt->rowCount();
+    }
+
+    public static function deleteAll() {
+        $query = '
+            DELETE FROM Vote
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
 }
 ?>

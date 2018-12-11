@@ -666,7 +666,7 @@ class HTTPRequest {
 
         $json = json_decode($body, true);
 
-        if ($json === false) {
+        if ($json == null) {
             HTTPResponse::malformedJSON();
         }
 
@@ -768,7 +768,7 @@ class HTTPResponse {
      * Append several variables to a JSON, output response body and exit.
      * Redirects to json() for output. plain() not used as of now.
      */
-    private static function success(string $code, string $message, array $data = null) {
+    private static function success(string $code, string $message, $data = null) {
         global $resource, $methods, $method, $args, $auth, $actions, $action;
 
         $pretty = API::prettyActions($actions);
@@ -794,7 +794,7 @@ class HTTPResponse {
     /**
      * Like output() but intended for error messages.
      */
-    private static function error(string $code, string $error, array $data = null) {
+    private static function error(string $code, string $error, $data = null) {
         global $resource, $methods, $method, $args, $auth, $actions, $action;
 
         $pretty = API::prettyActions($actions);
@@ -851,7 +851,7 @@ class HTTPResponse {
     /**
      * 200 OK
      */
-    public static function ok(string $message, array $data) {
+    public static function ok(string $message, $data = null) {
         http_response_code(200);
 
         static::success('OK', $message, $data);
@@ -860,7 +860,7 @@ class HTTPResponse {
     /**
      * 200 OK
      */
-    public static function updated(string $message, array $data = null) {
+    public static function updated(string $message, $data = null) {
         http_response_code(200);
 
         static::success('Updated', $message, $data);
@@ -869,7 +869,7 @@ class HTTPResponse {
     /**
      * 200 OK
      */
-    public static function deleted(string $message, array $data = null) {
+    public static function deleted(string $message, $data = null) {
         http_response_code(200);
 
         static::success('Deleted', $message, $data);
@@ -878,7 +878,7 @@ class HTTPResponse {
     /**
      * 201 Created
      */
-    public static function created(string $message, array $data = null) {
+    public static function created(string $message, $data = null) {
         http_response_code(201);
 
         static::success('Created', $message, $data);
@@ -887,7 +887,7 @@ class HTTPResponse {
     /**
      * 202 Accepted
      */
-    public static function accepted(string $message, array $data = null) {
+    public static function accepted(string $message, $data = null) {
         http_response_code(202);
 
         static::success('Accepted', $message, $data);
@@ -1033,7 +1033,7 @@ class HTTPResponse {
     public static function malformedJSON() {
         http_response_code(400);
 
-        $error = "Request body contains marformed JSON";
+        $error = "Request body contains malformed JSON";
 
         $data = [
             'body' => HTTPRequest::bodyString()

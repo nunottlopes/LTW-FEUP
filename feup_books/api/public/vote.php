@@ -64,14 +64,14 @@ if (API::gotargs('userid')) {
 if ($action === 'put') {
     $auth = Auth::demandLevel('authid', $userid);
 
-    $vote = HTTPRequest::body(['vote']);
+    $vote = HTTPRequest::body('vote');
 
     if ($vote === 'upvote') $vote = '+';
     if ($vote === 'downvote') $vote = '-';
 
     if ($vote === '+') {
         Vote::upvote($entityid, $userid);
-    } else if if ($vote === '-') {
+    } else if ($vote === '-') {
         Vote::downvote($entityid, $userid);
     } else {
         HTTPResponse::badRequest('Invalid vote', ['vote' => $vote]);
@@ -94,15 +94,7 @@ if ($action === 'get-id') {
 
     $vote = Vote::get($entityid, $userid);
 
-    $data = [
-        'vote' => $vote['kind'],
-        'entityid' => $entityid,
-        'entity' => $entity,
-        'userid' => $userid,
-        'user' => $user
-    ];
-
-    HTTPResponse::ok("Vote of user $userid on entity $entityid", $data);
+    HTTPResponse::ok("Vote of user $userid on entity $entityid", $vote);
 }
 
 if ($action === 'get-entity') {
@@ -110,13 +102,7 @@ if ($action === 'get-entity') {
 
     $votes = Vote::getEntity($entityid);
 
-    $data = [
-        'votes' => $votes,
-        'entityid' => $entityid,
-        'entity' => $entity
-    ];
-
-    HTTPResponse::ok("Votes on entity $entityid", $data);
+    HTTPResponse::ok("Votes on entity $entityid", $votes);
 }
 
 if ($action === 'get-user') {
@@ -124,13 +110,7 @@ if ($action === 'get-user') {
 
     $votes = Vote::getUser($userid);
 
-    $data = [
-        'votes' => $votes,
-        'userid' => $userid,
-        'user' => $user
-    ];
-
-    HTTPResponse::ok("Votes of user $userid", $data);
+    HTTPResponse::ok("Votes of user $userid", $votes);
 }
 
 if ($action === 'get-all') {
@@ -138,9 +118,7 @@ if ($action === 'get-all') {
 
     $votes = Vote::readAll();
 
-    $data = ['votes' => $votes];
-
-    HTTPResponse::ok("All votes", $data);
+    HTTPResponse::ok("All votes", $votes);
 }
 
 // DELETE

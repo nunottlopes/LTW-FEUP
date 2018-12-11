@@ -124,7 +124,7 @@ if ($action === 'valid') {
     $data = [
         'channelname' => $channelname,
         'valid' => $valid,
-        'text' => $valid_string
+        'text' => $validString
     ];
 
     HTTPResponse::ok("Channel name $channelname is $validString", $data);

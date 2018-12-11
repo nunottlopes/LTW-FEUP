@@ -7,7 +7,7 @@ require_once API::entity('save');
  */
 $resource = 'save';
 
-$methods = ['GET', 'PUT' 'DELETE'];
+$methods = ['GET', 'PUT', 'DELETE'];
 
 $actions = [
     'put'               => ['PUT', ['entityid', 'userid']],
@@ -132,7 +132,7 @@ if ($action === 'get-entity') {
 if ($action === 'get-user-comments') {
     $auth = Auth::demandLevel('authid', $userid);
 
-    $saves = Save::getUserComments($userid, $commentid);
+    $saves = Save::getUserComments($userid);
 
     HTTPResponse::ok("All saved comments of user $userid", $saves);
 }
@@ -140,12 +140,12 @@ if ($action === 'get-user-comments') {
 if ($action === 'get-user-stories') {
     $auth = Auth::demandLevel('authid', $userid);
 
-    $saves = Save::getUserStories($userid, $storyid);
+    $saves = Save::getUserStories($userid);
 
     HTTPResponse::ok("All saved stories of user $userid", $saves);
 }
 
-if $action === 'get-user-all') {
+if ($action === 'get-user-all') {
     $auth = Auth::demandLevel('authid', $userid);
 
     $saves = Save::getUserAll($userid);
@@ -208,7 +208,7 @@ if ($action === 'delete-entity') {
     HTTPResponse::deleted("Deleted all saves of entity $entityid", $data);
 }
 
-if ($aciton === 'delete-all') {
+if ($action === 'delete-all') {
     $auth = Auth::demandLevel('admin');
 
     $count = Save::deleteAll();

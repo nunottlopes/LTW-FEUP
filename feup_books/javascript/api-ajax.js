@@ -174,8 +174,8 @@ var api = {
         "get": function(query, expect) {
             return api.get('vote', query, expect);
         },
-        "put": function(query, expect) {
-            return api.put('vote', query, {}, expect);
+        "put": function(query, data, expect) {
+            return api.put('vote', query, data, expect);
         },
         "delete": function(query, expect) {
             return api.delete('vote', query, expect);

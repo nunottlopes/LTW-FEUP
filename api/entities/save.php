@@ -36,7 +36,7 @@ class Save extends APIEntity {
 
         if ($s === $storyTotal) {
             $merged = array_merge($merged, array_slice($comments, $c));
-        } else if ($c === $commentTotal - 1) {
+        } else if ($c === $commentTotal) {
             $merged = array_merge($merged, array_slice($stories, $s));
         }
 
@@ -83,7 +83,7 @@ class Save extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getUser(int $userid) {
+    public static function getUserAll(int $userid) {
         $stories = static::getUserStories($userid);
         $comments = static::getUserComments($userid);
 

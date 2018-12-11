@@ -104,11 +104,9 @@ if (API::gotargs('valid-email')) {
 }
 // admin
 if (API::gotargs('admin')) {
-    $auth = Auth::demandLevel('admin');
-
-    $userid = $auth['userid'];
-
-    $user = $auth;
+    if ($auth === true || !$auth['admin']) {
+        HTTPResponse::unauthorized();
+    }
 }
 
 /**
