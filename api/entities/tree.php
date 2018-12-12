@@ -11,6 +11,7 @@ class Tree extends APIEntity {
     protected static $defaultLimit = 50;
     protected static $defaultOffset = 0;
     protected static $defaultMaxDepth = 4;
+    protected static $defaultSortTable = 'CommentTreeSortBest';
 
     /**
      * AUXILIARY
@@ -73,7 +74,7 @@ class Tree extends APIEntity {
         $order = $more['order'];
         if (!is_string($order)) return 'all';
 
-        switch (static::sortMethod($more)) {
+        switch ($order) {
         case 'top': return 'CommentTreeSortTop';
         case 'bot': return 'CommentTreeSortBot';
         case 'new': return 'CommentTreeSortNew';
@@ -83,7 +84,7 @@ class Tree extends APIEntity {
         case 'average': return 'CommentTreeSortAverage';
         case 'hot': return 'CommentTreeSortHot';
         case 'all':
-        default: return 'CommentTree';
+        default: return static::$defaultSortTable;
         }
     }
 
@@ -138,7 +139,7 @@ class Tree extends APIEntity {
                 VALUES (?)
             ),   Best(entityid) AS (
                 SELECT entityid
-                FROM CommentTreeSortTop CT
+                FROM $sorttable CT
                 WHERE CT.ascendantid IN Choice
                 AND depth <= ?
                 LIMIT ? OFFSET ?
@@ -147,7 +148,7 @@ class Tree extends APIEntity {
                 WHERE Tree.descendantid IN Best
             )
             SELECT *
-            FROM CommentTreeSortTop
+            FROM $sorttable
             WHERE ascendantid IN Choice
             AND (entityid IN BestAncestry OR entityid IN Best)
             ORDER BY depth ASC, rating DESC;

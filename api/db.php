@@ -42,7 +42,7 @@ class DB {
         static::$db->sqliteCreateFunction('REDDITHOT', '\reddit_hot', 3);
 
         // Add Reddit CONTROVERSIAL sorting function
-        static::$db->sqliteCreateFunction('REDDITCONTROVERSAL', '\reddit_controversial', 2);
+        static::$db->sqliteCreateFunction('REDDITCONTROVERSIAL', '\reddit_controversial', 2);
     }
 }
 

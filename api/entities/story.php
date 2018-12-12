@@ -10,6 +10,7 @@ class Story extends APIEntity {
     protected static $defaultSince = 0;
     protected static $defaultLimit = 25;
     protected static $defaultOffset = 0;
+    protected static $defaultSortTable = 'StoryAll';
 
     /**
      * AUXILIARY
@@ -56,7 +57,7 @@ class Story extends APIEntity {
         case 'controversial': return 'StorySortControversial';
         case 'average': return 'StorySortAverage';
         case 'hot': return 'StorySortHot';
-        default: return 'StoryAll';
+        default: return static::$defaultSortTable;
         }
     }
 

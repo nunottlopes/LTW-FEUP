@@ -10,6 +10,7 @@ class Comment extends APIEntity {
     protected static $defaultSince = 0;
     protected static $defaultLimit = 50;
     protected static $defaultOffset = 0;
+    protected static $defaultSortTable = 'CommentAll';
 
     /**
      * Extend a normal query's arguments $args with since, limit and offset.
@@ -56,7 +57,7 @@ class Comment extends APIEntity {
         case 'controversial': return 'CommentSortControversial';
         case 'average': return 'CommentSortAverage';
         case 'hot': return 'CommentSortHot';
-        default: return 'CommentAll';
+        default: return static::$defaultSortTable;
         }
     }
 
