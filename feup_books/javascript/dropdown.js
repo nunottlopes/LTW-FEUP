@@ -19,12 +19,15 @@ document.querySelector(".triangle_down").addEventListener('click', () => {
     }
 })
 
-let options = Array.from(dropdown.children);
-options.forEach(element => {
-    element.addEventListener('click', () => {
-        selection.innerHTML = element.innerHTML;
-    })
-});
+function bindDropdownOptions() {
+    let options = Array.from(dropdown.children);
+    options.forEach(element => {
+        element.addEventListener('click', () => {
+            selection.setAttribute('selectionid', element.getAttribute('id'));
+            selection.textContent = element.textContent;
+        })
+    });
+}
 
 // Close the dropdown if the user clicks outside of it
 window.onclick = function(event) {
@@ -34,3 +37,5 @@ window.onclick = function(event) {
         dropdown.style.display = "none";
     }
 }
+
+bindDropdownOptions();

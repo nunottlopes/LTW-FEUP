@@ -1,33 +1,63 @@
 let dropdown_options = document.querySelector("#dropdown_options");
+let dropdown_selection = document.querySelector("#dropdown_selection");
 
 
 // TODO: get logged in user channels
-let channels = ["channel 1", "channel 2", "channel 3", "channel 4"];
-channels.forEach(channel => {
-    let div = document.createElement('div');
-    div.textContent = channel.toUpperCase();
-    dropdown_options.appendChild(div);
+let channels = api.channel.get('all', [200])
+.then(response => response.json())
+.then(channels => {
+    channels.data.forEach(channel => {
+        let div = document.createElement('div');
+        div.setAttribute('id', channel.channelid);
+        div.textContent = channel.channelname.toUpperCase();
+        dropdown_options.appendChild(div);
+    })
 })
+.then(() => bindDropdownOptions());
 
-document.querySelector('#new_post_post input[type="submit"]')
-.addEventListener('click', event => {
+let form_post = document.querySelector('#new_post_post');
+form_post.addEventListener('submit', event => {
     event.preventDefault();
-    let title = document.querySelector('#new_post_post input[name="post_title"]').value;
-    let content = document.querySelector('#new_post_post textarea').value;
-    console.log(title, content);
+    let title = form_post.querySelector('input[name="post_title"]').value;
+    let content = form_post.querySelector('textarea').value;
+    let channelid = dropdown_selection.getAttribute('selectionid');
+    if(title != "" && content != "" && channelid != null) {
+        api.story.post({
+            channelid: channelid,
+            authorid: 1
+        }, {
+            storyTitle: title,
+            storyType: 'text',
+            content: content
+        }).then(() => window.location.replace('index.php'));
+    }
 });
 
-document.querySelector('#new_post_image input[type="submit"]')
-.addEventListener('click', event => {
+let form_img = document.querySelector('#new_post_image');
+form_img.addEventListener('submit', event => {
     event.preventDefault();
-    let title = document.querySelector('#new_post_image input[name="post_title"]').value;
-    let img = document.querySelector('#new_post_image input[name="post_image"]').value;
-    console.log(title, img);
+    let title = form_img.querySelector('input[name="post_title"]').value;
+    // let img = form_img.querySelector('input[name="post_image"]').value;
+    const img = form_img.querySelector('input[name="post_image"]').files[0];
+    let channelid = dropdown_selection.getAttribute('selectionid');
+    if(title != "" && img != undefined) {
+        //TODO
+    }
 });
 
-document.querySelector('#new_post_title input[type="submit"]')
-.addEventListener('click', event => {
+let form_title = document.querySelector('#new_post_title');
+form_title.addEventListener('submit', event => {
     event.preventDefault();
-    let title = document.querySelector('#new_post_title input[name="post_title"]').value;
-    console.log(title);
+    let title = form_title.querySelector('input[name="post_title"]').value;
+    let channelid = dropdown_selection.getAttribute('selectionid');
+    if(title != "") {
+        api.story.post({
+            channelid: channelid,
+            authorid: 1
+        }, {
+            storyTitle: title,
+            storyType: 'title',
+            content: ""
+        }).then(() => window.location.replace('index.php'));
+    }
 });

@@ -1,8 +1,8 @@
 <div id="main_page" class="page">
 
     <div id="main_page_posts"></div>
+    
     <script src="javascript/pages/main_page.js"></script>
-
     <script src="javascript/post_buttons.js"></script>
 
     <div id="main_page_aside">

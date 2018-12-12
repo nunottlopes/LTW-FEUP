@@ -29,6 +29,6 @@
   <div class="profile_content" id="profile_content">
   </div>
 
-</section>
+  <script src="javascript/profile.js"></script>
 
-<script src="javascript/profile.js"></script>
+</section>
