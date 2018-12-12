@@ -46,6 +46,6 @@ class DB {
 function wilson_lower_bound(int $upvotes, int $downvotes) {
     return (($upvotes + 1.9208) / ($upvotes + $downvotes) -
         1.96 * sqrt(($upvotes * $downvotes) / ($upvotes + $downvotes) + 0.9604) /
-        ($upvotes + $downvotes)) / (1 + 3.8416 / ($upvotes + $downvotes))
+        ($upvotes + $downvotes)) / (1 + 3.8416 / ($upvotes + $downvotes));
 }
 ?>

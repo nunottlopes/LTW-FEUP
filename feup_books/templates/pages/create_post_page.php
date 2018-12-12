@@ -7,22 +7,53 @@
             <div id="dropdown_selection">Select a Channel</div>
             <div class="triangle_down"></div>
             <div id="dropdown_options" class="default-dropdown-content">
-                <div>Channel 1</div>
-                <div>Channel 1</div>
-                <div>Channel 1</div>
-                <div>Channel 1</div>
             </div>
         </div>
-        <script src="javascript/dropdown.js"></script>
+
+        <div class="tab">
+            <button class="tablinks" onclick="tab_option(event, 'new_post_post')" id="tab_default">Post</button>
+            <button class="tablinks" onclick="tab_option(event, 'new_post_image')">Image</button>
+            <button class="tablinks" onclick="tab_option(event, 'new_post_title')">Title</button>
+        </div>
+
+        <div id="new_post_post" class="tabcontent">
+            <form>
+                <input type="text" name="post_title" placeholder="Title"/>
+                <textarea name="post_text" placeholder="Text"></textarea>
+                <input type="submit" name="post_submission" value="Post"/>
+            </form>
+        </div>
+
+        <div id="new_post_image" class="tabcontent">
+            <form>
+                <input type="text" name="post_title" placeholder="Title"/>
+                <input type="text" name="post_image" placeholder="Image URL"></textarea>
+                <input type="submit" name="post_submission" value="Post"/>
+            </form>
+        </div>
+
+        <div id="new_post_title" class="tabcontent">
+            <form>
+                <input type="text" name="post_title" placeholder="Title"/>
+                <input type="submit" name="post_submission" value="Post"/>
+            </form>
+        </div>
     </div>
 
-    <script src="javascript/create_post.js"></script>
+    <script src="javascript/pages/create_post.js"></script>
+    <script src="javascript/dropdown.js"></script>
+    <script src="javascript/tab.js"></script>
+
 
     <div id="post_page_aside">
-        <div id="channel_subscription" class="aside_div">
-            <h1>Channel</h1>
-            <h2>123123 Subscribers</h1>
-            <a href="#"><button type="button">Subscribe</button></a>
+        <div id="post_page_rules" class="aside_div">
+            <h1>Posting rules</h1>
+            <ul>
+                <li>Regras</li>
+                <li>Why</li>
+                <li>Not</li>
+                <li>Regras</li>
+            </ul>
         </div>
 
         <div id="aside_footer" class="aside_div">
