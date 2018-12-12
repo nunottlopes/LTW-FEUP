@@ -1,0 +1,35 @@
+.tab {
+    background-color: white;
+    display: flex;
+    justify-content: space-around;
+}
+
+.tab button {
+    padding: 1em 0.5em;
+    background-color: inherit;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid rgb(156, 162, 168);
+    border-radius: 0px;
+    font-size: 1em;
+    outline: none;
+    cursor: pointer;
+}
+
+.tab button:nth-child(2) {
+    border-left: 1px solid rgb(156, 162, 168);
+    border-right: 1px solid rgb(156, 162, 168);
+}
+
+.tab button:hover {
+    background-color: rgb(228, 233, 238);
+}
+
+.tab button.active {
+    font-weight: bold;
+    border-bottom-width: 10px; 
+}
+
+.tabcontent {
+    display: none;
+}

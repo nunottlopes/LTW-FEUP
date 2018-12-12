@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/overlay.css">
     <link rel="stylesheet" href="css/dropdown.css">
+    <link rel="stylesheet" href="css/tab.css">
     <link rel="stylesheet" href="css/pages/main_page.css">
     <link rel="stylesheet" href="css/pages/profile_page.css">
     <link rel="stylesheet" href="css/pages/post_page.css">

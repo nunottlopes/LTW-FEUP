@@ -18,3 +18,51 @@
 #channel_select {
     padding: 1em;
 }
+
+.tabcontent form {
+    padding: 1em;
+}
+
+.tabcontent form > input, .tabcontent form > textarea{
+    box-sizing: border-box;
+    margin: 0.5em auto;
+    padding: 0.5em;
+    font-size: 1em;
+    width: 100%;
+}
+
+.tabcontent form > textarea{
+    border-color: rgb(201, 209, 216);
+    resize: vertical;
+    height: 10em;
+}
+
+.tabcontent form > input[type="submit"] {
+    float: right;
+    width: 20%;
+    padding: 0.3em 1.2em;
+    display: block;
+    border-radius: 5px;
+    font-weight:500;
+    font-size:16px;
+    color:#FFFFFF;
+    text-align:center;
+    background-color: #A5483E;
+    outline: none;
+}
+
+#post_page_rules h1 {
+    text-align: center;
+}
+
+#post_page_rules ul {
+    margin-bottom: 0;
+    padding: 0;
+    list-style-type: none;
+    text-align: center;
+}
+
+#post_page_rules li {
+    padding: 1em 0.2em;
+    border-top: 1px solid rgb(201, 209, 216);
+}
