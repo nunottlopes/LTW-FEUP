@@ -102,17 +102,19 @@ var api = {
             const status = response.status;
             const headers = response.headers;
 
-            let string = "";
-
-            for (let header of headers) {
-                string += header + "\n";
-            }
+            let string = '<pre style="font-size:150%">';
 
             response.json().then(function(json) {
-                string += '<pre style="font-size:150%">';
                 string += init.method + ' ' + url + ' ';
-                string += status + ' ' + response.statusText + '<br/><br/>';
-                string += JSON.stringify(json, null, 4) + '</pre>';
+                string += status + ' ' + response.statusText + '\n';
+
+                for (const header of headers.entries()) {
+                    const h = header[0], v = header[1];
+                    string += h + ': ' + v + '\n';
+                }
+
+                string += '\n' + JSON.stringify(json, null, 4);
+                string += '</pre>';
 
                 document.querySelector('body').innerHTML = string;
             });

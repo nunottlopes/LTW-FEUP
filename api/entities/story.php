@@ -14,7 +14,7 @@ class Story extends APIEntity {
 
     /**
      * AUXILIARY
-     * 
+     *
      * Extend a normal query's arguments $args with since, limit and offset.
      * The query string ends with:
      *
@@ -22,7 +22,7 @@ class Story extends APIEntity {
      *                               ^       ^        ^- $offset
      *                               |       +--- $limit
      *                               +--- $since
-     * 
+     *
      * So we push to $args array values $since, $limit and $offset IN THIS ORDER.
      */
     private static function extend(array $args, array $more) {
@@ -76,7 +76,7 @@ class Story extends APIEntity {
         try {
             DB::get()->beginTransaction();
             $stmt->execute([$channelid, $authorid, $title, $type, $content]);
-            $id = (int)DB::get()->lastInsertId();
+            $id = (int)DB::get()->lastInsertId("Story");
             DB::get()->commit();
             return $id;
         } catch (PDOException $e) {
@@ -174,7 +174,7 @@ class Story extends APIEntity {
         $stmt->execute([$content, $id]);
         return $stmt->rowCount();
     }
-    
+
     /**
      * DELETE
      */

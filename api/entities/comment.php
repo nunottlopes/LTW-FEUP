@@ -20,7 +20,7 @@ class Comment extends APIEntity {
      *                               ^       ^        ^- $offset
      *                               |       +--- $limit
      *                               +--- $since
-     * 
+     *
      * So we push to $args array values $since, $limit and $offset IN THIS ORDER.
      */
     private static function extend(array $args, array $more) {
@@ -37,7 +37,7 @@ class Comment extends APIEntity {
 
     /**
      * AUXILIARY
-     * 
+     *
      * Select the appropriate story table view based on sorting desired.
      *
      * Switch statement prevents SQL injection.
@@ -89,10 +89,10 @@ class Comment extends APIEntity {
      */
     public static function getChildrenAuthor(int $parentid, int $authorid, array $more = []) {
         $sorttable = static::sortTablename($more);
-        
+
         $query = "
             SELECT * FROM $sorttable WHERE parentid = ? AND authorid = ?
-            WHERE createdat >= ? LIMIT ? OFFSET ?
+            AND createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([$parentid, $authorid], $more);
@@ -104,10 +104,10 @@ class Comment extends APIEntity {
 
     public static function getChildren(int $parentid, array $more = []) {
         $sorttable = static::sortTablename($more);
-        
+
         $query = "
             SELECT * FROM $sorttable WHERE parentid = ?
-            WHERE createdat >= ? LIMIT ? OFFSET ?
+            AND createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([$parentid], $more);
@@ -122,7 +122,7 @@ class Comment extends APIEntity {
 
         $query = "
             SELECT * FROM $sorttable WHERE authorid = ?
-            WHERE createdat >= ? LIMIT ? OFFSET ?
+            AND createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([$authorid], $more);
@@ -147,7 +147,7 @@ class Comment extends APIEntity {
 
         $query = "
             SELECT * FROM $sorttable
-            WHERE createdat >= ? LIMIT ? OFFSET ?
+            AND createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([], $more);
@@ -178,7 +178,7 @@ class Comment extends APIEntity {
         $stmt = DB::get()->prepare($query);
         return $stmt->execute([$id]);
     }
-    
+
     /**
      * DELETE
      */

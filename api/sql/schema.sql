@@ -16,7 +16,7 @@ CREATE TABLE User (
   --  'updatedat'    INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
     'hash'          TEXT NOT NULL,
     'admin'         INTEGER NOT NULL DEFAULT 1,
-    CHECK (admin IN (0,1)) 
+    CHECK (admin IN (0,1))
 );
 
 CREATE TABLE Entity (

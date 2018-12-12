@@ -19,10 +19,10 @@ class Tree extends APIEntity {
      * Extend a normal query's arguments $args with since, depth, limit and offset.
      * The query string ends with:
      *
-     *  [AND|WHERE] depth <= ? AND createdat > ? ... LIMIT ? OFFSET ?
-     *                       |                 |           |        ^--- $offset
-     *                       |                 |           ^--- $limit
-     *                       |                 ^--- $since
+     *  [AND|WHERE] depth <= ? AND createdat >= ? ... LIMIT ? OFFSET ?
+     *                       |                  |           |        ^--- $offset
+     *                       |                  |           ^--- $limit
+     *                       |                  ^--- $since
      *                       ^--- $maxdepth
      *
      * So we push to $args array values $maxdepth, $since, $limit, $offset IN THIS ORDER.
@@ -132,7 +132,7 @@ class Tree extends APIEntity {
                 SELECT entityid
                 FROM $sorttable CT
                 WHERE CT.ascendantid IN Choice
-                AND depth <= ? AND createdat > ?
+                AND depth <= ? AND createdat >= ?
                 ORDER BY rating DESC
                 LIMIT ? OFFSET ?
             ), BestAncestry(entityid) AS (

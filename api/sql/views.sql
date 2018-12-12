@@ -25,6 +25,8 @@ ORDER BY U.userid;
  */
 DROP VIEW IF EXISTS 'ParentEntity';
 DROP VIEW IF EXISTS 'ChildEntity';
+DROP VIEW IF EXISTS 'AscendantEntity';
+DROP VIEW IF EXISTS 'DescendantEntity';
 
 CREATE VIEW ParentEntity AS
 SELECT entityid AS parentid, authorid, createdat, updatedat, upvotes, downvotes
@@ -35,6 +37,16 @@ CREATE VIEW ChildEntity AS
 SELECT entityid AS childid, authorid, createdat, updatedat, upvotes, downvotes
 FROM Entity E
 ORDER BY childid ASC;
+
+CREATE VIEW AscendantEntity AS
+SELECT entityid AS ascendantid, authorid, createdat, updatedat, upvotes, downvotes
+FROM Entity E
+ORDER BY ascendantid ASC;
+
+CREATE VIEW DescendantEntity AS
+SELECT entityid AS descendantid, authorid, createdat, updatedat, upvotes, downvotes
+FROM Entity E
+ORDER BY descendantid ASC;
 
 /**
  * Story Views
@@ -49,7 +61,8 @@ NATURAL JOIN Entity E
 ORDER BY entityid ASC;
 
 CREATE VIEW StoryAll AS
-SELECT SE.*, SE.entityid as storyid, A.authorname, C.channelname
+SELECT SE.*, SE.entityid as storyid, A.authorname, C.channelname,
+    (SELECT count(*) FROM Tree T WHERE T.ascendantid = SE.entityid) count
 FROM StoryEntity SE
 LEFT JOIN Author A ON SE.authorid = A.authorid
 LEFT JOIN Channel C ON SE.channelid = C.channelid
@@ -120,7 +133,9 @@ NATURAL JOIN Entity E
 ORDER BY entityid;
 
 CREATE VIEW CommentAll AS
-SELECT CE.*, CE.entityid as commentid, A.authorname
+SELECT CE.*, CE.entityid as commentid, A.authorname,
+    (SELECT count(*) FROM Tree T WHERE T.ascendantid = CE.entityid) count,
+    (SELECT count(*) FROM Tree T WHERE T.descendantid = CE.entityid) level
 FROM CommentEntity CE
 LEFT JOIN Author A ON CE.authorid = A.authorid
 ORDER BY entityid;

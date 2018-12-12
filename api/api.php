@@ -37,6 +37,11 @@ class API {
             return (int)$value;
         }
 
+        // Counts
+        if (preg_match('/^(?:count|level)$/i', $key)) {
+            return (int)$value;
+        }
+
         // Floats
         if (preg_match('/^(?:lowerbound|\w*average|rating)$/i', $key)) {
             return (float)$value;
@@ -203,7 +208,7 @@ class Auth {
      * Authenticate a user and create a logged in session if successful.
      *
      * Returns an object holding the userid, username and email if successful.
-     * Returns false otherwise.
+     * Returns null otherwise.
      *
      * Failed authentication does not change state nor call an HTTPResponse method.
      *
@@ -233,7 +238,7 @@ class Auth {
     /**
      * Attempt to authenticate a user using the HTTP header 'Authorization'.
      *
-     * If the header is not present the authentication fails, returning false.
+     * If the header is not present the authentication fails, returning null.
      * If the header is present but the credentials are incorrect it fails too.
      *   In this case an answer may be sent.
      *
@@ -282,7 +287,7 @@ class Auth {
             return $user;
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -294,7 +299,7 @@ class Auth {
         // If $_SESSION has the field 'userid' set, then this is the login.
         $set = isset($_SESSION['userid']);
 
-        if (!$set) return false;
+        if (!$set) return null;
 
         $userid = $_SESSION['userid'];
 
@@ -337,21 +342,17 @@ class Auth {
     public static function level(string $level, int $userid = null) {
         $auth = static::authenticate();
 
-        if ($auth === false) return $level === 'free';
-
-        $authid = $auth['userid'];
-        $admin = $auth['admin'];
-
         switch ($level) {
         case 'free':
-        case 'auth':
             $allow = true;
+        case 'auth':
+            $allow = (bool)$auth;
             break;
         case 'authid':
-            $allow = $admin || ($authid === $userid);
+            $allow = (bool)$auth && ($auth['admin'] || ($auth['userid'] === $userid));
             break;
         case 'admin':
-            $allow = $admin;
+            $allow = (bool)$auth && ($auth['admin']);
             break;
         default:
             $allow = false;
@@ -375,7 +376,7 @@ class Auth {
     public static function demandLevel(string $level, int $userid = null) {
         $auth = static::level($level, $userid);
 
-        if ($auth) return $auth;
+        if ($auth !== false) return $auth;
 
         global $AUTH_MODE;
 
