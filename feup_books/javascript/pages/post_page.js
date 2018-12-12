@@ -27,7 +27,7 @@ api.tree.get({parentid:storyid}).then(response => {
 
 
 function getStory(story){
-
+    console.log(story);
     // Article
     var article = document.querySelector(".post_complete");
     let article1 = `<article class="post_complete">

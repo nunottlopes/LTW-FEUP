@@ -57,6 +57,28 @@ document.querySelector("#my_comments").addEventListener("click", function(){
     </div>`;
 });
 
+document.querySelector("#my_channels").addEventListener("click", function(){
+  contentDiv.innerHTML = `<h1>My Channels</h1>
+  <div class="profile_content_inside">
+    <div class="profile_post">
+      <a href="#"><h2>Channel1</h2></a>
+      <h5>Subscribed 4 hours ago</h5>
+    </div>
+    <div class="profile_post">
+      <a href="#"><h2>Channel2</h2></a>
+      <h5>Subscribed 4 hours ago</h5>
+    </div>
+    <div class="profile_post">
+      <a href="#"><h2>Channel3</h2></a>
+      <h5>Subscribed 4 hours ago</h5>
+    </div>
+    <div class="profile_post">
+      <a href="#"><h2>Channel4</h2></a>
+      <h5>Subscribed 4 hours ago</h5>
+    </div>
+  </div>`;
+});
+
 document.querySelector("#my_saved_posts").addEventListener("click", function(){
     contentDiv.innerHTML = `<h1>My Saved Posts</h1>
     <div class="profile_content_inside">

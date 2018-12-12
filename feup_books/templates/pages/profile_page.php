@@ -11,6 +11,9 @@
       <div id="my_comments" class="profile_options">
         <i class="fa fa-comments-o"></i><li>My Comments</li>
         </div>
+      <div id="my_channels" class="profile_options">
+        <i class="fa fa-television"></i><li>My Channels</li>
+        </div>
       <div id="my_saved_posts" class="profile_options">
         <i class="fa fa-check-square-o"></i><li>My Saved Posts</li>
         </div>
