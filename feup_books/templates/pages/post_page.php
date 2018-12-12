@@ -17,10 +17,14 @@
             <div id="dropdown_selection">BEST</div>
             <div class="triangle_down"></div>
             <div id="dropdown_options" class="default-dropdown-content">
-                <div>BEST</div>
-                <div>TOP</div>
-                <div>NEW</div>
-                <div>OLD</div>
+                <div id="top_dropdown">TOP</div>
+                <div id="bot_dropdown">BOT</div>
+                <div id="new_dropdown">NEW</div>
+                <div id="old_dropdown">OLD</div>
+                <div id="best_dropdown">BEST</div>
+                <div id="controversial_dropdown">CONTROVERSIAL</div>
+                <div id="average_dropdown">AVERAGE</div>
+                <div id="hot_dropdown">HOT</div>
             </div>
         </div>
         <script src="javascript/dropdown.js"></script>

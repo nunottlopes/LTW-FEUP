@@ -11,28 +11,46 @@ for(let i = 0; i < divs.length; i++){
     });
 }
 
+var authorid = document.querySelector("#account");
+//authorid.getAttribute
+api.story.get({authorid:storyid}).then(response => {
+  if(response.ok){
+      return response.json();
+  }
+  else{
+      window.location.replace("index.php");
+      throw response;
+  }
+})
+.then(json => getStory(json.data));
+
 var contentDiv = document.querySelector("#profile_content");
 
 document.querySelector("#my_posts").addEventListener("click", function(){
-    contentDiv.innerHTML = `<h1>My Posts</h1>
-    <div class="profile_content_inside">
-      <div class="profile_post">
-        <a href="#"><h2>Title</h2></a>
-        <h5>Posted by Amadeu 4 hours ago</h5>
-      </div>
-      <div class="profile_post">
-        <a href="#"><h2>Title2</h2></a>
-        <h5>Posted by Amadeu 4 hours ago</h5>
-      </div>
-      <div class="profile_post">
-        <a href="#"><h2>Title3</h2></a>
-        <h5>Posted by Amadeu 4 hours ago</h5>
-      </div>
-      <div class="profile_post">
-        <a href="#"><h2>Title4</h2></a>
-        <h5>Posted by Amadeu 4 hours ago</h5>
-      </div>
-    </div>`;
+  var content = "";
+  content += '<h1>My Posts</h1>';
+
+  contentDiv.innerHTML = `<h1>My Posts</h1>
+  <div class="profile_content_inside">
+    <div class="profile_post">
+      <a href="#"><h2>Title</h2></a>
+      <h5>Posted by Amadeu 4 hours ago</h5>
+    </div>
+    <div class="profile_post">
+      <a href="#"><h2>Title2</h2></a>
+      <h5>Posted by Amadeu 4 hours ago</h5>
+    </div>
+    <div class="profile_post">
+      <a href="#"><h2>Title3</h2></a>
+      <h5>Posted by Amadeu 4 hours ago</h5>
+    </div>
+    <div class="profile_post">
+      <a href="#"><h2>Title4</h2></a>
+      <h5>Posted by Amadeu 4 hours ago</h5>
+    </div>
+  </div>`;
+
+    //contentDiv.innerHTML =
 });
 
 document.querySelector("#my_comments").addEventListener("click", function(){

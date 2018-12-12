@@ -14,7 +14,7 @@ api.story.get({storyid:storyid}).then(response => {
 .then(json => getStory(json.data));
 
 // Get Comments
-api.tree.get({parentid:storyid}).then(response => {
+api.tree.get({ascendantid:storyid}).then(response => {
     if(response.ok){
         return response.json();
     }
@@ -25,9 +25,7 @@ api.tree.get({parentid:storyid}).then(response => {
 })
 .then(json => getComments(json.data));
 
-
 function getStory(story){
-    console.log(story);
     // Article
     var article = document.querySelector(".post_complete");
     let article1 = `<article class="post_complete">
@@ -65,18 +63,19 @@ function getStory(story){
 var allComments = "";
 
 function getComments(data){
+    allComments = "";
     // Comments
     var comments = document.querySelector("#post_comments");
 
-    getCommentsFromTree(data, 0);
+    getCommentsFromTree(data);
 
     comments.innerHTML = allComments;
 }
 
-function getCommentsFromTree(data, margin){
-    for(let comment in data.children){
-        var currentComment = data.children[comment];
-        console.log(currentComment);
+function getCommentsFromTree(data){
+    for(let comment in data){
+        var currentComment = data[comment];
+
         var article = `<article id=${currentComment.entityid} class="post_comment">
         <header>${currentComment.authorname}, ${timeDifference(currentComment.updatedat)}</header>
         <p>${currentComment.content}</p>
@@ -89,12 +88,124 @@ function getCommentsFromTree(data, margin){
 
         allComments += article;
 
-        if(Object.keys(currentComment.children).length > 0){
-            margin++;
-            getCommentsFromTree(currentComment, margin);
+        if(currentComment.children.length > 0){
+            getCommentsFromTree(currentComment.children);
         }
         allComments += '</article>';
     }
 }
 
 //tenho de passar entityid e userid para upvotes e afins
+var selected_sort_option = document.querySelector("#dropdown_selection");
+
+document.querySelector("#top_dropdown").addEventListener("click", function(){
+    selected_sort_option.content = "TOP";
+    api.tree.get({ascendantid:storyid, order:"top"}).then(response => {
+        if(response.ok){
+            return response.json();
+        }
+        else{
+            window.location.replace("index.php");
+            throw response;
+        }
+    })
+    .then(json => getComments(json.data));
+});
+
+document.querySelector("#bot_dropdown").addEventListener("click", function(){
+    selected_sort_option.content = "BOT";
+    api.tree.get({ascendantid:storyid, order:"bot"}).then(response => {
+        if(response.ok){
+            return response.json();
+        }
+        else{
+            window.location.replace("index.php");
+            throw response;
+        }
+    })
+    .then(json => getComments(json.data));
+});
+
+document.querySelector("#new_dropdown").addEventListener("click", function(){
+    selected_sort_option.content = "NEW";
+    api.tree.get({ascendantid:storyid, order:"new"}).then(response => {
+        if(response.ok){
+            return response.json();
+        }
+        else{
+            window.location.replace("index.php");
+            throw response;
+        }
+    })
+    .then(json => getComments(json.data));
+});
+
+document.querySelector("#old_dropdown").addEventListener("click", function(){
+    selected_sort_option.content = "OLD";
+    api.tree.get({ascendantid:storyid, order:"old"}).then(response => {
+        if(response.ok){
+            return response.json();
+        }
+        else{
+            window.location.replace("index.php");
+            throw response;
+        }
+    })
+    .then(json => getComments(json.data));
+});
+
+document.querySelector("#best_dropdown").addEventListener("click", function(){
+    selected_sort_option.content = "BEST";
+    api.tree.get({ascendantid:storyid, order:"best"}).then(response => {
+        if(response.ok){
+            return response.json();
+        }
+        else{
+            window.location.replace("index.php");
+            throw response;
+        }
+    })
+    .then(json => getComments(json.data));
+});
+
+document.querySelector("#controversial_dropdown").addEventListener("click", function(){
+    selected_sort_option.content = "CONTROVERSIAL";
+    api.tree.get({ascendantid:storyid, order:"controversial"}).then(response => {
+        if(response.ok){
+            return response.json();
+        }
+        else{
+            window.location.replace("index.php");
+            throw response;
+        }
+    })
+    .then(json => getComments(json.data));
+});
+
+document.querySelector("#average_dropdown").addEventListener("click", function(){
+    selected_sort_option.content = "AVERAGE";
+    api.tree.get({ascendantid:storyid, order:"average"}).then(response => {
+        if(response.ok){
+            return response.json();
+        }
+        else{
+            window.location.replace("index.php");
+            throw response;
+        }
+    })
+    .then(json => getComments(json.data));
+});
+
+document.querySelector("#hot_dropdown").addEventListener("click", function(){
+    selected_sort_option.content = "HOT";
+    api.tree.get({ascendantid:storyid, order:"hot"}).then(response => {
+        if(response.ok){
+            return response.json();
+        }
+        else{
+            window.location.replace("index.php");
+            throw response;
+        }
+    })
+    .then(json => getComments(json.data));
+});
