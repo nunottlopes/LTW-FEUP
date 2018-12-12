@@ -1,4 +1,4 @@
-<section id="account" user-id="<?php echo $_GET['id']?>" class="page">
+<section id="account" user-id="<?=$_GET['id']?>" class="page">
   <nav id="account_menu">
     <div id="image_name">
       <img src="images/users/user.png" alt="">
