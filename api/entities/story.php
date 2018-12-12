@@ -43,10 +43,10 @@ class Story extends APIEntity {
      * Switch statement prevents SQL injection.
      */
     private static function sortTablename($more) {
-        if (!isset($more['order'])) return 'StoryAll';
+        if (!isset($more['order'])) return static::$defaultSortTable;
 
         $order = $more['order'];
-        if (!is_string($order)) return 'StoryAll';
+        if (!is_string($order)) return static::$defaultSortTable;
 
         switch ($order) {
         case 'top': return 'StorySortTop';

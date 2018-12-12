@@ -69,10 +69,10 @@ class Tree extends APIEntity {
      * Switch statement prevents SQL injection.
      */
     private static function sortTablename($more) {
-        if (!isset($more['order'])) return 'all';
+        if (!isset($more['order'])) return static::$defaultSortTable;
 
         $order = $more['order'];
-        if (!is_string($order)) return 'all';
+        if (!is_string($order)) return static::$defaultSortTable;
 
         switch ($order) {
         case 'top': return 'CommentTreeSortTop';
