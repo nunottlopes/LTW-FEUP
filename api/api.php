@@ -13,7 +13,7 @@ $AUTH_MODE = 'SESSION';
 error_reporting(E_ALL);
 
 /**
- * API generic utilities (name might be misleading)
+ * API generic utilities (more intuitive name would be just 'Utils', maybe).
  */
 class API {
     private static function singleCast(string $key, $value) {
@@ -33,12 +33,12 @@ class API {
         }
 
         // Numbers
-        if (preg_match('/^(?:limit|since|offset)$/i', $key)) {
+        if (preg_match('/^(?:limit\w*|\w*since|\w*offset|\w*depth)$/i', $key)) {
             return (int)$value;
         }
 
         // Floats
-        if (preg_match('/^(?:lowerbound|average)$/i', $key)) {
+        if (preg_match('/^(?:lowerbound|\w*average|rating)$/i', $key)) {
             return (float)$value;
         }
 
@@ -48,7 +48,8 @@ class API {
 
     /**
      * Cast array keys to appropriate type.
-     * Used by database entities for database fetches and client argument parsing.
+     * Used by database entities for database fetches (casting columns to their
+     * appropriate types) and client argument parsing of $_GET, $_POST and body.
      */
     public static function cast(array $data) {
         $casted = [];
@@ -77,16 +78,16 @@ class API {
     }
 
     /**
-     * Look into a resource
+     * Filter array by key
      */
-    public static function look(string $resource) {
-        HTTPResponse::look("Resource [$resource]");
+    public static function filter(array $array, ...$keys) {
+        return array_intersect_key($array, array_flip($keys));
     }
 
     /**
      * Check if $args has all the listed keys.
-     * A string key must be present.
-     * An array key is an array of strings, exactly one of which must be present.
+     * A key of type string must be present.
+     * A key of type array is an exclusive disjunction of string keys.
      */
     public static function got(array $args, array $keys) {
         foreach ($keys as $key) {
@@ -104,9 +105,9 @@ class API {
     }
 
     /**
-     * Check if global $args has all the listed keys.
+     * Call got() on global $args
      */
-    public static function gotargs(string ...$keys) {
+    public static function gotargs(...$keys) {
         global $args;
         return static::got($args, $keys);
     }
@@ -124,22 +125,26 @@ class API {
      */
     public static function keyfy(array $array, string $key) {
         $object = [];
-        foreach($array as $el) {
-            $object[$el[$key]] = $el;
-        }
+        foreach ($array as $el) $object[$el[$key]] = $el;
         return $object;
     }
 
     /**
-     * Convert $actions array to a cleaner format (see 1.1 in a resource)
+     * Convert $actions array to a cleaner format.
      */
     public static function prettyActions(array $actions) {
         $converted = [];
         foreach ($actions as $action => $spec) {
             $converted[$action] = ['method' => $spec[0]];
-            if (isset($spec[1])) $converted[$action]['query'] = $spec[1];
-            if (isset($spec[2])) $converted[$action]['body'] = $spec[2];
-            if (isset($spec[3])) $converted[$action]['extra'] = $spec[3];
+            if (isset($spec[1]) && $spec[1] !== []) {
+                $converted[$action]['query'] = $spec[1];
+            }
+            if (isset($spec[2]) && $spec[2] !== []) {
+                $converted[$action]['body'] = $spec[2];
+            }
+            if (isset($spec[3]) && $spec[3] !== []) {
+                $converted[$action]['more'] = $spec[3];
+            }
         }
         return $converted;
     }
@@ -420,24 +425,28 @@ class HTTPRequest {
     }
 
     /**
-     * Parse $_GET.
+     * Parse $_GET for required arguments (=> global $args)
      */
-    public static function query(string $method, array $actions, string &$chosen = null) {
-        global $resource;
+    public static function action(string $resource, array $actions) {
+        $method = static::method();
 
+        // A GET request on a resource without query arguments is a look.
         if ($_GET === [] && $method === 'GET') {
             HTTPResponse::look("Resource [$resource]");
         }
 
+        // Iterate the actions in order, and return the first that is fully satisfied.
         foreach ($actions as $action => $spec) {
-            if ($method !== $spec[0]) continue; // actual method check
+            // Skip this action if methods do not match
+            if ($method !== $spec[0]) continue;
+
+            // Check if $_GET contains all of the action's required query arguments.
             if (API::got($_GET, $spec[1])) {
-                $chosen = $action;
-                return API::cast($_GET);
+                return $action;
             }
         }
 
-        // Action not found
+        // No action matched => invalid request
         HTTPResponse::noAction();
     }
 
@@ -465,16 +474,8 @@ class HTTPRequest {
     /**
      * Get the request method
      */
-    public static function method() {
-        return $_SERVER['REQUEST_METHOD'];
-    }
-
-    /**
-     * Impose method to belong to this supported list.
-     * Make a backdoor for query.php
-     */
-    public static function requireMethod(array $supported = null) {
-        $method = static::method();
+    public static function method(array $supported = null) {
+        $method = $_SERVER['REQUEST_METHOD'];
 
         // Just querying the actual method
         if ($supported === null) {

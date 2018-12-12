@@ -15,10 +15,10 @@ $actions = [
     'edit'                 => ['PUT', ['commentid'], ['content']],
 
     'get-id'               => ['GET', ['commentid']],
-    'get-parent-author'    => ['GET', ['parentid', 'authorid']],
-    'get-parent'           => ['GET', ['parentid']],
-    'get-author'           => ['GET', ['authorid']],
-    'get-all'              => ['GET', ['all']],
+    'get-parent-author'    => ['GET', ['parentid', 'authorid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-parent'           => ['GET', ['parentid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-author'           => ['GET', ['authorid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-all'              => ['GET', ['all'], [], ['order', 'since', 'limit', 'offset']],
 
     'delete-id'            => ['DELETE', ['commentid']],
     'delete-parent-author' => ['DELETE', ['parentid', 'authorid']],
@@ -30,9 +30,11 @@ $actions = [
 /**
  * 1.2. LOAD request description variables
  */
-$method = HTTPRequest::requireMethod($methods);
+$method = HTTPRequest::method($methods);
 
-$args = HTTPRequest::query($method, $actions, $action);
+$action = HTTPRequest::action($resource, $actions);
+
+$args = API::cast($_GET);
 
 $auth = Auth::demandLevel('free');
 
@@ -125,25 +127,25 @@ if ($action === 'get-id') {
 }
 
 if ($action === 'get-parent-author') {
-    $comments = Comment::getChildrenAuthor($parentid, $authorid);
+    $comments = Comment::getChildrenAuthor($parentid, $authorid, $args);
 
     HTTPResponse::ok("Comments of user $authorid children of $parentid", $comments);
 }
 
 if ($action === 'get-parent') {
-    $comments = Comment::getChildren($parentid);
+    $comments = Comment::getChildren($parentid, $args);
 
     HTTPResponse::ok("Comments children of $parentid", $comments);
 }
 
 if ($action === 'get-author') {
-    $comments = Comment::getAuthor($authorid);
+    $comments = Comment::getAuthor($authorid, $args);
 
     HTTPResponse::ok("Comments of user $authorid", $comments);
 }
 
 if ($action === 'get-all') {
-    $comments = Comment::readAll();
+    $comments = Comment::readAll($args);
 
     HTTPResponse::ok("All comments", $comments);
 }

@@ -25,9 +25,11 @@ $actions = [
 /**
  * 1.2. LOAD request description variables
  */
-$method = HTTPRequest::requireMethod($methods);
+$method = HTTPRequest::method($methods);
 
-$args = HTTPRequest::query($method, $actions, $action);
+$action = HTTPRequest::action($resource, $actions);
+
+$args = API::cast($_GET);
 
 $auth = Auth::demandLevel('free');
 

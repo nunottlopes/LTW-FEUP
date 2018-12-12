@@ -2,44 +2,44 @@
 require_once __DIR__ . '/../api.php';
 
 class APIEntity {
-    protected static function since($since) {
-        if (is_int($since) && $since > 0) {
-            return $since;
-        } else {
-            return static::defaultSince;
+    protected static function since($more) {
+        if (isset($more['since'])) {
+            $since = $more['since'];
+            if (is_int($since) && $since > 0) {
+                return $since;
+            }
         }
+        return static::$defaultSince;
     }
 
-    protected static function limit($limit) {
-        if (is_int($limit) && $limit > 0) {
-            return $limit;
-        } else {
-            return static::defaultLimit;
+    protected static function limit($more) {
+        if (isset($more['limit'])) {
+            $limit = $more['limit'];
+            if (is_int($limit) && $limit > 0) {
+                return $limit;
+            }
         }
+        return static::$defaultLimit;
     }
 
-    protected static function offset($offset) {
-        if (is_int($offset) && $offset >= 0) {
-            return $offset;
-        } else {
-            return static::defaultOffset;
+    protected static function offset($more) {
+        if (isset($more['offset'])) {
+            $offset = $more['offset'];
+            if (is_int($offset) && $offset >= 0) {
+                return $offset;
+            }
         }
+        return static::$defaultOffset;
     }
 
-    protected static function maxdepth($maxdepth) {
-        if (is_int($maxdepth) && $maxdepth > 0) {
-            return $maxdepth;
-        } else {
-            return static::defaultMaxDepth;
+    protected static function maxdepth($more) {
+        if (isset($more['maxdepth'])) {
+            $maxdepth = $more['maxdepth'];
+            if (is_int($maxdepth) && $maxdepth > 0) {
+                return $maxdepth;
+            }
         }
-    }
-
-    protected static function depth($depth) {
-        if (is_int($depth) && $depth > 0) {
-            return $depth;
-        } else {
-            return static::defaultDepth;
-        }
+        return static::$defaultMaxDepth;
     }
 
     protected static function fetch(PDOStatement &$stmt) {

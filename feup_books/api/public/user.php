@@ -28,11 +28,13 @@ $actions = [
 /**
  * 1.2. LOAD request description variables
  */
+$method = HTTPRequest::method($methods);
+
+$action = HTTPRequest::action($resource, $actions);
+
+$args = API::cast($_GET);
+
 $auth = Auth::demandLevel('free');
-
-$method = HTTPRequest::requireMethod($methods);
-
-$args = HTTPRequest::query($method, $actions, $action);
 
 /**
  * 2. GET: Check query parameter identifying resources

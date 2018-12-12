@@ -155,7 +155,7 @@ class User extends APIEntity {
 
     public static function read(int $userid) {
         $query = '
-            SELECT * FROM UserNohash WHERE userid = ?
+            SELECT * FROM UserClean WHERE userid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -165,7 +165,7 @@ class User extends APIEntity {
 
     public static function readAll() {
         $query = '
-            SELECT * FROM UserNohash
+            SELECT * FROM UserClean
             ';
 
         $stmt = DB::get()->prepare($query);

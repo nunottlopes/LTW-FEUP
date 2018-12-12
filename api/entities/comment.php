@@ -7,9 +7,9 @@ class Comment extends APIEntity {
     /**
      * $more Default Constants
      */
-    protected const defaultSince = 0;
-    protected const defaultLimit = 50;
-    protected const defaultOffset = 0;
+    protected static $defaultSince = 0;
+    protected static $defaultLimit = 50;
+    protected static $defaultOffset = 0;
 
     /**
      * Extend a normal query's arguments $args with since, limit and offset.
@@ -22,10 +22,10 @@ class Comment extends APIEntity {
      * 
      * So we push to $args array values $since, $limit and $offset IN THIS ORDER.
      */
-    protected static function extend(array $args = [], array $more = null) {
-        $since = static::since($more['since']);
-        $limit = static::limit($more['limit']);
-        $offset = static::offset($more['offset']);
+    protected static function extend(array $args, array $more) {
+        $since = static::since($more);
+        $limit = static::limit($more);
+        $offset = static::offset($more);
 
         $args[] = $since;
         $args[] = $limit;
@@ -41,10 +41,13 @@ class Comment extends APIEntity {
      *
      * Switch statement prevents SQL injection.
      */
-    private static function sortTablename($orderby) {
-        if (!is_string($orderby)) return 'CommentAll';
+    private static function sortTablename($more) {
+        if (!isset($more['order'])) return 'CommentAll';
 
-        switch ($orderby) {
+        $order = $more['order'];
+        if (!is_string($order)) return 'CommentAll';
+
+        switch ($order) {
         case 'top': return 'CommentSortTop';
         case 'bot': return 'CommentSortBot';
         case 'controversial': return 'CommentSortControversial';
@@ -82,8 +85,8 @@ class Comment extends APIEntity {
     /**
      * READ
      */
-    public static function getChildrenAuthor(int $parentid, int $authorid, array $more = null) {
-        $sorttable = static::sortTablename($more['orderby']);
+    public static function getChildrenAuthor(int $parentid, int $authorid, array $more = []) {
+        $sorttable = static::sortTablename($more);
         
         $query = "
             SELECT * FROM $sorttable WHERE parentid = ? AND authorid = ?
@@ -97,8 +100,8 @@ class Comment extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getChildren(int $parentid, array $more = null) {
-        $sorttable = static::sortTablename($more['orderby']);
+    public static function getChildren(int $parentid, array $more = []) {
+        $sorttable = static::sortTablename($more);
         
         $query = "
             SELECT * FROM $sorttable WHERE parentid = ?
@@ -112,8 +115,8 @@ class Comment extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getAuthor(int $authorid, array $more = null) {
-        $sorttable = static::sortTablename($more['orderby']);
+    public static function getAuthor(int $authorid, array $more = []) {
+        $sorttable = static::sortTablename($more);
 
         $query = "
             SELECT * FROM $sorttable WHERE authorid = ?
@@ -137,8 +140,8 @@ class Comment extends APIEntity {
         return static::fetch($stmt);
     }
 
-    public static function readAll(array $more = null) {
-        $sorttable = static::sortTablename($more['orderby']);
+    public static function readAll(array $more = []) {
+        $sorttable = static::sortTablename($more);
 
         $query = "
             SELECT * FROM $sorttable

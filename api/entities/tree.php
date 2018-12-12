@@ -7,13 +7,13 @@ class Tree extends APIEntity {
     /**
      * $more Default Constants
      */
-    protected const defaultSince = 0;
-    protected const defaultLimit = 25;
-    protected const defaultOffset = 0;
-    protected const defaultMaxDepth = 5;
+    protected static $defaultSince = 0;
+    protected static $defaultLimit = 50;
+    protected static $defaultOffset = 0;
+    protected static $defaultMaxDepth = 4;
 
     /**
-     * Extend a normal query's arguments $args with since, limit and offset.
+     * Extend a normal query's arguments $args with since, depth, limit and offset.
      * The query string ends with:
      *
      *  [AND|WHERE] createdat >= ? AND depth <= ? LIMIT ? OFFSET ?
@@ -39,8 +39,8 @@ class Tree extends APIEntity {
     /**
      * AUXILIARY
      */
-    private static function buildTree(array $entities, int $id) {
-        $node = $entities[$id];
+    private static function buildTree(array $descendants, int $parentid) {
+        $node = $descendants[$parentid];
         $node['children'] = [];
 
         $entities[$id] = null;
@@ -57,24 +57,22 @@ class Tree extends APIEntity {
     /**
      * READ
      */
-    public static function getAncestry(int $childid) {
+    public static function getAncestry(int $descendantid) {
         $query = '
-            WITH RECURSIVE Subtree(id) AS (
-                VALUES(?)
-                UNION
-                SELECT parentid FROM Comment JOIN Subtree
-                WHERE Comment.entityid = Subtree.id
-            )
-            SELECT * FROM CommentAll
-            WHERE entityid IN Subtree
-            ORDER BY createdat ASC
+            SELECT * FROM CommentAscendantTree WHERE descendantid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$childid]);
+        $stmt->execute([$descendantid]);
         $comments = static::fetchAll($stmt);
 
-        $story = Story::read($comments[0]['parentid']);
+        $query = '
+            SELECT * FROM StoryTree WHERE commentid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$descendantid]);
+        $story = static::fetch($stmt);
 
         $line = [
             'story' => $story,
@@ -84,31 +82,20 @@ class Tree extends APIEntity {
         return $line;
     }
 
-    public static function getDescendants(int $parentid) {
+    public static function getAllDescendants(int $ascendantid) {
         $query = '
-            SELECT * FROM 
+            SELECT * FROM CommentTree WHERE ascendantid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$parentid, $parentid]);
+        $stmt->execute([$ascendantid]);
         return static::fetchAll($stmt);
     }
 
-    public static function getTree(int $parentid) {
-        $top = Story::read($parentid);
+    public static function getTree(int $ascendantid) {
+        $descendants = static::getAllDescendants($ascendantid);
 
-        if ($top == null) {
-            $top = Comment::read($parentid);
-            if ($top == null) return false;
-        }
-
-        $descendants = static::getDescendants($parentid);
-
-        $entities = API::keyfy($descendants, 'entityid');
-
-        $entities[$parentid] = $top;
-
-        return static::buildTree($entities, $parentid);
+        return static::buildTree($descendants, $ascendantid);
     }
 }
 ?>

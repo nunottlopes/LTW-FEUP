@@ -35,17 +35,37 @@ class DB {
 
         static::$db->query('PRAGMA foreign_keys=ON');
 
-        // Add SQRT function
-        static::$db->sqliteCreateFunction('SQRT', 'sqrt', 1);
+        // Add Reddit BEST sorting function
+        static::$db->sqliteCreateFunction('WILSONLOWERBOUND', '\wilson_lower_bound', 2);
 
-        // Add BEST sorting function
-        static::$db->sqliteCreateFunction('WILSONLOWERBOUND', 'wilson_lower_bound', 2);
+        // Add Reddit HOT sorting function
+        static::$db->sqliteCreateFunction('REDDITHOT', '\reddit_hot', 3);
+
+        // Add Reddit CONTROVERSIAL sorting function
+        static::$db->sqliteCreateFunction('REDDITCONTROVERSAL', '\reddit_controversial', 2);
     }
 }
 
 function wilson_lower_bound(int $upvotes, int $downvotes) {
-    return (($upvotes + 1.9208) / ($upvotes + $downvotes) -
-        1.96 * sqrt(($upvotes * $downvotes) / ($upvotes + $downvotes) + 0.9604) /
-        ($upvotes + $downvotes)) / (1 + 3.8416 / ($upvotes + $downvotes))
+    if ($upvotes === 0) $upvotes = 1;
+    $sum = $upvotes + $downvotes;
+    $mul = $upvotes * $downvotes;
+    $z = 1.960; // 95% = 1.960; 90% = 1.645; 99% = 2.576
+    return (($upvotes + 1.9208) / $sum - $z * sqrt($mul / $sum + 0.9604) / $sum) / (1 + 3.8416 / $sum);
+}
+
+function reddit_hot(int $upvotes, int $downvotes, int $createdat) {
+    $d = mktime(7, 46, 43, 12, 8, 2005);
+    $t = $createdat - $d;
+    $x = $upvotes - $downvotes;
+    $y = ($x > 0) ? 1 : (($x < 0) ? -1 : 0);
+    $z = max($x, 1);
+    return log($z, 10) + ($y * $t) / 45000;
+}
+
+function reddit_controversial(int $upvotes, int $downvotes) {
+    $sum = $upvotes + $downvotes;
+    $dif = $upvotes - $downvotes;
+    return $sum / max(abs($dif), 1); // admittedly, this could be inline SQL...
 }
 ?>

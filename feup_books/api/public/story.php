@@ -15,24 +15,26 @@ $actions = [
     'edit'                  => ['PATCH', ['storyid'], ['content']],
 
     'get-id'                => ['GET', ['storyid']],
-    'get-channel-author'    => ['GET', ['channelid', 'authorid']],
-    'get-channel'           => ['GET', ['channelid']],
-    'get-author'            => ['GET', ['authorid']],
-    'get-all'               => ['GET', ['all']],
+    'get-channel-author'    => ['GET', ['channelid', 'authorid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-channel'           => ['GET', ['channelid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-author'            => ['GET', ['authorid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-all'               => ['GET', ['all'], [], ['order', 'since', 'limit', 'offset']],
 
     'delete-id'             => ['DELETE', ['storyid']],
     'delete-channel-author' => ['DELETE', ['channelid', 'authorid']],
     'delete-channel'        => ['DELETE', ['channelid']],
     'delete-author'         => ['DELETE', ['authorid']],
-    'delete-all'            => ['DELETE', ['all']]
+    'delete-all'            => ['DELETE', ['all']],
 ];
 
 /**
  * 1.2. LOAD request description variables
  */
-$method = HTTPRequest::requireMethod($methods);
+$method = HTTPRequest::method($methods);
 
-$args = HTTPRequest::query($method, $actions, $action);
+$action = HTTPRequest::action($resource, $actions);
+
+$args = API::cast($_GET);
 
 $auth = Auth::demandLevel('free');
 
@@ -127,25 +129,25 @@ if ($action === 'get-id') {
 }
 
 if ($action === 'get-channel-author') {
-    $stories = Story::getChannelUser($channelid, $authorid);
+    $stories = Story::getChannelUser($channelid, $authorid, $args);
 
     HTTPResponse::ok("Stories of user $authorid in channel $channelid", $stories);
 }
 
 if ($action === 'get-channel') {
-    $stories = Story::getChannel($channelid);
+    $stories = Story::getChannel($channelid, $args);
 
     HTTPResponse::ok("Stories in channel $channelid", $stories);
 }
 
 if ($action === 'get-author') {
-    $stories = Story::getUser($authorid);
+    $stories = Story::getUser($authorid, $args);
 
     HTTPResponse::ok("Stories of user $authorid", $stories);
 }
 
 if ($action === 'get-all') {
-    $stories = Story::readAll();
+    $stories = Story::readAll($args);
 
     HTTPResponse::ok("All stories", $stories);
 }

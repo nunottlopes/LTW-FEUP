@@ -7,9 +7,9 @@ class Story extends APIEntity {
     /**
      * $more Default Constants
      */
-    protected const defaultSince = 0;
-    protected const defaultLimit = 25;
-    protected const defaultOffset = 0;
+    protected static $defaultSince = 0;
+    protected static $defaultLimit = 25;
+    protected static $defaultOffset = 0;
 
     /**
      * Extend a normal query's arguments $args with since, limit and offset.
@@ -22,10 +22,10 @@ class Story extends APIEntity {
      * 
      * So we push to $args array values $since, $limit and $offset IN THIS ORDER.
      */
-    protected static function extend(array $args = [], array $more = null) {
-        $since = static::since($more['since']);
-        $limit = static::limit($more['limit']);
-        $offset = static::offset($more['offset']);
+    protected static function extend(array $args, array $more) {
+        $since = static::since($more);
+        $limit = static::limit($more);
+        $offset = static::offset($more);
 
         $args[] = $since;
         $args[] = $limit;
@@ -41,10 +41,13 @@ class Story extends APIEntity {
      *
      * Switch statement prevents SQL injection.
      */
-    private static function sortTablename($orderby) {
-        if (!is_string($orderby)) return 'StoryAll';
+    private static function sortTablename($more) {
+        if (!isset($more['order'])) return 'StoryAll';
 
-        switch ($orderby) {
+        $order = $more['order'];
+        if (!is_string($order)) return 'StoryAll';
+
+        switch ($order) {
         case 'top': return 'StorySortTop';
         case 'bot': return 'StorySortBot';
         case 'average': return 'StorySortAverage';
@@ -82,8 +85,8 @@ class Story extends APIEntity {
     /**
      * READ
      */
-    public static function getChannelUser(int $channelid, int $authorid, array $more = null) {
-        $sorttable = static::sortTablename($more['orderby']);
+    public static function getChannelUser(int $channelid, int $authorid, array $more = []) {
+        $sorttable = static::sortTablename($more);
 
         $query = "
             SELECT * FROM $sorttable
@@ -91,13 +94,15 @@ class Story extends APIEntity {
             AND createdat >= ? LIMIT ? OFFSET ?
             ";
 
+        $queryArguments = static::extend([$channelid, $authorid], $more);
+
         $stmt = DB::get()->prepare($query);
-        $stmt->execute(static::extend([$channelid, $authorid], $more));
+        $stmt->execute($queryArguments);
         return static::fetchAll($stmt);
     }
 
-    public static function getChannel(int $channelid, array $more = null) {
-        $sorttable = static::sortTablename($more['orderby']);
+    public static function getChannel(int $channelid, array $more = []) {
+        $sorttable = static::sortTablename($more);
 
         $query = "
             SELECT * FROM $sorttable
@@ -105,13 +110,15 @@ class Story extends APIEntity {
             AND createdat >= ? LIMIT ? OFFSET ?
             ";
 
+        $queryArguments = static::extend([$channelid], $more);
+
         $stmt = DB::get()->prepare($query);
-        $stmt->execute(static::extend([$channelid], $more));
+        $stmt->execute($queryArguments);
         return static::fetchAll($stmt);
     }
 
-    public static function getUser(int $authorid, array $more = null) {
-        $sorttable = static::sortTablename($more['orderby']);
+    public static function getUser(int $authorid, array $more = []) {
+        $sorttable = static::sortTablename($more);
 
         $query = "
             SELECT * FROM $sorttable
@@ -119,8 +126,10 @@ class Story extends APIEntity {
             AND createdat >= ? LIMIT ? OFFSET ?
             ";
 
+        $queryArguments = static::extend([$authorid], $more);
+
         $stmt = DB::get()->prepare($query);
-        $stmt->execute(static::extend([$authorid], $more));
+        $stmt->execute($queryArguments);
         return static::fetchAll($stmt);
     }
 
@@ -135,16 +144,18 @@ class Story extends APIEntity {
         return static::fetch($stmt);
     }
 
-    public static function readAll(array $more = null) {
-        $sorttable = static::sortTablename($more['orderby']);
+    public static function readAll(array $more = []) {
+        $sorttable = static::sortTablename($more);
 
         $query = "
             SELECT * FROM $sorttable
             WHERE createdat >= ? LIMIT ? OFFSET ?
             ";
 
+        $queryArguments = static::extend([], $more);
+
         $stmt = DB::get()->prepare($query);
-        $stmt->execute();
+        $stmt->execute($queryArguments);
         return static::fetchAll($stmt);
     }
 
