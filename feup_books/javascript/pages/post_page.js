@@ -65,7 +65,6 @@ function getStory(story){
 var allComments = "";
 
 function getComments(data){
-
     // Comments
     var comments = document.querySelector("#post_comments");
 
