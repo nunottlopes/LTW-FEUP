@@ -11,6 +11,7 @@
     color: white;
     min-width: 160px;
     z-index: 1;
+    cursor: pointer;
 }
 
 .dropdown-content a {

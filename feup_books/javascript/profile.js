@@ -81,6 +81,7 @@ document.querySelector("#my_posts").addEventListener("click", function(){
 
 document.querySelector("#my_comments").addEventListener("click", function(){
   contentDiv.innerHTML = arrayContentDiv["my_comments"];
+
     contentDiv.innerHTML = `<h1>My Comments</h1>
     <div class="profile_content_inside">
       <div class="profile_post">
@@ -104,29 +105,32 @@ document.querySelector("#my_comments").addEventListener("click", function(){
 });
 
 document.querySelector("#my_channels").addEventListener("click", function(){
-  contentDiv.innerHTML = `<h1>My Channels</h1>
-  <div class="profile_content_inside">
-    <div class="profile_post">
-      <a href="#"><h2>Channel1</h2></a>
-      <h5>Subscribed 4 hours ago</h5>
-    </div>
-    <div class="profile_post">
-      <a href="#"><h2>Channel2</h2></a>
-      <h5>Subscribed 4 hours ago</h5>
-    </div>
-    <div class="profile_post">
-      <a href="#"><h2>Channel3</h2></a>
-      <h5>Subscribed 4 hours ago</h5>
-    </div>
-    <div class="profile_post">
-      <a href="#"><h2>Channel4</h2></a>
-      <h5>Subscribed 4 hours ago</h5>
-    </div>
-  </div>`;
+  arrayContentDiv["my_channels"] = `<h1>My Channels</h1>
+    <div class="profile_content_inside">
+      <div class="profile_post">
+        <a href="#"><h2>Channel1</h2></a>
+        <h5>Subscribed 4 hours ago</h5>
+      </div>
+      <div class="profile_post">
+        <a href="#"><h2>Channel2</h2></a>
+        <h5>Subscribed 4 hours ago</h5>
+      </div>
+      <div class="profile_post">
+        <a href="#"><h2>Channel3</h2></a>
+        <h5>Subscribed 4 hours ago</h5>
+      </div>
+      <div class="profile_post">
+        <a href="#"><h2>Channel4</h2></a>
+        <h5>Subscribed 4 hours ago</h5>
+      </div>
+    </div>`;
+
+  contentDiv.innerHTML = arrayContentDiv["my_channels"];
+
 });
 
 document.querySelector("#my_saved_posts").addEventListener("click", function(){
-    contentDiv.innerHTML = `<h1>My Saved Posts</h1>
+  arrayContentDiv["my_saved_posts"] = `<h1>My Saved Posts</h1>
     <div class="profile_content_inside">
       <div class="profile_post">
         <a href="#"><h2>Title</h2></a>
@@ -145,10 +149,13 @@ document.querySelector("#my_saved_posts").addEventListener("click", function(){
         <h5>Posted by Amadeu 4 hours ago</h5>
       </div>
     </div>`;
+
+  contentDiv.innerHTML = arrayContentDiv["my_saved_posts"];
+
 });
 
 document.querySelector("#edit_profile").addEventListener("click", function(){
-    contentDiv.innerHTML = `<h1>Edit Profile</h1>
+  arrayContentDiv["edit_profile"] = `<h1>Edit Profile</h1>
     <div class="profile_content_inside">
     <form action="#" method="get">
       <div id="profile_button">
@@ -165,6 +172,9 @@ document.querySelector("#edit_profile").addEventListener("click", function(){
       </div>
     </form>
     </div>`;
+
+  contentDiv.innerHTML = arrayContentDiv["edit_profile"];
+
 });
 
 document.querySelector("#logout").addEventListener("click", function(){

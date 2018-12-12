@@ -32,6 +32,23 @@ document.querySelector("#profile_button").addEventListener('click', () => {
     }
 })
 
+document.querySelector(".createpost_user_dropdown").addEventListener("click", function(){
+    window.location.replace("create_post.php");
+});
+
+document.querySelector(".viewprofile_user_dropdown").addEventListener("click", function(){
+    window.location.replace("profile.php?id=1");
+});
+
+// document.querySelector(".settings_user_dropdown").addEventListener("click", function(){
+//     window.location.replace("profile.php?id=1");
+// });
+
+document.querySelector(".logout_user_dropdown").addEventListener("click", function(){
+    api.logout();
+    window.location.replace("index.php");
+});
+
 window.onclick = function(event) {
     if (!event.target.matches('#profile_button') && !event.target.matches('#client_image') && !event.target.matches('#client_name')) {
         user_dropdown.style.display = "none";
