@@ -23,13 +23,12 @@ function getStories(data) {
             default:
                 break;
         }
-        
-        // TODO: falta adicionar o número de comments na main_page
+    
         let a3 = `</a>
             <footer>
                 <button class="post_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> ${data[story].upvotes} Upvotes</button>
                 <button class="post_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> ${data[story].downvotes} Downvotes</button>
-                <button class="post_button" onclick="comments()"><i class="fa fa-comment"></i> Comments</button>
+                <button class="post_button" onclick="comments()"><i class="fa fa-comment"></i> ${data[story].count} Comments</button>
                 <button class="post_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
                 <button class="post_button" onclick="share()"><i class="fa fa-share-alt"></i> Share</button>
             </footer>

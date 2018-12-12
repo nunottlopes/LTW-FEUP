@@ -1,38 +1,46 @@
 var post_page_post = document.querySelector("#post_page_post");
 var storyid = post_page_post.getAttribute("story-id");
 
-// Get Post 
-api.story.get({storyid:storyid}).then(response => {
-    if(response.ok){
-        return response.json();
-    }
-    else{
-        window.location.replace("index.php");
-        throw response;
-    }
-})
-.then(json => getStory(json.data));
+// var user;
+// api.user.get().then(response => {
+//     return response.json();
+// })
+// .then(json => {user = json.data; console.log("ok"); getPageContent()})
 
-// Get Comments
-api.tree.get({ascendantid:storyid}).then(response => {
-    if(response.ok){
-        return response.json();
-    }
-    else{
-        window.location.replace("index.php");
-        throw response;
-    }
-})
-.then(json => getComments(json.data));
+getPageContent();
+
+function getPageContent(){
+    // Get Post 
+    api.story.get({storyid:storyid}).then(response => {
+        if(response.ok){
+            return response.json();
+        }
+        else{
+            window.location.replace("index.php");
+            throw response;
+        }
+    })
+    .then(json => getStory(json.data));
+
+    // Get Comments
+    api.tree.get({ascendantid:storyid}).then(response => {
+        if(response.ok){
+            return response.json();
+        }
+        else{
+            window.location.replace("index.php");
+            throw response;
+        }
+    })
+    .then(json => getComments(json.data));
+}
 
 function getStory(story){
     // Article
     var article = document.querySelector(".post_complete");
     let article1 = `<article class="post_complete">
     <header>Posted by ${story.authorname} ${timeDifference(story.createdat)}</header>
-        <h1>${story.storyTitle}</h1>
-        <p>Husbands ask repeated resolved but laughter debating. She end cordial visitor noisier fat subject general picture. Or if offering confined entrance no. Nay rapturous him see something residence. Highly talked do so vulgar. Her use behaved spirits and natural attempt say feeling. Exquisite mr incommode immediate he something ourselves it of. Law conduct yet chiefly beloved examine village proceed. </p>
-        <?php include('templates/common/post_buttons.php')?>`;
+        <h1>${story.storyTitle}</h1>`;
 
     let article2 = "";
     switch(story.storyType) {
@@ -50,13 +58,14 @@ function getStory(story){
     let article3 = `<footer>
             <button class="post_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> ${story.upvotes} Upvotes</button>
             <button class="post_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> ${story.downvotes} Downvotes</button>
-            <button class="post_button" onclick="comments()"><i class="fa fa-comment"></i> Comments</button>
+            <button class="post_button" onclick="comments()"><i class="fa fa-comment"></i> ${story.count} Comments</button>
             <button class="post_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
             <button class="post_button" onclick="share()"><i class="fa fa-share-alt"></i> Share</button>
         </footer>
     </article>`;
 
     article.innerHTML = article1 + article2 + article3;
+    console.log(article.innerHTML);
 }
 
 // Get All Comments

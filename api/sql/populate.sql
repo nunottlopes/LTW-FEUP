@@ -48,13 +48,13 @@ INSERT INTO Channel(channelid, channelname, creatorid) VALUES
 INSERT INTO StoryEntity(channelid, authorid, storyTitle, storyType, content) VALUES
     (1, 6, 'The number 5 feels like the most even odd number', 'title', ''),
 
-    (2, 1, 'Suicide', 'self', 'What are your personal beliefs on suicide as it relates to stoicism?'),
+    (2, 1, 'Suicide', 'text', 'What are your personal beliefs on suicide as it relates to stoicism?'),
 
-    (3, 2, 'Epileptic Santa!', 'self', '"He seizures when you''re sleeping."'),
-    (3, 4, 'I thought getting a vasectomy would keep my wife from getting pregnant....', 'self', 'but apparently it just changes the color of the baby.'),
+    (3, 2, 'Epileptic Santa!', 'text', '"He seizures when you''re sleeping."'),
+    (3, 4, 'I thought getting a vasectomy would keep my wife from getting pregnant....', 'text', 'but apparently it just changes the color of the baby.'),
 
-    (4, 4, 'Could a really long straw going into space drain the oceans?', 'self', 'My friend is convinced that if you put one end of a straw in the ocean, and the other into the vacuum of space, that it would drain the ocean. He thinks capillary action, space being a vacuum, and siphoning, would be able to drain the ocean into space. Am I wrong saying this wouldn''t work, at least in any reasonable time frame (Quadrillions of years)?'),
-    (4, 6, 'Can donated organs be re-donated?', 'self', 'Once the person receiving the transplant passes, can those same organs be donated again if that person signs up as an organ donor?');
+    (4, 4, 'Could a really long straw going into space drain the oceans?', 'text', 'My friend is convinced that if you put one end of a straw in the ocean, and the other into the vacuum of space, that it would drain the ocean. He thinks capillary action, space being a vacuum, and siphoning, would be able to drain the ocean into space. Am I wrong saying this wouldn''t work, at least in any reasonable time frame (Quadrillions of years)?'),
+    (4, 6, 'Can donated organs be re-donated?', 'text', 'Once the person receiving the transplant passes, can those same organs be donated again if that person signs up as an organ donor?');
 
 /**
  * COMMENT

@@ -1,6 +1,6 @@
 <div id="view_post" class="page">
 
-    <div id="post_page_post" story-id="<?php echo $_GET['id']?>">
+    <div id="post_page_post" story-id="<?=$_GET['id']?>">
 
         <article class="post_complete"></article>
 
