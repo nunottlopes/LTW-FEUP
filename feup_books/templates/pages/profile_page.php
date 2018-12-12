@@ -48,6 +48,6 @@
     </div>
   </div>
 
-</section>
+  <script src="javascript/profile.js"></script>
 
-<script src="javascript/profile.js"></script>
+</section>

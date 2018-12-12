@@ -23,7 +23,7 @@
                 <div>OLD</div>
             </div>
         </div>
-        <script src="javascript/dropdown.js"></script>
+        <script src="javascript/dropdown.js" defer></script>
 
         <section id="post_comments"></section>
     </div>
