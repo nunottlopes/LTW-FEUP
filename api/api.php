@@ -42,6 +42,11 @@ class API {
             return (float)$value;
         }
 
+        // Admin
+        if (preg_match('/^(?:admin)$/i', $key)) {
+            return (boolean)(int)$value;
+        }
+
         // Default text
         return $value;
     }
@@ -126,6 +131,12 @@ class API {
     public static function keyfy(array $array, string $key) {
         $object = [];
         foreach ($array as $el) $object[$el[$key]] = $el;
+        return $object;
+    }
+
+    public static function unkeyfy(array $array) {
+        $object = [];
+        foreach ($array as $key => $el) $object[] = $el;
         return $object;
     }
 

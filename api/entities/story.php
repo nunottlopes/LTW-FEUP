@@ -12,6 +12,8 @@ class Story extends APIEntity {
     protected static $defaultOffset = 0;
 
     /**
+     * AUXILIARY
+     * 
      * Extend a normal query's arguments $args with since, limit and offset.
      * The query string ends with:
      *
@@ -22,7 +24,7 @@ class Story extends APIEntity {
      * 
      * So we push to $args array values $since, $limit and $offset IN THIS ORDER.
      */
-    protected static function extend(array $args, array $more) {
+    private static function extend(array $args, array $more) {
         $since = static::since($more);
         $limit = static::limit($more);
         $offset = static::offset($more);
@@ -35,8 +37,6 @@ class Story extends APIEntity {
     }
 
     /**
-     * AUXILIARY
-     * 
      * Select the appropriate story table view based on sorting desired.
      *
      * Switch statement prevents SQL injection.
@@ -50,9 +50,11 @@ class Story extends APIEntity {
         switch ($order) {
         case 'top': return 'StorySortTop';
         case 'bot': return 'StorySortBot';
-        case 'average': return 'StorySortAverage';
         case 'new': return 'StorySortNew';
         case 'old': return 'StorySortOld';
+        case 'best': return 'StorySortBest';
+        case 'controversial': return 'StorySortControversial';
+        case 'average': return 'StorySortAverage';
         case 'hot': return 'StorySortHot';
         default: return 'StoryAll';
         }

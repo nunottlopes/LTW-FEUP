@@ -22,7 +22,7 @@ class Comment extends APIEntity {
      * 
      * So we push to $args array values $since, $limit and $offset IN THIS ORDER.
      */
-    protected static function extend(array $args, array $more) {
+    private static function extend(array $args, array $more) {
         $since = static::since($more);
         $limit = static::limit($more);
         $offset = static::offset($more);
@@ -50,11 +50,12 @@ class Comment extends APIEntity {
         switch ($order) {
         case 'top': return 'CommentSortTop';
         case 'bot': return 'CommentSortBot';
-        case 'controversial': return 'CommentSortControversial';
-        case 'average': return 'CommentSortAverage';
         case 'new': return 'CommentSortNew';
         case 'old': return 'CommentSortOld';
         case 'best': return 'CommentSortBest';
+        case 'controversial': return 'CommentSortControversial';
+        case 'average': return 'CommentSortAverage';
+        case 'hot': return 'CommentSortHot';
         default: return 'CommentAll';
         }
     }

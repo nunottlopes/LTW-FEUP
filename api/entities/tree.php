@@ -13,23 +13,22 @@ class Tree extends APIEntity {
     protected static $defaultMaxDepth = 4;
 
     /**
+     * AUXILIARY
+     * 
      * Extend a normal query's arguments $args with since, depth, limit and offset.
      * The query string ends with:
      *
-     *  [AND|WHERE] createdat >= ? AND depth <= ? LIMIT ? OFFSET ?
-     *                           ^              ^       ^        ^- $offset
-     *                           |              |       +--- $limit
-     *                           |              +--- $maxdepth
-     *                           +--- $since
+     *  [AND|WHERE] AND depth <= ?
+     *                           ^--- $maxdepth
      * 
-     * So we push to $args array values $since, $limit and $offset IN THIS ORDER.
+     * So we push to $args array value $maxdepth.
      */
-    protected static function extend(array $args = [], array $more = null) {
-        $since = static::since($more['since']);
-        $limit = static::limit($more['limit']);
-        $offset = static::offset($more['offset']);
+    private static function extend(array $args, array $more) {
+        $maxdepth = static::maxdepth($more);
+        $limit = static::limit($more);
+        $offset = static::offset($more);
 
-        $args[] = $since;
+        $args[] = $maxdepth;
         $args[] = $limit;
         $args[] = $offset;
 
@@ -37,8 +36,57 @@ class Tree extends APIEntity {
     }
 
     /**
-     * AUXILIARY
+     * Fix SQL's sort of a comment tree.
      */
+    private static function fixTree(array &$all, int $parentid, int $depth) {
+        $tree = [];
+
+        foreach ($all as $entityid => $comment) {
+            if ($comment['parentid'] === $parentid) {
+                $tree[$entityid] = $comment;
+            }
+        }
+
+        if ($tree === []) return $tree;
+
+        ++$depth;
+
+        foreach ($tree as $entityid => $comment) {
+            unset($all[$entityid]);
+        }
+
+        foreach ($tree as $entityid => $comment) {
+            $tree[$entityid]['children'] = static::fixTree($all, $entityid, $depth);
+        }
+
+        return API::unkeyfy($tree);
+    }
+
+    /**
+     * Select the appropriate story table view based on sorting desired.
+     *
+     * Switch statement prevents SQL injection.
+     */
+    private static function sortTablename($more) {
+        if (!isset($more['order'])) return 'all';
+
+        $order = $more['order'];
+        if (!is_string($order)) return 'all';
+
+        switch (static::sortMethod($more)) {
+        case 'top': return 'CommentTreeSortTop';
+        case 'bot': return 'CommentTreeSortBot';
+        case 'new': return 'CommentTreeSortNew';
+        case 'old': return 'CommentTreeSortOld';
+        case 'best': return 'CommentTreeSortBest';
+        case 'controversial': return 'CommentTreeSortControversial';
+        case 'average': return 'CommentTreeSortAverage';
+        case 'hot': return 'CommentTreeSortHot';
+        case 'all':
+        default: return 'CommentTree';
+        }
+    }
+
     private static function buildTree(array $descendants, int $parentid) {
         $node = $descendants[$parentid];
         $node['children'] = [];
@@ -59,7 +107,7 @@ class Tree extends APIEntity {
      */
     public static function getAncestry(int $descendantid) {
         $query = '
-            SELECT * FROM CommentAscendantTree WHERE descendantid = ?
+            SELECT * FROM CommentAncestryTree WHERE descendantid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -82,20 +130,42 @@ class Tree extends APIEntity {
         return $line;
     }
 
-    public static function getAllDescendants(int $ascendantid) {
-        $query = '
-            SELECT * FROM CommentTree WHERE ascendantid = ?
-            ';
+    public static function getAllDescendants(int $ascendantid, array $more) {
+        $sorttable = static::sortTablename($more);
+
+        $query = "
+            WITH Choice(ascendantid) AS (
+                VALUES (?)
+            ),   Best(entityid) AS (
+                SELECT entityid
+                FROM CommentTreeSortTop CT
+                WHERE CT.ascendantid IN Choice
+                AND depth <= ?
+                LIMIT ? OFFSET ?
+            ),   BestAncestry(entityid) AS (
+                SELECT Tree.ascendantid FROM Tree
+                WHERE Tree.descendantid IN Best
+            )
+            SELECT *
+            FROM CommentTreeSortTop
+            WHERE ascendantid IN Choice
+            AND (entityid IN BestAncestry OR entityid IN Best)
+            ORDER BY depth ASC, rating DESC;
+            ";
+
+        $queryArguments = static::extend([$ascendantid], $more);
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$ascendantid]);
+        $stmt->execute($queryArguments);
         return static::fetchAll($stmt);
     }
 
-    public static function getTree(int $ascendantid) {
-        $descendants = static::getAllDescendants($ascendantid);
+    public static function getTree(int $ascendantid, array $more) {
+        $descendants = static::getAllDescendants($ascendantid, $more);
 
-        return static::buildTree($descendants, $ascendantid);
+        $keyed = API::keyfy($descendants, 'entityid');
+
+        return static::fixTree($keyed, $ascendantid, 1);
     }
 }
 ?>
