@@ -10,6 +10,7 @@ class Comment extends APIEntity {
     protected static $defaultSince = 0;
     protected static $defaultLimit = 50;
     protected static $defaultOffset = 0;
+    protected static $defaultSortTable = 'CommentAll';
 
     /**
      * Extend a normal query's arguments $args with since, limit and offset.
@@ -19,10 +20,10 @@ class Comment extends APIEntity {
      *                               ^       ^        ^- $offset
      *                               |       +--- $limit
      *                               +--- $since
-     * 
+     *
      * So we push to $args array values $since, $limit and $offset IN THIS ORDER.
      */
-    protected static function extend(array $args, array $more) {
+    private static function extend(array $args, array $more) {
         $since = static::since($more);
         $limit = static::limit($more);
         $offset = static::offset($more);
@@ -36,26 +37,27 @@ class Comment extends APIEntity {
 
     /**
      * AUXILIARY
-     * 
+     *
      * Select the appropriate story table view based on sorting desired.
      *
      * Switch statement prevents SQL injection.
      */
     private static function sortTablename($more) {
-        if (!isset($more['order'])) return 'CommentAll';
+        if (!isset($more['order'])) return static::$defaultSortTable;
 
         $order = $more['order'];
-        if (!is_string($order)) return 'CommentAll';
+        if (!is_string($order)) return static::$defaultSortTable;
 
         switch ($order) {
         case 'top': return 'CommentSortTop';
         case 'bot': return 'CommentSortBot';
-        case 'controversial': return 'CommentSortControversial';
-        case 'average': return 'CommentSortAverage';
         case 'new': return 'CommentSortNew';
         case 'old': return 'CommentSortOld';
         case 'best': return 'CommentSortBest';
-        default: return 'CommentAll';
+        case 'controversial': return 'CommentSortControversial';
+        case 'average': return 'CommentSortAverage';
+        case 'hot': return 'CommentSortHot';
+        default: return static::$defaultSortTable;
         }
     }
 
@@ -87,10 +89,10 @@ class Comment extends APIEntity {
      */
     public static function getChildrenAuthor(int $parentid, int $authorid, array $more = []) {
         $sorttable = static::sortTablename($more);
-        
+
         $query = "
             SELECT * FROM $sorttable WHERE parentid = ? AND authorid = ?
-            WHERE createdat >= ? LIMIT ? OFFSET ?
+            AND createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([$parentid, $authorid], $more);
@@ -102,10 +104,10 @@ class Comment extends APIEntity {
 
     public static function getChildren(int $parentid, array $more = []) {
         $sorttable = static::sortTablename($more);
-        
+
         $query = "
             SELECT * FROM $sorttable WHERE parentid = ?
-            WHERE createdat >= ? LIMIT ? OFFSET ?
+            AND createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([$parentid], $more);
@@ -120,7 +122,7 @@ class Comment extends APIEntity {
 
         $query = "
             SELECT * FROM $sorttable WHERE authorid = ?
-            WHERE createdat >= ? LIMIT ? OFFSET ?
+            AND createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([$authorid], $more);
@@ -145,7 +147,7 @@ class Comment extends APIEntity {
 
         $query = "
             SELECT * FROM $sorttable
-            WHERE createdat >= ? LIMIT ? OFFSET ?
+            AND createdat >= ? LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([], $more);
@@ -176,7 +178,7 @@ class Comment extends APIEntity {
         $stmt = DB::get()->prepare($query);
         return $stmt->execute([$id]);
     }
-    
+
     /**
      * DELETE
      */

@@ -37,9 +37,19 @@ class API {
             return (int)$value;
         }
 
+        // Counts
+        if (preg_match('/^(?:count|level)$/i', $key)) {
+            return (int)$value;
+        }
+
         // Floats
         if (preg_match('/^(?:lowerbound|\w*average|rating)$/i', $key)) {
             return (float)$value;
+        }
+
+        // Admin
+        if (preg_match('/^(?:admin)$/i', $key)) {
+            return (boolean)(int)$value;
         }
 
         // Default text
@@ -129,6 +139,12 @@ class API {
         return $object;
     }
 
+    public static function unkeyfy(array $array) {
+        $object = [];
+        foreach ($array as $key => $el) $object[] = $el;
+        return $object;
+    }
+
     /**
      * Convert $actions array to a cleaner format.
      */
@@ -170,7 +186,7 @@ class Auth {
 
     /**
      * Authenticate a user without creating a logged in session.
-     * 
+     *
      * Returns an object holding the userid, username and email if successful.
      * Returns false otherwise.
      */
@@ -184,16 +200,16 @@ class Auth {
 
             return $user;
         }
-        
+
         return false;
     }
 
     /**
      * Authenticate a user and create a logged in session if successful.
-     * 
+     *
      * Returns an object holding the userid, username and email if successful.
-     * Returns false otherwise.
-     * 
+     * Returns null otherwise.
+     *
      * Failed authentication does not change state nor call an HTTPResponse method.
      *
      * It is assumed that a session has already been started.
@@ -222,7 +238,7 @@ class Auth {
     /**
      * Attempt to authenticate a user using the HTTP header 'Authorization'.
      *
-     * If the header is not present the authentication fails, returning false.
+     * If the header is not present the authentication fails, returning null.
      * If the header is present but the credentials are incorrect it fails too.
      *   In this case an answer may be sent.
      *
@@ -270,20 +286,20 @@ class Auth {
             $authorizationUser = $user;
             return $user;
         }
-        
-        return false;
+
+        return null;
     }
 
     /**
      * Attempt to authenticate a user using the current session.
-     * 
+     *
      * Returns an array representing the authenticated user if successful, or false.
      */
     public static function session() {
         // If $_SESSION has the field 'userid' set, then this is the login.
         $set = isset($_SESSION['userid']);
 
-        if (!$set) return false;
+        if (!$set) return null;
 
         $userid = $_SESSION['userid'];
 
@@ -326,21 +342,17 @@ class Auth {
     public static function level(string $level, int $userid = null) {
         $auth = static::authenticate();
 
-        if ($auth === false) return $level === 'free';
-
-        $authid = $auth['userid'];
-        $admin = $auth['admin'];
-
         switch ($level) {
         case 'free':
-        case 'auth':
             $allow = true;
+        case 'auth':
+            $allow = (bool)$auth;
             break;
         case 'authid':
-            $allow = $admin || ($authid === $userid);
+            $allow = (bool)$auth && ($auth['admin'] || ($auth['userid'] === $userid));
             break;
         case 'admin':
-            $allow = $admin;
+            $allow = (bool)$auth && ($auth['admin']);
             break;
         default:
             $allow = false;
@@ -364,7 +376,7 @@ class Auth {
     public static function demandLevel(string $level, int $userid = null) {
         $auth = static::level($level, $userid);
 
-        if ($auth) return $auth;
+        if ($auth !== false) return $auth;
 
         global $AUTH_MODE;
 
@@ -451,7 +463,7 @@ class HTTPRequest {
     }
 
     /**
-     * Parse 
+     * Parse
      */
     public static function body(string ...$keys) {
         $body = static::bodyString();
@@ -597,7 +609,7 @@ class HTTPResponse {
 
         static::json($json);
     }
-    
+
     /**
      * 200 OK
      * No arguments provided, querying resource.
@@ -609,10 +621,11 @@ class HTTPResponse {
 
         $action = 'look';
         $args = $_GET;
+        $pretty = API::prettyActions($actions);
 
         $look = [
             'methods' => $methods,
-            'actions' => $actions
+            'actions' => $pretty
         ];
 
         $data = $look + $extra;

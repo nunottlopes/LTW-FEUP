@@ -25,6 +25,8 @@ ORDER BY U.userid;
  */
 DROP VIEW IF EXISTS 'ParentEntity';
 DROP VIEW IF EXISTS 'ChildEntity';
+DROP VIEW IF EXISTS 'AscendantEntity';
+DROP VIEW IF EXISTS 'DescendantEntity';
 
 CREATE VIEW ParentEntity AS
 SELECT entityid AS parentid, authorid, createdat, updatedat, upvotes, downvotes
@@ -35,6 +37,16 @@ CREATE VIEW ChildEntity AS
 SELECT entityid AS childid, authorid, createdat, updatedat, upvotes, downvotes
 FROM Entity E
 ORDER BY childid ASC;
+
+CREATE VIEW AscendantEntity AS
+SELECT entityid AS ascendantid, authorid, createdat, updatedat, upvotes, downvotes
+FROM Entity E
+ORDER BY ascendantid ASC;
+
+CREATE VIEW DescendantEntity AS
+SELECT entityid AS descendantid, authorid, createdat, updatedat, upvotes, downvotes
+FROM Entity E
+ORDER BY descendantid ASC;
 
 /**
  * Story Views
@@ -49,7 +61,8 @@ NATURAL JOIN Entity E
 ORDER BY entityid ASC;
 
 CREATE VIEW StoryAll AS
-SELECT SE.*, entityid as storyid, A.authorname, C.channelname
+SELECT SE.*, SE.entityid as storyid, A.authorname, C.channelname,
+    (SELECT count(*) FROM Tree T WHERE T.ascendantid = SE.entityid) count
 FROM StoryEntity SE
 LEFT JOIN Author A ON SE.authorid = A.authorid
 LEFT JOIN Channel C ON SE.channelid = C.channelid
@@ -68,22 +81,22 @@ DROP VIEW IF EXISTS 'StorySortHot';
 DROP VIEW IF EXISTS 'StorySortAverage';
 
 CREATE VIEW StorySortTop AS
-SELECT *
+SELECT *, score as rating
 FROM StoryAll SA
 ORDER BY score DESC;
 
 CREATE VIEW StorySortBot AS
-SELECT *
+SELECT *, -score as rating
 FROM StoryAll SA
 ORDER BY score ASC;
 
 CREATE VIEW StorySortNew AS
-SELECT *
+SELECT *, created as rating
 FROM StoryAll SA
 ORDER BY createdat DESC;
 
 CREATE VIEW StorySortOld AS
-SELECT *
+SELECT *, -createdat as rating
 FROM StoryAll SA
 ORDER BY createdat ASC;
 
@@ -120,7 +133,9 @@ NATURAL JOIN Entity E
 ORDER BY entityid;
 
 CREATE VIEW CommentAll AS
-SELECT CE.*, A.authorname
+SELECT CE.*, CE.entityid as commentid, A.authorname,
+    (SELECT count(*) FROM Tree T WHERE T.ascendantid = CE.entityid) count,
+    (SELECT count(*) FROM Tree T WHERE T.descendantid = CE.entityid) level
 FROM CommentEntity CE
 LEFT JOIN Author A ON CE.authorid = A.authorid
 ORDER BY entityid;
@@ -138,22 +153,22 @@ DROP VIEW IF EXISTS 'CommentSortHot';
 DROP VIEW IF EXISTS 'CommentSortAverage';
 
 CREATE VIEW CommentSortTop AS
-SELECT *
+SELECT *, score as rating
 FROM CommentAll CA
 ORDER BY score DESC;
 
 CREATE VIEW CommentSortBot AS
-SELECT *
+SELECT *, -score as rating
 FROM CommentAll CA
 ORDER BY score ASC;
 
 CREATE VIEW CommentSortNew AS
-SELECT *
+SELECT *, createdat as rating
 FROM CommentAll CA
 ORDER BY createdat DESC;
 
 CREATE VIEW CommentSortOld AS
-SELECT *
+SELECT *, -createdat as rating
 FROM CommentAll CA
 ORDER BY createdat ASC;
 
@@ -182,8 +197,8 @@ ORDER BY rating DESC;
  */
 DROP VIEW IF EXISTS 'EntityAscendantTree';
 DROP VIEW IF EXISTS 'EntityDescendantTree';
-DROP VIEW IF EXISTS 'CommentAscendantTree';
-DROP VIEW IF EXISTS 'CommentDescendantTree';
+DROP VIEW IF EXISTS 'CommentAncestryTree';
+DROP VIEW IF EXISTS 'CommentTree';
 DROP VIEW IF EXISTS 'StoryTree';
 
 CREATE VIEW EntityAscendantTree AS
@@ -198,8 +213,8 @@ FROM Tree T
 JOIN Entity E ON T.descendantid = E.entityid
 ORDER BY T.descendantid ASC;
 
-CREATE VIEW CommentAscentryTree AS
-SELECT T.descendantid, CA.*, T.depth 
+CREATE VIEW CommentAncestryTree AS
+SELECT T.descendantid, CA.*, T.depth
 FROM Tree T
 JOIN CommentAll CA ON T.ascendantid = CA.entityid
 ORDER BY T.ascendantid ASC;
@@ -229,22 +244,22 @@ DROP VIEW IF EXISTS 'CommentTreeSortHot';
 DROP VIEW IF EXISTS 'CommentTreeSortAverage';
 
 CREATE VIEW CommentTreeSortTop AS
-SELECT *
+SELECT *, score as rating
 FROM CommentTree CT
 ORDER BY score DESC;
 
 CREATE VIEW CommentTreeSortBot AS
-SELECT *
+SELECT *, -score as rating
 FROM CommentTree CT
 ORDER BY score ASC;
 
 CREATE VIEW CommentTreeSortNew AS
-SELECT *
+SELECT *, createdat as rating
 FROM CommentTree CT
 ORDER BY createdat DESC;
 
 CREATE VIEW CommentTreeSortOld AS
-SELECT *
+SELECT *, -createdat as rating
 FROM CommentTree CT
 ORDER BY createdat ASC;
 
@@ -267,3 +282,40 @@ CREATE VIEW CommentTreeSortAverage AS
 SELECT *, (upvotes + 1) / (upvotes + downvotes + 1) AS rating
 FROM CommentTree CT
 ORDER BY rating DESC;
+
+/*
+WITH Choice(ascendantid) AS (
+    VALUES (1)
+),   Best(entityid) AS (
+    SELECT entityid
+    FROM CommentTreeSortTop CT
+    WHERE CT.ascendantid IN Choice
+    AND depth <= 5
+    LIMIT 1 OFFSET 2
+),   BestAncestry(entityid) AS (
+    SELECT Tree.ascendantid FROM Tree
+    WHERE Tree.descendantid IN Best
+)
+SELECT *
+FROM CommentTreeSortTop
+WHERE ascendantid IN Choice
+AND (entityid IN BestAncestry OR entityid IN Best)
+ORDER BY depth ASC, rating DESC;
+
+WITH Choice(ascendantid) AS (
+    VALUES (1))
+SELECT *
+FROM CommentTreeSortTop
+WHERE entityid IN (
+    WITH Best(entityid) AS (
+        SELECT entityid
+        FROM CommentTreeSortTop CT
+        WHERE CT.ascendantid IN Choice
+        LIMIT 1 OFFSET 0)
+    SELECT Tree.ascendantid FROM Tree
+    WHERE Tree.descendantid IN BEST
+    UNION
+    SELECT entityid FROM Best
+) AND ascendantid IN Choice
+ORDER BY depth;
+*/

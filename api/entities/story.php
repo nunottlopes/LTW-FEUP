@@ -10,8 +10,11 @@ class Story extends APIEntity {
     protected static $defaultSince = 0;
     protected static $defaultLimit = 25;
     protected static $defaultOffset = 0;
+    protected static $defaultSortTable = 'StoryAll';
 
     /**
+     * AUXILIARY
+     *
      * Extend a normal query's arguments $args with since, limit and offset.
      * The query string ends with:
      *
@@ -19,10 +22,10 @@ class Story extends APIEntity {
      *                               ^       ^        ^- $offset
      *                               |       +--- $limit
      *                               +--- $since
-     * 
+     *
      * So we push to $args array values $since, $limit and $offset IN THIS ORDER.
      */
-    protected static function extend(array $args, array $more) {
+    private static function extend(array $args, array $more) {
         $since = static::since($more);
         $limit = static::limit($more);
         $offset = static::offset($more);
@@ -35,26 +38,26 @@ class Story extends APIEntity {
     }
 
     /**
-     * AUXILIARY
-     * 
      * Select the appropriate story table view based on sorting desired.
      *
      * Switch statement prevents SQL injection.
      */
     private static function sortTablename($more) {
-        if (!isset($more['order'])) return 'StoryAll';
+        if (!isset($more['order'])) return static::$defaultSortTable;
 
         $order = $more['order'];
-        if (!is_string($order)) return 'StoryAll';
+        if (!is_string($order)) return static::$defaultSortTable;
 
         switch ($order) {
         case 'top': return 'StorySortTop';
         case 'bot': return 'StorySortBot';
-        case 'average': return 'StorySortAverage';
         case 'new': return 'StorySortNew';
         case 'old': return 'StorySortOld';
+        case 'best': return 'StorySortBest';
+        case 'controversial': return 'StorySortControversial';
+        case 'average': return 'StorySortAverage';
         case 'hot': return 'StorySortHot';
-        default: return 'StoryAll';
+        default: return static::$defaultSortTable;
         }
     }
 
@@ -73,7 +76,7 @@ class Story extends APIEntity {
         try {
             DB::get()->beginTransaction();
             $stmt->execute([$channelid, $authorid, $title, $type, $content]);
-            $id = (int)DB::get()->lastInsertId();
+            $id = (int)DB::get()->lastInsertId("Story");
             DB::get()->commit();
             return $id;
         } catch (PDOException $e) {
@@ -171,7 +174,7 @@ class Story extends APIEntity {
         $stmt->execute([$content, $id]);
         return $stmt->rowCount();
     }
-    
+
     /**
      * DELETE
      */

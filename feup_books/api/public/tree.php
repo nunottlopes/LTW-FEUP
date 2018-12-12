@@ -10,44 +10,54 @@ $resource = 'tree';
 $methods = ['GET'];
 
 $actions = [
-    'get-tree'     => ['GET', ['parentid']],
-    'get-ancestry' => ['GET', ['childid']]
+    'get-tree'     => ['GET', ['ascendantid'], [], ['order', 'maxdepth', 'since', 'limit', 'offset']],
+    'get-ancestry' => ['GET', ['descendantid']],
+    'get-storyof'  => ['GET', ['commentid', 'story']]
 ];
 
 /**
  * 1.2. LOAD request description variables
  */
+$auth = Auth::demandLevel('free');
+
 $method = HTTPRequest::method($methods);
 
 $action = HTTPRequest::action($resource, $actions);
 
 $args = API::cast($_GET);
 
-$auth = Auth::demandLevel('free');
-
 /**
  * 2. GET: Check query parameter identifying resources
- * TREE: parentid, childid
+ * TREE: ascendantid, descendantid
  */
-// parentid
-if (API::gotargs('parentid')) {
-    $parentid = $args['parentid'];
+// ascendantid
+if (API::gotargs('ascendantid')) {
+    $ascendantid = $args['ascendantid'];
 
-    $parent = Entity::read($parentid);
+    $parent = Entity::read($ascendantid);
 
     if (!$parent) {
-        HTTPResponse::notFound("Parent Entity with id $parentid");
+        HTTPResponse::notFound("Ascendant Entity with id $ascendantid");
     }
 }
+// descendantid
+if (API::gotargs('descendantid')) {
+    $descendantid = $args['descendantid'];
 
-// childid
-if (API::gotargs('childid')) {
-    $childid = $args['childid'];
-
-    $child = Comment::read($childid);
+    $child = Comment::read($descendantid);
 
     if (!$child) {
-        HTTPResponse::notFound("Child comment with id $childid");
+        HTTPResponse::notFound("Descendant comment with id $descendantid");
+    }
+}
+// commentid
+if (API::gotargs('commentid')) {
+    $commentid = $args['commentid'];
+
+    $comment = Comment::read($commentid);
+
+    if (!$comment) {
+        HTTPResponse::notFound("Comment with id $commentid");
     }
 }
 
@@ -56,14 +66,20 @@ if (API::gotargs('childid')) {
  */
 // GET
 if ($action === 'get-tree') {
-    $tree = Tree::getTree($parentid);
+    $tree = Tree::getTree($ascendantid, $args);
 
-    HTTPResponse::ok("Comment tree on $parentid", $tree);
+    HTTPResponse::ok("Comment tree on $ascendantid", $tree);
 }
 
 if ($action === 'get-ancestry') {
-    $ancestry = Tree::getAncestry($childid);
+    $ancestry = Tree::getAncestry($descendantid);
 
-    HTTPResponse::ok("Ancestry of $childid", $ancestry);
+    HTTPResponse::ok("Ancestry of $descendantid", $ancestry);
+}
+
+if ($action === 'get-comment') {
+    $story = Tree::getStoryOf($commentid);
+
+    HTTPResponse::ok("Story of comment $commentid", $story);
 }
 ?>
