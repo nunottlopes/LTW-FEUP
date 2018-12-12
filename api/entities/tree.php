@@ -15,21 +15,26 @@ class Tree extends APIEntity {
 
     /**
      * AUXILIARY
-     * 
+     *
      * Extend a normal query's arguments $args with since, depth, limit and offset.
      * The query string ends with:
      *
-     *  [AND|WHERE] AND depth <= ?
-     *                           ^--- $maxdepth
-     * 
-     * So we push to $args array value $maxdepth.
+     *  [AND|WHERE] depth <= ? AND createdat > ? ... LIMIT ? OFFSET ?
+     *                       |                 |           |        ^--- $offset
+     *                       |                 |           ^--- $limit
+     *                       |                 ^--- $since
+     *                       ^--- $maxdepth
+     *
+     * So we push to $args array values $maxdepth, $since, $limit, $offset IN THIS ORDER.
      */
     private static function extend(array $args, array $more) {
         $maxdepth = static::maxdepth($more);
+        $since = static::since($more);
         $limit = static::limit($more);
         $offset = static::offset($more);
 
         $args[] = $maxdepth;
+        $args[] = $since;
         $args[] = $limit;
         $args[] = $offset;
 
@@ -88,27 +93,13 @@ class Tree extends APIEntity {
         }
     }
 
-    private static function buildTree(array $descendants, int $parentid) {
-        $node = $descendants[$parentid];
-        $node['children'] = [];
-
-        $entities[$id] = null;
-
-        foreach ($entities as $entityId => $entity) {
-            if ($entity['parentid'] === $id) {
-                $node['children'][$entityId] = static::buildTree($entities, $entityId);
-            }
-        }
-
-        return $node;
-    }
-
     /**
      * READ
      */
     public static function getAncestry(int $descendantid) {
         $query = '
             SELECT * FROM CommentAncestryTree WHERE descendantid = ?
+            ORDER BY depth ASC;
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -137,13 +128,14 @@ class Tree extends APIEntity {
         $query = "
             WITH Choice(ascendantid) AS (
                 VALUES (?)
-            ),   Best(entityid) AS (
+            ), Best(entityid) AS (
                 SELECT entityid
                 FROM $sorttable CT
                 WHERE CT.ascendantid IN Choice
-                AND depth <= ?
+                AND depth <= ? AND createdat > ?
+                ORDER BY rating DESC
                 LIMIT ? OFFSET ?
-            ),   BestAncestry(entityid) AS (
+            ), BestAncestry(entityid) AS (
                 SELECT Tree.ascendantid FROM Tree
                 WHERE Tree.descendantid IN Best
             )
@@ -167,6 +159,16 @@ class Tree extends APIEntity {
         $keyed = API::keyfy($descendants, 'entityid');
 
         return static::fixTree($keyed, $ascendantid, 1);
+    }
+
+    public static function getStoryOf(int $commentid) {
+        $query = '
+            SELECT * FROM StoryTree where commentid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$commentid]);
+        return static::fetch($stmt);
     }
 }
 ?>

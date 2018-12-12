@@ -97,12 +97,19 @@ var api = {
             credentials: this.settings.credentials,
             redirect: this.settings.redirect
         }, userInit || {});
-        
+
         return window.fetch(url, init).then(function(response) {
             const status = response.status;
+            const headers = response.headers;
+
+            let string = "";
+
+            for (let header of headers) {
+                string += header + "\n";
+            }
 
             response.json().then(function(json) {
-                let string = '<pre style="font-size:150%">';
+                string += '<pre style="font-size:150%">';
                 string += init.method + ' ' + url + ' ';
                 string += status + ' ' + response.statusText + '<br/><br/>';
                 string += JSON.stringify(json, null, 4) + '</pre>';
@@ -121,7 +128,7 @@ var api = {
             credentials: this.settings.credentials,
             redirect: this.settings.redirect
         }, userInit || {});
-        
+
         return window.fetch(url, init).then(function(response) {
             const status = response.status;
 

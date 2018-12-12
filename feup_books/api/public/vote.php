@@ -11,12 +11,12 @@ $methods = ['GET', 'PUT', 'DELETE'];
 
 $actions = [
     'put'           => ['PUT', ['entityid', 'userid']],
-    
+
     'get-id'        => ['GET', ['entityid', 'userid']],
     'get-entity'    => ['GET', ['entityid']],
     'get-user'      => ['GET', ['userid']],
     'get-all'       => ['GET', ['all']],
-    
+
     'delete-id'     => ['DELETE', ['entityid', 'userid']],
     'delete-entity' => ['DELETE', ['entityid']],
     'delete-user'   => ['DELETE', ['userid']],
@@ -26,13 +26,13 @@ $actions = [
 /**
  * 1.2. LOAD request description variables
  */
+$auth = Auth::demandLevel('free');
+
 $method = HTTPRequest::method($methods);
 
 $action = HTTPRequest::action($resource, $actions);
 
 $args = API::cast($_GET);
-
-$auth = Auth::demandLevel('free');
 
 /**
  * 2. GET: Check query parameter identifying resources

@@ -181,7 +181,7 @@ class Auth {
 
     /**
      * Authenticate a user without creating a logged in session.
-     * 
+     *
      * Returns an object holding the userid, username and email if successful.
      * Returns false otherwise.
      */
@@ -195,16 +195,16 @@ class Auth {
 
             return $user;
         }
-        
+
         return false;
     }
 
     /**
      * Authenticate a user and create a logged in session if successful.
-     * 
+     *
      * Returns an object holding the userid, username and email if successful.
      * Returns false otherwise.
-     * 
+     *
      * Failed authentication does not change state nor call an HTTPResponse method.
      *
      * It is assumed that a session has already been started.
@@ -281,13 +281,13 @@ class Auth {
             $authorizationUser = $user;
             return $user;
         }
-        
+
         return false;
     }
 
     /**
      * Attempt to authenticate a user using the current session.
-     * 
+     *
      * Returns an array representing the authenticated user if successful, or false.
      */
     public static function session() {
@@ -462,7 +462,7 @@ class HTTPRequest {
     }
 
     /**
-     * Parse 
+     * Parse
      */
     public static function body(string ...$keys) {
         $body = static::bodyString();
@@ -608,7 +608,7 @@ class HTTPResponse {
 
         static::json($json);
     }
-    
+
     /**
      * 200 OK
      * No arguments provided, querying resource.
@@ -620,10 +620,11 @@ class HTTPResponse {
 
         $action = 'look';
         $args = $_GET;
+        $pretty = API::prettyActions($actions);
 
         $look = [
             'methods' => $methods,
-            'actions' => $actions
+            'actions' => $pretty
         ];
 
         $data = $look + $extra;

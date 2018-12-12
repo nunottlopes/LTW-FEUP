@@ -120,7 +120,7 @@ NATURAL JOIN Entity E
 ORDER BY entityid;
 
 CREATE VIEW CommentAll AS
-SELECT CE.*, CE.entity as commentid, A.authorname
+SELECT CE.*, CE.entityid as commentid, A.authorname
 FROM CommentEntity CE
 LEFT JOIN Author A ON CE.authorid = A.authorid
 ORDER BY entityid;
@@ -199,7 +199,7 @@ JOIN Entity E ON T.descendantid = E.entityid
 ORDER BY T.descendantid ASC;
 
 CREATE VIEW CommentAncestryTree AS
-SELECT T.descendantid, CA.*, T.depth 
+SELECT T.descendantid, CA.*, T.depth
 FROM Tree T
 JOIN CommentAll CA ON T.ascendantid = CA.entityid
 ORDER BY T.ascendantid ASC;
@@ -231,7 +231,7 @@ DROP VIEW IF EXISTS 'CommentTreeSortAverage';
 CREATE VIEW CommentTreeSortTop AS
 SELECT *, score as rating
 FROM CommentTree CT
-ORDER BY score DESC, depth ;
+ORDER BY score DESC;
 
 CREATE VIEW CommentTreeSortBot AS
 SELECT *, -score as rating
