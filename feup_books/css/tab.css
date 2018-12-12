@@ -26,6 +26,7 @@
 }
 
 .tab button.active {
+    background-color: rgb(228, 233, 238);
     font-weight: bold;
     border-bottom-width: 10px; 
 }
