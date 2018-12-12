@@ -1,3 +1,5 @@
+<?php include('templates/common/sort_dropdown.php') ?>
+
 <div id="main_page" class="page">
 
     <div id="main_page_posts"></div>

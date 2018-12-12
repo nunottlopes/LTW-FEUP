@@ -1,3 +1,5 @@
+<?php include('templates/common/sort_dropdown.php') ?>
+
 <div id="channel_page" channel_id="<?= $_GET['id']?>" class="page">
 
     <div id="channel_page_posts"></div>

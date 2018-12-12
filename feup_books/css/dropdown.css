@@ -78,3 +78,11 @@
     padding-right: 2px;
     cursor: pointer;
 }
+
+.page_dropdown {
+    background-color: rgb(201, 209, 216);
+    padding-top: 1em; 
+    margin-top: 3em; 
+    border-color: black;
+    max-height: 1em;
+}
