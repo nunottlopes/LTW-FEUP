@@ -11,9 +11,15 @@ for(let i = 0; i < divs.length; i++){
     });
 }
 
-var authorid = document.querySelector("#account");
-//authorid.getAttribute
-api.story.get({authorid:storyid}).then(response => {
+//TODO: cannot do like this
+//change the way i get authorid
+var authorid = parseInt(document.querySelector("#account").getAttribute("user-id"));
+//
+
+var arrayContentDiv = [];
+var contentDiv = document.querySelector("#profile_content");
+
+api.story.get({authorid:authorid}).then(response => {
   if(response.ok){
       return response.json();
   }
@@ -22,42 +28,64 @@ api.story.get({authorid:storyid}).then(response => {
       throw response;
   }
 })
-.then(json => getStory(json.data));
+.then(json => {
+    var content = "";
+    content += `<h1>My Posts</h1>
+    <div class="profile_content_inside">`;
+    for(let story in json.data){
+      console.log(json.data[story]);
 
-var contentDiv = document.querySelector("#profile_content");
+      content += `<div class="profile_post">
+        <a href="post.php?id=${json.data[story].storyid}"><h2>${json.data[story].storyTitle}</h2></a>
+        <h5>Posted ${timeDifference(json.data[story].createdat)}</h5>
+      </div>`;
+    }
+    content += '</div>';
+    
+    arrayContentDiv["my_posts"] = content;
+    contentDiv.innerHTML = content;
+});
+
+api.comment.get({authorid:authorid}).then(response => {
+  if(response.ok){
+      return response.json();
+  }
+  else{
+      window.location.replace("index.php");
+      throw response;
+  }
+})
+.then(json => {
+    // var content = "";
+    // content += `<h1>My Posts</h1>
+    // <div class="profile_content_inside">`;
+    // for(let story in json.data){
+    //   console.log(json.data[story]);
+
+    //   content += `<div class="profile_post">
+    //     <a href="post.php?id=${json.data[story].storyid}"><h2>${json.data[story].storyTitle}</h2></a>
+    //     <h5>Posted ${timeDifference(json.data[story].createdat)}</h5>
+    //   </div>`;
+    // }
+    // content += '</div>';
+    
+    // arrayContentDiv["my_comments"] = content;
+});
+
+//api.channel.get ainda não existe a função que devolve os channels subscribed
+//api.save.get("userid=1&all")
 
 document.querySelector("#my_posts").addEventListener("click", function(){
-  var content = "";
-  content += '<h1>My Posts</h1>';
-
-  contentDiv.innerHTML = `<h1>My Posts</h1>
-  <div class="profile_content_inside">
-    <div class="profile_post">
-      <a href="#"><h2>Title</h2></a>
-      <h5>Posted by Amadeu 4 hours ago</h5>
-    </div>
-    <div class="profile_post">
-      <a href="#"><h2>Title2</h2></a>
-      <h5>Posted by Amadeu 4 hours ago</h5>
-    </div>
-    <div class="profile_post">
-      <a href="#"><h2>Title3</h2></a>
-      <h5>Posted by Amadeu 4 hours ago</h5>
-    </div>
-    <div class="profile_post">
-      <a href="#"><h2>Title4</h2></a>
-      <h5>Posted by Amadeu 4 hours ago</h5>
-    </div>
-  </div>`;
-
-    //contentDiv.innerHTML =
+  contentDiv.innerHTML = arrayContentDiv["my_posts"];
 });
 
 document.querySelector("#my_comments").addEventListener("click", function(){
+  contentDiv.innerHTML = arrayContentDiv["my_comments"];
     contentDiv.innerHTML = `<h1>My Comments</h1>
     <div class="profile_content_inside">
       <div class="profile_post">
-        <a href="#"><h2>Comment</h2></a>
+        <a href="#"><h3>StoryTitle</h3></a>
+        <h4>comentáriotodo</h4>
         <h5>Posted by Amadeu 4 hours ago</h5>
       </div>
       <div class="profile_post">
@@ -140,5 +168,6 @@ document.querySelector("#edit_profile").addEventListener("click", function(){
 });
 
 document.querySelector("#logout").addEventListener("click", function(){
-    contentDiv.innerHTML = '<h1>Logout</h1>';
+    api.logout();
+    window.location.replace("index.php");
 });
