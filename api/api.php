@@ -8,6 +8,11 @@ require_once __DIR__ . '/db.php';
 $AUTH_MODE = 'SESSION';
 
 /**
+ * Image storage directory
+ */
+$UPLOAD_DIR = $_SERVER['DOCUMENT_ROOT'] . '/feup_books/images/';
+
+/**
  * Error reporting.
  */
 error_reporting(E_ALL);
@@ -16,7 +21,23 @@ error_reporting(E_ALL);
  * API generic utilities (more intuitive name would be just 'Utils', maybe).
  */
 class API {
-    public static function singleCast(string $key, $value) {
+    /**
+     * Directory of entity
+     */
+    public static function entity(string $entity) {
+        $file = $_SERVER['DOCUMENT_ROOT'] . "/api/entities/$entity.php";
+        return $file;
+    }
+
+    /**
+     * Directory of resource
+     */
+    public static function resource(string $resource) {
+        $file = $_SERVER['DOCUMENT_ROOT'] . "/feup_books/api/public/$resource.php";
+        return $file;
+    }
+
+    public static function single(string $key, $value) {
         // IDs
         if (preg_match('/^\w*id$/i', $key)) {
             return (int)$value;
@@ -65,33 +86,28 @@ class API {
         $casted = [];
 
         foreach ($data as $key => $value) {
-            $casted[$key] = static::singleCast($key, $value);
+            $casted[$key] = static::single($key, $value);
         }
 
         return $casted;
     }
 
     /**
-     * Directory of entity
+     * Iterate through the elements of $array, and for each element $el,
+     * unset $el[$key] if it is null. Return the result.
      */
-    public static function entity(string $entity) {
-        $file = $_SERVER['DOCUMENT_ROOT'] . "/api/entities/$entity.php";
-        return $file;
-    }
+    public static function filterNulls(array $array, array $keys) {
+        $copy = [];
+        foreach ($array as $id => $entry) {
+            foreach ($keys as $key) {
+                if ($entry[$key] === NULL) {
+                    unset($entry[$key]);
+                }
+            }
 
-    /**
-     * Directory of resource
-     */
-    public static function resource(string $resource) {
-        $file = $_SERVER['DOCUMENT_ROOT'] . "/api/new/$resource.php";
-        return $file;
-    }
-
-    /**
-     * Filter array by key
-     */
-    public static function filter(array $array, ...$keys) {
-        return array_intersect_key($array, array_flip($keys));
+            $copy[] = $entry;
+        }
+        return $copy;
     }
 
     /**
@@ -146,6 +162,29 @@ class API {
         $object = [];
         foreach ($array as $key => $el) $object[] = $el;
         return $object;
+    }
+
+    /**
+     * For every $key => $value entry in $renames, if $key appears
+     * as a key in $array then rename it to $value.
+     * Does not preserve order.
+     */
+    public static function rekey(array $array, array $renames) {
+        foreach ($renames as $key => $rename) {
+            if (array_key_exists($key, $array) && !array_key_exists($rename, $array)) {
+                $array[$rename] = $array[$key];
+                unset($array[$key]);
+            }
+        }
+        return $array;
+    }
+
+    /**
+     * Assume $array is a collection of arrays and apply rekey to all of them.
+     */
+    public static function rekeyAll(array $array, array $renames) {
+        foreach ($array as $element) $new[] = static::rekey($element, $renames);
+        return $new;
     }
 
     /**
@@ -528,7 +567,7 @@ class HTTPRequest {
             $body = static::bodyString();
 
             // Gladly assume appropriate key!
-            $casted = API::singleCast($keys[0], $body);
+            $casted = API::single($keys[0], $body);
 
             return $casted;
         } 

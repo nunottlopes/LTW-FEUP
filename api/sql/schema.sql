@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS 'Tree';
 DROP TABLE IF EXISTS 'Story';
 DROP TABLE IF EXISTS 'Vote';
 DROP TABLE IF EXISTS 'Subscribe';
+DROP TABLE IF EXISTS 'Image';
 
 CREATE TABLE User (
     'userid'        INTEGER NOT NULL PRIMARY KEY,
@@ -17,6 +18,13 @@ CREATE TABLE User (
     'hash'          TEXT NOT NULL,
     'admin'         INTEGER NOT NULL DEFAULT 0,
     CONSTRAINT BooleanAdmin CHECK (admin IN (0,1))
+);
+
+CREATE TABLE Image (
+    'id'            INTEGER NOT NULL PRIMARY KEY,
+    'storyid'       INTEGER,
+    'filename'      TEXT NOT NULL UNIQUE,
+    FOREIGN KEY('storyid') REFERENCES Story('entityid') ON DELETE SET NULL
 );
 
 CREATE TABLE Entity (
@@ -46,7 +54,11 @@ CREATE TABLE Story (
     'content'       TEXT NOT NULL,
     FOREIGN KEY('entityid') REFERENCES Entity('entityid') ON DELETE CASCADE,
     FOREIGN KEY('authorid') REFERENCES User('userid') ON DELETE SET NULL,
-    FOREIGN KEY('channelid') REFERENCES Channel('channelid') ON DELETE CASCADE
+    FOREIGN KEY('channelid') REFERENCES Channel('channelid') ON DELETE CASCADE,
+    CONSTRAINT Types CHECK (storyType IN ('text','title','image')),
+    CONSTRAINT TypeText CHECK (storyType <> 'text' OR LENGTH(content) > 0),
+    CONSTRAINT TypeTitle CHECK (storyType <> 'title' OR LENGTH(content) = 0),
+    CONSTRAINT TypeImage CHECK (storyType <> 'image' OR LENGTH(content) > 0)
 );
 
 CREATE TABLE Comment (
