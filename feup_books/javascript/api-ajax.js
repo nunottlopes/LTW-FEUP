@@ -203,8 +203,8 @@ var api = {
         "get": function(query, expect) {
             return api.get('user', query, expect);
         },
-        "put": function(data, expect) {
-            return api.put('user', {}, data, expect);
+        "post": function(data, expect) {
+            return api.post('user', {}, data, expect);
         },
         "delete": function(query, expect) {
             return api.delete('user', query, expect);

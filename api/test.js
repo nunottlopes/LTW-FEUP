@@ -299,8 +299,8 @@ async function testsave() {
 async function teststory() {
     await testheader();
 
-    console.log("EXPECTED: [Created] 3, [Updated] 2, [OK] 32, [Deleted] 6, [404] 4");
-    console.log("EXPECTED: [200] 40, [201] 3, [404] 4");
+    console.log("EXPECTED: [Created] 3, [Updated] 2, [OK] 34, [Deleted] 6, [404] 4");
+    console.log("EXPECTED: [200] 42, [201] 3, [404] 4");
 
     // create
     await api.story.post("channelid=1&authorid=5", {
@@ -375,6 +375,7 @@ async function teststory() {
 
     // get-channel-author-voted, ordering
     await api.story.get("voterid=2&channelid=2&authorid=1"); // 4
+
     await api.story.get("voterid=3&channelid=2&authorid=1&limit=2&offset=0&order=top");
     await api.story.get("voterid=4&channelid=2&authorid=1&limit=1&offset=2&order=bot");
     await api.story.get("voterid=5&channelid=2&authorid=1&limit=2&offset=4&order=new");
@@ -516,8 +517,8 @@ async function testuser() {
     console.log("EXPECTED: [200] 16, [201] 2, [400] 3, [404] 6");
 
     // create
-    await api.user.put({username: "Rui", email: "rui@gmail.com", password: "123456"});
-    await api.user.put({username: "Madonna", email: "mad@gmail.com", password: "7akdqw0"});
+    await api.user.post({username: "Rui", email: "rui@gmail.com", password: "123456"});
+    await api.user.post({username: "Madonna", email: "mad@gmail.com", password: "7akdqw0"});
 
     // get-id
     await api.user.get("userid=1");
@@ -560,13 +561,13 @@ async function testuser() {
     await api.user.get("email=yoyo"); // 404
 
     // Invalid username 400
-    await api.user.put({username: "RR", email: "rrr@gmail.com", password: "qweg2g324y"});
+    await api.user.post({username: "RR", email: "rrr@gmail.com", password: "qweg2g324y"});
     
     // Invalid email 400
-    await api.user.put({username: "TiagoRui", email: "tiagmail.com", password: "123456"});
+    await api.user.post({username: "TiagoRui", email: "tiagmail.com", password: "123456"});
     
     // Invalid password 400
-    await api.user.put({username: "TiagoRui", email: "tiago@hotmail.com", password: "12345"});
+    await api.user.post({username: "TiagoRui", email: "tiago@hotmail.com", password: "12345"});
 
     await api.user.delete("userid=70"); // 404
     await api.user.delete({username: "Abcabcabcdoesnotexist"}); // 404
