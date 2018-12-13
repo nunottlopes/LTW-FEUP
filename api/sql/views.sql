@@ -303,10 +303,4 @@ SELECT U.userid, E.entityid, coalesce(V.vote, "") vote
 FROM Entity E
 JOIN UserClean U
 LEFT JOIN Vote V ON V.userid = U.userid AND V.entityid = E.entityid
-ORDER BY U.userid ASC, E.entityid;
-
-
-SELECT ST.*, coalesce(V.vote, '') vote
-FROM CommentSortTop ST JOIN UserVote V ON V.entityid = ST.entityid
-WHERE parentid = 1 AND V.userid = ?
-ORDER BY rating DESC;
+ORDER BY U.userid ASC, E.entityid ASC;

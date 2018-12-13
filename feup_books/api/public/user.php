@@ -7,10 +7,10 @@ require_once API::entity('user');
  */
 $resource = 'user';
 
-$methods = ['GET', 'PUT', 'DELETE'];
+$methods = ['GET', 'POST', 'DELETE'];
 
 $actions = [
-    'create'          => ['PUT', [], ['username', 'email', 'password']],
+    'create'          => ['POST', [], ['username', 'email', 'password']],
 
     'get-id'          => ['GET', ['userid']],
     'get-username'    => ['GET', ['username']],
@@ -149,7 +149,7 @@ if ($action === 'create') {
         'user' => $user
     ];
 
-    HTTPResponse::created("Successfuly created user account $userid", $data);
+    HTTPResponse::created("Successfully created user account $userid", $data);
 }
 
 // GET

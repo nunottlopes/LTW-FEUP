@@ -494,7 +494,7 @@ class HTTPRequest {
             }
 
             if (!API::got($json, $keys)) {
-                HTTPResponse::missingBodyParameters($keys);
+                HTTPResponse::missingBodyParameters();
             }
 
             $casted = API::cast($json);
@@ -509,7 +509,7 @@ class HTTPRequest {
         if ((strpos($contentType, 'application/x-www-form-urlencoded') !== false) ||
             (strpos($contentType, 'multipart/form-data') !== false)) {
             if (!API::got($_POST, $keys)) {
-                HTTPResponse::missingBodyParameters($keys);
+                HTTPResponse::missingBodyParameters();
             }
 
             $casted = API::cast($_POST);
@@ -522,7 +522,7 @@ class HTTPRequest {
         // The body string is the argument, and only one key must be required.
         if (strpos($contentType, 'text/plain') !== false) {
             if (count($keys) !== 1) {
-                HTTPResponse::missingBodyParameters($keys);
+                HTTPResponse::missingBodyParameters();
             }
 
             $body = static::bodyString();
@@ -756,14 +756,14 @@ class HTTPResponse {
      * action based on the arguments provided, but that action requires one or more
      * query arguments which were not provided.
      */
-    public static function missingQueryParameters(string $action) {
+    public static function missingQueryParameters(array $action) {
         http_response_code(400);
 
         $pretty = API::prettyAction($action);
 
         $query = $pretty['query'];
 
-        $error = "Required query parameter(s) not present: \"$query\"";
+        $error = "Required query parameter(s) not present: '$query'";
 
         $data = [
             'action' => $pretty,
@@ -779,10 +779,14 @@ class HTTPResponse {
      * action based on the arguments provided, but that action requires one or more
      * body arguments which were not provided.
      */
-    public static function missingBodyParameters(string $action) {
+    public static function missingBodyParameters() {
         http_response_code(400);
 
-        $pretty = API::prettyAction($action);
+        global $actions, $action;
+
+        $spec = $actions[$action];
+
+        $pretty = API::prettyAction($spec);
 
         $body = $pretty['body'];
 
