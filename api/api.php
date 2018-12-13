@@ -16,7 +16,7 @@ error_reporting(E_ALL);
  * API generic utilities (more intuitive name would be just 'Utils', maybe).
  */
 class API {
-    private static function singleCast(string $key, $value) {
+    public static function singleCast(string $key, $value) {
         // IDs
         if (preg_match('/^\w*id$/i', $key)) {
             return (int)$value;
@@ -527,7 +527,8 @@ class HTTPRequest {
 
             $body = static::bodyString();
 
-            $casted = API::cast([$keys[0] => $body])[$keys[0]];
+            // Gladly assume appropriate key!
+            $casted = API::singleCast($keys[0], $body);
 
             return $casted;
         } 
