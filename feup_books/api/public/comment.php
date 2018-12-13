@@ -165,7 +165,7 @@ if ($action === 'get-author-voted') {
 }
 
 if ($action === 'get-all-voted') {
-    $comments = Comment::readAllVoted($args, $userid);
+    $comments = Comment::readAllVoted($userid, $args);
 
     HTTPResponse::ok("All comments (voted by $userid)", $comments);
 }

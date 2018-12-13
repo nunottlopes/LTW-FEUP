@@ -66,8 +66,8 @@ async function testchannel() {
 async function testcomment() {
     await testheader();
 
-    console.log("EXPECTED: [Created] 3, [Updated] 2, [OK] 17, [404] 4, [Deleted] 5");
-    console.log("EXPECTED: [200] 24, [201] 3, [404] 4");
+    console.log("EXPECTED: [Created] 3, [Updated] 2, [OK] 34, [404] 4, [Deleted] 5");
+    console.log("EXPECTED: [200] 41, [201] 3, [404] 4");
 
     // create
     await api.comment.post("parentid=99&authorid=4", {content: "Comment#101-#1-#7"});
@@ -104,6 +104,34 @@ async function testcomment() {
     await api.comment.get("all&limit=20&order=controversial&since=1000000");
     await api.comment.get("all&limit=25&order=average&offset=60&since=0");
     await api.comment.get("all&limit=20&order=hot&offset=15&since=0");
+
+    // Same but voted (+17)
+    // get-id-voted
+    await api.comment.get('voterid=6&commentid=43');
+    await api.comment.get('voterid=3&commentid=76');
+
+    // get-parent-author-voted
+    await api.comment.get('voterid=3&parentid=28&authorid=5'); // #41, #44
+    await api.comment.get('voterid=2&parentid=7&authorid=1&order=top&limit=2&offset=2'); // #40
+    await api.comment.get('voterid=7&parentid=7&authorid=1&order=bot&limit=2'); // #40, #36
+
+    // get-parent-voted
+    await api.comment.get("voterid=1&parentid=1&limit=2&offset=1&order=best"); // 2
+    await api.comment.get("voterid=9&parentid=28&limit=3&offset=2&order=new"); // 2
+
+    // get-author-voted
+    await api.comment.get('voterid=8&authorid=3'); // 13
+    await api.comment.get('voterid=4&authorid=3&order=top');
+
+    // get-all-voted, ordering
+    await api.comment.get("voterid=3&all&limit=10&order=top");
+    await api.comment.get("voterid=6&all&limit=10&order=bot");
+    await api.comment.get("voterid=7&all&limit=10&order=new&offset=2");
+    await api.comment.get("voterid=8&all&limit=10&order=old&since=400000000");
+    await api.comment.get("voterid=2&all&limit=20&order=best&offset=3");
+    await api.comment.get("voterid=1&all&limit=20&order=controversial&since=1000000");
+    await api.comment.get("voterid=4&all&limit=25&order=average&offset=60&since=0");
+    await api.comment.get("voterid=5&all&limit=20&order=hot&offset=15&since=0");
 
     await api.comment.get("authorid=10"); // 404
     await api.comment.get("parentid=173"); // 404
@@ -151,11 +179,15 @@ async function testentity() {
 async function testlogin() {
     await testheader();
 
-    console.log("EXPECTED: [OK] 3, [Accepted] 4/5, [Forbidden] 6");
-    console.log("EXPECTED: [200] 3, [202] 4/5, [403] 6");
+    console.log("EXPECTED: [OK] 8, [Accepted] 4/5, [Forbidden] 6");
+    console.log("EXPECTED: [200] 8, [202] 4/5, [403] 6");
+
+    await api.auth(); // 200
 
     // logout of admin
     await api.logout(); // 202
+
+    await api.auth(); // 200
 
     // try action requiring authentication
     await api.user.get("self"); // 403
@@ -167,6 +199,8 @@ async function testlogin() {
     await api.vote.get("all"); // 403
 
     await api.login("Bruno", "bruno"); // 202
+
+    await api.auth(); // 200
 
     // try action for user bruno
     await api.user.get("self"); // 200
@@ -180,6 +214,8 @@ async function testlogin() {
 
     await api.login("admin", "admin"); // 202
 
+    await api.auth(); // 200
+
     // try privileged action
     await api.save.get("all"); // 200
 
@@ -187,7 +223,7 @@ async function testlogin() {
 
     await api.user.get("self"); // 403
 
-    await api.auth();
+    await api.auth(); // 200
 
     testfooter();
 }
@@ -263,8 +299,8 @@ async function testsave() {
 async function teststory() {
     await testheader();
 
-    console.log("EXPECTED: [Created] 3, [Updated] 2, [OK] 16, [Deleted] 6, [404] 4");
-    console.log("EXPECTED: [200] 24, [201] 3, [404] 4");
+    console.log("EXPECTED: [Created] 3, [Updated] 2, [OK] 32, [Deleted] 6, [404] 4");
+    console.log("EXPECTED: [200] 40, [201] 3, [404] 4");
 
     // create
     await api.story.post("channelid=1&authorid=5", {
@@ -310,6 +346,7 @@ async function teststory() {
 
     // get-channel-author, ordering
     await api.story.get("channelid=2&authorid=1"); // 4
+
     await api.story.get("channelid=2&authorid=1&limit=2&offset=0&order=top");
     await api.story.get("channelid=2&authorid=1&limit=1&offset=2&order=bot");
     await api.story.get("channelid=2&authorid=1&limit=2&offset=4&order=new");
@@ -329,6 +366,35 @@ async function teststory() {
 
     // get-all
     await api.story.get("all&limit=20&order=hot"); // 20
+    await api.story.get("all&limit=15&order=controversial");
+
+    // Same but voted (+17)
+    // get-id-voted
+    await api.story.get("voterid=7&storyid=14");
+    await api.story.get("voterid=1&storyid=1");
+
+    // get-channel-author-voted, ordering
+    await api.story.get("voterid=2&channelid=2&authorid=1"); // 4
+    await api.story.get("voterid=3&channelid=2&authorid=1&limit=2&offset=0&order=top");
+    await api.story.get("voterid=4&channelid=2&authorid=1&limit=1&offset=2&order=bot");
+    await api.story.get("voterid=5&channelid=2&authorid=1&limit=2&offset=4&order=new");
+    await api.story.get("voterid=6&channelid=2&authorid=1&limit=3&offset=3&order=old");
+    await api.story.get("voterid=7&channelid=2&authorid=1&limit=4&offset=0&order=best");
+    await api.story.get("voterid=8&channelid=2&authorid=1&limit=2&offset=2&order=controversial");
+    await api.story.get("voterid=9&channelid=2&authorid=1&limit=1&offset=0&order=average");
+    await api.story.get("voterid=1&channelid=2&authorid=1&limit=3&offset=1&order=hot");
+
+    // get-channel-voted
+    await api.story.get("voterid=4&channelid=3"); // 7
+    await api.story.get("voterid=5&channelid=4"); // 13
+
+    // get-author-voted
+    await api.story.get("voterid=6&authorid=7&limit=4"); // 3
+    await api.story.get("voterid=2&authorid=3&offset=2"); // 2
+
+    // get-all-voted
+    await api.story.get("voterid=3&all&limit=20&order=hot"); // 20
+    await api.story.get("voterid=8&all&limit=15&order=controversial");
 
     await api.story.get("authorid=105"); // 404
     await api.story.get("channelid=10"); // 404
@@ -355,8 +421,8 @@ async function teststory() {
 async function testtree() {
     await testheader();
 
-    console.log("EXPECTED: [OK] 14, [404] 4");
-    console.log("EXPECTED: [200] 14, [404] 4");
+    console.log("EXPECTED: [OK] 28, [404] 4");
+    console.log("EXPECTED: [200] 28, [404] 4");
 
     // get-tree
     await api.tree.get("ascendantid=1&maxdepth=10&limit=60");
@@ -397,6 +463,35 @@ async function testtree() {
     // #90
     // #91 -- #99
     //    ^-- #100
+    
+    // get-ancestry
+    await api.tree.get("descendantid=100"); // story=#1, comments=#28,#41,#66,#81,#91,#100
+    await api.tree.get("descendantid=97"); // story=#1, comments=#30,#50,#73,#88,#97
+
+    // get-storyof
+    await api.tree.get("storyof&commentid=69"); // story=#1
+    await api.tree.get("storyof&commentid=40"); // story=#7
+
+    // Same but voted (+14)
+    // get-tree
+    await api.tree.get("ascendantid=1&maxdepth=10&limit=60");
+    
+    await api.tree.get("ascendantid=1&maxdepth=10&order=top&limit=1");
+    
+    await api.tree.get("ascendantid=1&maxdepth=10&order=top&limit=2");
+
+    await api.tree.get("ascendantid=1&maxdepth=10&order=top&limit=3");
+
+    await api.tree.get("ascendantid=1&maxdepth=10&order=top&limit=4");
+
+    await api.tree.get("ascendantid=1&maxdepth=10&order=top&limit=5");
+    
+    await api.tree.get("ascendantid=1&maxdepth=10&order=top&limit=3&offset=2");
+
+    await api.tree.get("ascendantid=1&maxdepth=10&order=top&limit=1&offset=4");
+
+    await api.tree.get("ascendantid=100"); // []
+    await api.tree.get("ascendantid=81");
     
     // get-ancestry
     await api.tree.get("descendantid=100"); // story=#1, comments=#28,#41,#66,#81,#91,#100

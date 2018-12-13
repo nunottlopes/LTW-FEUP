@@ -88,7 +88,7 @@ class Story extends APIEntity {
     /**
      * READ
      */
-    public static function getChannelUser(int $channelid, int $authorid, array $more = []) {
+    public static function getChannelAuthor(int $channelid, int $authorid, array $more = []) {
         $sorttable = static::sortTablename($more);
 
         $query = "
@@ -124,7 +124,7 @@ class Story extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getUser(int $authorid, array $more = []) {
+    public static function getAuthor(int $authorid, array $more = []) {
         $sorttable = static::sortTablename($more);
 
         $query = "
