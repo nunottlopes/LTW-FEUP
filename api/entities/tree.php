@@ -153,14 +153,6 @@ class Tree extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getTree(int $ascendantid, array $more) {
-        $descendants = static::getAllDescendants($ascendantid, $more);
-
-        $keyed = API::keyfy($descendants, 'entityid');
-
-        return static::fixTree($keyed, $ascendantid, 1);
-    }
-
     public static function getStoryOf(int $commentid) {
         $query = '
             SELECT * FROM StoryTree where commentid = ?
@@ -169,6 +161,100 @@ class Tree extends APIEntity {
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$commentid]);
         return static::fetch($stmt);
+    }
+
+    public static function getTree(int $ascendantid, array $more) {
+        $descendants = static::getAllDescendants($ascendantid, $more);
+
+        $keyed = API::keyfy($descendants, 'entityid');
+
+        return static::fixTree($keyed, $ascendantid, 1);
+    }
+
+    /**
+     * VOTED READ
+     */
+    public static function getAncestryVoted(int $descendantid, int $userid) {
+        $query = '
+            SELECT A.*, coalesce(V.vote, "") vote
+            FROM CommentAncestryTree A NATURAL JOIN UserVote V
+            WHERE descendantid = ? AND V.userid = ?
+            ORDER BY level ASC;
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$descendantid, $userid]);
+        $comments = static::fetchAll($stmt);
+
+        $query = '
+            SELECT ST.*, coalesce(V.vote, "") vote
+            FROM StoryTree ST NATURAL JOIN UserVote V
+            WHERE commentid = ? AND V.userid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$descendantid, $userid]);
+        $story = static::fetch($stmt);
+
+        $line = [
+            'story' => $story,
+            'comments' => $comments
+        ];
+
+        return $line;
+    }
+
+    private static function getAllDescendantsVoted(int $ascendantid,
+            int $userid, array $more) {
+        $sorttable = static::sortTablename($more);
+
+        $query = "
+            WITH Choice(ascendantid) AS (
+                VALUES (?)
+            ), Best(entityid) AS (
+                SELECT entityid
+                FROM $sorttable CT
+                WHERE CT.ascendantid IN Choice
+                AND depth <= ? AND createdat >= ?
+                ORDER BY rating DESC
+                LIMIT ? OFFSET ?
+            ), BestAncestry(entityid) AS (
+                SELECT Tree.ascendantid FROM Tree
+                WHERE Tree.descendantid IN Best
+            )
+            SELECT ST.*, coalesce(V.vote, '') vote
+            FROM $sorttable ST NATURAL JOIN UserVote V
+            WHERE V.userid = ?
+            AND ascendantid IN Choice
+            AND (entityid IN BestAncestry OR entityid IN Best)
+            ORDER BY depth ASC, rating DESC;
+            ";
+
+        $queryArguments = static::extend([$ascendantid, $userid], $more);
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute($queryArguments);
+        return static::fetchAll($stmt);
+    }
+
+    public static function getStoryOfVoted(int $commentid, int $userid) {
+        $query = '
+            SELECT ST.*, coalesce(V.vote) vote
+            FROM StoryTree ST NATURAL JOIN UserVote V
+            WHERE commentid = ? AND V.userid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$commentid, $userid]);
+        return static::fetch($stmt);
+    }
+
+    public static function getTreeVoted(int $ascendantid, int $userid, array $more) {
+        $descendants = static::getAllDescendantsVoted($ascendantid, $userid, $more);
+
+        $keyed = API::keyfy($descendants, 'entityid');
+
+        return static::fixTree($keyed, $ascendantid, 1);
     }
 }
 ?>

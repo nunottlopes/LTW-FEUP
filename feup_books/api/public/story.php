@@ -10,21 +10,27 @@ $resource = 'story';
 $methods = ['GET', 'POST', 'PATCH', 'DELETE'];
 
 $actions = [
-    'create'                => ['POST', ['channelid', 'authorid'], ['storyTitle', 'storyType', 'content']],
+    'create'                   => ['POST', ['channelid', 'authorid'], ['storyTitle', 'storyType', 'content']],
 
-    'edit'                  => ['PATCH', ['storyid'], ['content']],
+    'edit'                     => ['PATCH', ['storyid'], ['content']],
 
-    'get-id'                => ['GET', ['storyid']],
-    'get-channel-author'    => ['GET', ['channelid', 'authorid'], [], ['order', 'since', 'limit', 'offset']],
-    'get-channel'           => ['GET', ['channelid'], [], ['order', 'since', 'limit', 'offset']],
-    'get-author'            => ['GET', ['authorid'], [], ['order', 'since', 'limit', 'offset']],
-    'get-all'               => ['GET', ['all'], [], ['order', 'since', 'limit', 'offset']],
+    'get-id-voted'             => ['GET', ['voterid', 'storyid']],
+    'get-channel-author-voted' => ['GET', ['voterid', 'channelid', 'authorid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-channel-voted'        => ['GET', ['voterid', 'channelid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-author-voted'         => ['GET', ['voterid', 'authorid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-all-voted'            => ['GET', ['voterid', 'all'], [], ['order', 'since', 'limit', 'offset']],
 
-    'delete-id'             => ['DELETE', ['storyid']],
-    'delete-channel-author' => ['DELETE', ['channelid', 'authorid']],
-    'delete-channel'        => ['DELETE', ['channelid']],
-    'delete-author'         => ['DELETE', ['authorid']],
-    'delete-all'            => ['DELETE', ['all']]
+    'get-id'                   => ['GET', ['storyid']],
+    'get-channel-author'       => ['GET', ['channelid', 'authorid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-channel'              => ['GET', ['channelid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-author'               => ['GET', ['authorid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-all'                  => ['GET', ['all'], [], ['order', 'since', 'limit', 'offset']],
+
+    'delete-id'                => ['DELETE', ['storyid']],
+    'delete-channel-author'    => ['DELETE', ['channelid', 'authorid']],
+    'delete-channel'           => ['DELETE', ['channelid']],
+    'delete-author'            => ['DELETE', ['authorid']],
+    'delete-all'               => ['DELETE', ['all']]
 ];
 
 /**
@@ -40,7 +46,7 @@ $args = API::cast($_GET);
 
 /**
  * 2. GET: Check query parameter identifying resources
- * STORY: storyid, channelid, authorid, all
+ * STORY: storyid, channelid, authorid, voterid, all
  */
 // storyid
 if (API::gotargs('storyid')) {
@@ -75,6 +81,18 @@ if (API::gotargs('authorid')) {
     }
 
     $authorname = $author['username'];
+}
+// voterid
+if (API::gotargs('voterid')) {
+    $userid = $args['voterid'];
+
+    $user = User::read($userid);
+
+    if (!$user) {
+        HTTPResponse::notFound("User with id $userid");
+    }
+
+    $auth = Auth::demandLevel('authid', $userid);
 }
 
 /**
@@ -124,12 +142,42 @@ if ($action === 'edit') {
 }
 
 // GET
+if ($action === 'get-id-voted') {
+    $story = Story::readVoted($storyid, $userid);
+
+    HTTPResponse::ok("Story $storyid (voter by $userid)", $story);
+}
+
+if ($action === 'get-channel-author-voted') {
+    $stories = Story::getChannelAuthorVoted($channelid, $authorid, $userid, $args);
+
+    HTTPResponse::ok("Stories of user $authorid in channel $channelid (voted by $userid)", $stories);
+}
+
+if ($action === 'get-channel-voted') {
+    $stories = Story::getChannelVoted($channelid, $userid, $args);
+
+    HTTPResponse::ok("Stories in channel $channelid (voted by $userid)", $stories);
+}
+
+if ($action === 'get-author-voted') {
+    $stories = Story::getAuthorVoted($authorid, $userid, $args);
+
+    HTTPResponse::ok("Stories of user $authorid (voted by $userid)", $stories);
+}
+
+if ($action === 'get-all-voted') {
+    $stories = Story::readAllVoted($userid, $args);
+
+    HTTPResponse::ok("All stories (voted by $userid)", $stories);
+}
+
 if ($action === 'get-id') {
     HTTPResponse::ok("Story $storyid", $story);
 }
 
 if ($action === 'get-channel-author') {
-    $stories = Story::getChannelUser($channelid, $authorid, $args);
+    $stories = Story::getChannelAuthor($channelid, $authorid, $args);
 
     HTTPResponse::ok("Stories of user $authorid in channel $channelid", $stories);
 }
@@ -141,7 +189,7 @@ if ($action === 'get-channel') {
 }
 
 if ($action === 'get-author') {
-    $stories = Story::getUser($authorid, $args);
+    $stories = Story::getAuthor($authorid, $args);
 
     HTTPResponse::ok("Stories of user $authorid", $stories);
 }

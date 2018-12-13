@@ -139,6 +139,9 @@ class API {
         return $object;
     }
 
+    /**
+     * Reverse keyfy
+     */
     public static function unkeyfy(array $array) {
         $object = [];
         foreach ($array as $key => $el) $object[] = $el;
@@ -149,20 +152,48 @@ class API {
      * Convert $actions array to a cleaner format.
      */
     public static function prettyActions(array $actions) {
-        $converted = [];
+        $prettys = [];
         foreach ($actions as $action => $spec) {
-            $converted[$action] = ['method' => $spec[0]];
-            if (isset($spec[1]) && $spec[1] !== []) {
-                $converted[$action]['query'] = $spec[1];
-            }
-            if (isset($spec[2]) && $spec[2] !== []) {
-                $converted[$action]['body'] = $spec[2];
-            }
-            if (isset($spec[3]) && $spec[3] !== []) {
-                $converted[$action]['more'] = $spec[3];
+            $prettys[$action] = static::prettyAction($spec);
+        }
+        return $prettys;
+    }
+
+    public static function prettyAction(array $spec) {
+        $pretty['method'] = $spec[0];
+
+        if (isset($spec[1]) && $spec[1] !== []) {
+            $pretty['query'] = static::stringifyDescriptor($spec[1]);
+        }
+
+        if (isset($spec[2]) && $spec[2] !== []) {
+            $pretty['body'] = static::stringifyDescriptor($spec[2]);
+        }
+
+        if (isset($spec[3]) && $spec[3] !== []) {
+            $pretty['more'] = implode(', ', $spec[3]);
+        }
+
+        return $pretty;
+    }
+
+    public static function stringifyDescriptor(array $descriptor) {
+        $query = '';
+
+        for ($i = 0; $i < count($descriptor); ++$i) {
+            if ($i > 0) $query .= ' && ';
+
+            $arg = $descriptor[$i];
+
+            if (is_string($arg)) {
+                $query .= $arg;
+            } else {
+                $imp = implode(' || ', $arg);
+                $query .= "($imp)";
             }
         }
-        return $converted;
+
+        return $query;
     }
 }
 
@@ -449,21 +480,59 @@ class HTTPRequest {
      * Parse
      */
     public static function body(string ...$keys) {
-        $body = static::bodyString();
+        $contentType = $_SERVER['CONTENT_TYPE'];
 
-        $json = json_decode($body, true);
+        // Content-Type: application/json
+        // Parse body using json_decode on php://input
+        if (strpos($contentType, 'application/json') !== false) {
+            $body = static::bodyString();
 
-        if ($json == null) {
-            HTTPResponse::malformedJSON();
+            $json = json_decode($body, true);
+
+            if ($json == null) {
+                HTTPResponse::malformedJSON();
+            }
+
+            if (!API::got($json, $keys)) {
+                HTTPResponse::missingBodyParameters($keys);
+            }
+
+            $casted = API::cast($json);
+
+            if (count($keys) === 1) return $casted[$keys[0]];
+            else return $casted;
         }
 
-        if (!API::got($json,  $keys)) {
-            HTTPResponse::missingParameters($keys);
+        // Content-Type: application/x-www-form-urlencoded
+        //               multipart/form-data
+        // Parse body using $_POST
+        if ((strpos($contentType, 'application/x-www-form-urlencoded') !== false) ||
+            (strpos($contentType, 'multipart/form-data') !== false)) {
+            if (!API::got($_POST, $keys)) {
+                HTTPResponse::missingBodyParameters($keys);
+            }
+
+            $casted = API::cast($_POST);
+
+            if (count($keys) === 1) return $casted[$keys[0]];
+            else return $casted;
         }
 
-        $casted = API::cast($json);
-        if (count($keys) === 1) return $casted[$keys[0]];
-        else return $casted;
+        // Content-Type: text/plain
+        // The body string is the argument, and only one key must be required.
+        if (strpos($contentType, 'text/plain') !== false) {
+            if (count($keys) !== 1) {
+                HTTPResponse::missingBodyParameters($keys);
+            }
+
+            $body = static::bodyString();
+
+            $casted = API::cast([$keys[0] => $body])[$keys[0]];
+
+            return $casted;
+        } 
+
+        HTTPResponse::badContentType($contentType);
     }
 
     /**
@@ -684,92 +753,61 @@ class HTTPResponse {
     /**
      * 400 Bad Request
      * The request performed on the specified entity was successfully deduced to an
-     * action based on the arguments provided, but that action requires an
-     * argument which was not provided.
+     * action based on the arguments provided, but that action requires one or more
+     * query arguments which were not provided.
      */
-    public static function missingParameter(string $missing, array $parameters) {
+    public static function missingQueryParameters(string $action) {
         http_response_code(400);
 
-        $error = "Required parameter(s) not present: \"$missingstring\"";
+        $pretty = API::prettyAction($action);
+
+        $query = $pretty['query'];
+
+        $error = "Required query parameter(s) not present: \"$query\"";
 
         $data = [
-            'missing' => $missing,
-            'parameters' => $parameters
+            'action' => $pretty,
+            'query' => $query
         ];
 
-        static::error('Missing Parameter', $error, $data);
+        static::error('Missing Query Parameters', $error, $data);
     }
 
     /**
      * 400 Bad Request
      * The request performed on the specified entity was successfully deduced to an
      * action based on the arguments provided, but that action requires one or more
-     * arguments which were not provided.
+     * body arguments which were not provided.
      */
-    public static function missingParameters(array $parameters) {
+    public static function missingBodyParameters(string $action) {
         http_response_code(400);
 
-        $missing = [];
+        $pretty = API::prettyAction($action);
 
-        foreach ($parameters as $param) {
-            if (!API::gotargs($param)) $missing[] = $param;
-        }
+        $body = $pretty['body'];
 
-        $missingstring = implode(', ', $missing);
-
-
-        if ($missingstring === 'confirm') {
-            // Certain requests require 'confirm' argument (creates and updates).
-            $error = "Please confirm action with \"confirm\" argument";
-        } else if ($missingstring === 'confirm-delete') {
-            // Irreversible delete requests require 'confirm-delete' argument.
-            $error = "Please confirm irreversible delete with \"confirm-delete\"";
-        } else {
-            // Generic
-            $error = "Required parameter(s) not present: \"$missingstring\"";
-        }
+        $error = "Required body parameter(s) not present: \"$body\"";
 
         $data = [
-            'missing' => $missing,
-            'parameters' => $parameters,
-            'text' => $missingstring
+            'action' => $pretty,
+            'body' => $body
         ];
 
-        static::error('Missing Parameters', $error, $data);
-    }
-
-    /**
-     * 400 Bad Request
-     * The request performed on the specified entity was successfully deduced to an
-     * action based on the arguments provided, but a particular argument had an
-     * incorrect value (probably of the wrong type).
-     */
-    public static function badArgument(string $param, string $value) {
-        http_response_code(400);
-
-        $error = "Parameter \"$param\" has an unexpected value";
-
-        $data = [
-            'param' => $param,
-            'key' => $param,
-            'value' => $value
-        ];
-
-        static::error('Bad Argument', $error, $data);
+        static::error('Missing Body Parameters', $error, $data);
     }
 
     /**
      * 400 Bad Request
      */
-    public static function invalid(string $what, string $reason) {
+    public static function invalid(string $what, $value, string $requires) {
         http_response_code(400);
 
-        $error = "Invalid $what";
+        $error = "Invalid $what: $requires";
 
         $data = [
-            'param' => $what,
             'key' => $what,
-            'reason' => $reason,
+            'value' => $value,
+            'requires' => $requires,
         ];
 
         static::error('Invalid', $error, $data);
@@ -780,15 +818,15 @@ class HTTPResponse {
      * The request tried to create a resource that conflicted with an already existing
      * resource.
      */
-    public static function conflict(string $error, string $entity, string $culprit) {
+    public static function conflict(string $what, $culprit, string $error) {
         http_response_code(400);
 
         $error = "Conflict: $error";
 
         $data = [
+            'key' => $key,
             'culprit' => $culprit,
-            'entity' => $entity,
-            'reason' => $error
+            'error' => $error
         ];
 
         static::error('Conflict', $error, $data);
@@ -854,20 +892,6 @@ class HTTPResponse {
     }
 
     /**
-     * 400 Wrong Credentials
-     * Wrong credentials
-     */
-    public static function wrongCredentials(string $reason) {
-        http_response_code(400);
-
-        $error = "Invalid credentials: $reason";
-
-        $data = ['reason' => $reason];
-
-        static::error('Wrong credentials', $error, $data);
-    }
-
-    /**
      * 400 Bad Request
      * General 400 error with a generic message and data JSON.
      */
@@ -878,27 +902,56 @@ class HTTPResponse {
     }
 
     /**
-     * 401 Unauthorized
+     * 400 Wrong Credentials
+     * Wrong credentials
+     */
+    public static function wrongCredentials(string $reason = null) {
+        global $AUTH_MODE;
+        if ($AUTH_MODE === 'SESSION') {
+            http_response_code(400);
+        } else {
+            http_response_code(401);
+        }
+
+        $error = 'Invalid credentials';
+        if ($reason !== null) $error .= ": $reason";
+
+        $data = ['reason' => $reason];
+
+        static::error('Wrong credentials', $error, $data);
+    }
+
+    /**
+     * 401 Unauthorized OR 403 Forbidden
      * The resource requested is not accessible to the client, or an
-     * authentication attempt failed. Required header WWW-Authenticate is present.
+     * authentication attempt failed.
+     * Required header WWW-Authenticate is present if 401.
      */
     public static function unauthorized(int $userid = null) {
-        http_response_code(401);
-        $realm = static::$authenticationRealm;
-        header("WWW-Authenticate: Basic realm=\"$realm\"");
+        global $AUTH_MODE;
+        if ($AUTH_MODE === 'SESSION') {
+            http_response_code(403);
+        } else {
+            http_response_code(401);
+            $realm = static::$authenticationRealm;
+            header("WWW-Authenticate: Basic realm=\"$realm\"");
+        }
 
         if ($userid === null) {
             $error = "Unauthorized request: requires login";
 
-            $data = [];
+            $data = ['reason' => 'Requires login'];
         } else if (User::isAdmin($userid)) {
-            $error = "Unauthorized request: requires administrator login";
+            $error = "Unauthorized request: requires privileged access";
 
-            $data = [];
+            $data = ['reason' => 'Requires privileged access'];
         } else {
             $error = "Unauthorized request: requires login as $userid";
 
-            $data = ['userid' => $userid];
+            $data = [
+                'reason' => "Requires login as $userid",
+                'userid' => $userid
+            ];
         }
 
         static::error('Unauthorized', $error, $data);
@@ -923,15 +976,17 @@ class HTTPResponse {
 
     /**
      * 404 Not Found
-     * The resource requested by the client does not exist.
+     * An entity identified or requested by the client does not exist.
      */
-    public static function notFound(string $resource) {
+    public static function notFound(string $what, string $param = null) {
         http_response_code(404);
 
-        $error = "Not found: $resource";
+        $error = "Not found: $what";
+
+        if (!$param) $param = $what;
 
         $data = [
-            'resource' => $resource
+            'entity' => $param
         ];
 
         static::error('Not Found', $error, $data);
@@ -946,7 +1001,7 @@ class HTTPResponse {
     public static function badMethod() {
         http_response_code(405);
 
-        global $methods, $method, $actions;
+        global $methods, $method;
 
         $allowed = implode(', ', $methods);
         header("Allow: $allowed");
@@ -955,11 +1010,38 @@ class HTTPResponse {
 
         $data = [
             'methods' => $methods,
-            'method' => $method,
-            'actions' => $actions
+            'method' => $method
         ];
 
         static::error('Bad Method', $error, $data);
+    }
+
+    /**
+     * 415 Unsupported Media Type
+     * API only accepts
+     *     application/json
+     *     application/x-www-form-urlencoded
+     *     multipart/form-data
+     *     text/plain
+     */
+    public static function badContentType(string $header, string $reason = null) {
+        http_response_code(415);
+
+        $error = "Invalid Content-Type: format not supported by this API";
+
+        $supported = [
+            'appplication/json',
+            'application/x-www-form-urlencoded',
+            'multipart/form-data',
+            'text/plain'
+        ];
+
+        $data = [
+            'header' => $header,
+            'supported' => $supported
+        ];
+
+        static::error('Bad Content-Type', $error, $data);
     }
 
     /**
@@ -972,20 +1054,6 @@ class HTTPResponse {
         $error = "Internal Server Error processing the request";
 
         static::error('Internal Server Error', $error, $data);
-    }
-
-    /**
-     * 503 Service Unavailable
-     * Database schema change (debugging only, presumably...)
-     * Not used.
-     */
-    public static function schemaChanged(array $data = null) {
-        http_response_code(503);
-        header("Retry-After: 1");
-
-        $error = "Database schema changed, try again immediately.";
-
-        static::error('Schema changed', $error, $data);
     }
 }
 ?>

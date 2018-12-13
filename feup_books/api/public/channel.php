@@ -92,11 +92,11 @@ if ($action === 'create') {
     $channelname = HTTPRequest::body('channelname');
 
     if (!Channel::valid($channelname)) {
-        HTTPResponse::invalid('channelname', "Valid channelname $channelname");
+        HTTPResponse::invalid('channelname', $channelname, "Valid channelname $channelname");
     }
 
     if (Channel::get($channelname)) {
-        HTTPResponse::conflict("Already existing channelname", 'channelname', $channelname);
+        HTTPResponse::conflict('channelname', $channelname, "Already existing channelname");
     }
 
     $channelid = Channel::create($channelname, $creatorid);

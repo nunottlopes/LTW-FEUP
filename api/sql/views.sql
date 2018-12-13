@@ -26,9 +26,9 @@ ORDER BY creatorid ASC;
 DROP VIEW IF EXISTS 'ChannelCreator';
 
 CREATE VIEW ChannelCreator AS
-SELECT Channel.*, C.creatorid, C.creatorname
-FROM Channel
-NATURAL JOIN Creator C
+SELECT Ch.channelid, Ch.channelname, Cr.creatorid, Cr.creatorname
+FROM Channel Ch
+NATURAL JOIN Creator Cr
 ORDER BY channelid ASC;
 
 /**
@@ -44,7 +44,7 @@ NATURAL JOIN Entity E
 ORDER BY entityid ASC;
 
 CREATE VIEW StoryAll AS
-SELECT SE.*, SE.entityid as storyid, A.authorname, C.channelname,
+SELECT SE.*, A.authorname, C.channelname,
        (SELECT count(*) FROM Tree T WHERE T.ascendantid = SE.entityid) count
 FROM StoryEntity SE
 LEFT JOIN Author A ON SE.authorid = A.authorid
@@ -260,18 +260,53 @@ ORDER BY rating DESC;
 DROP VIEW IF EXISTS 'SaveStory';
 DROP VIEW IF EXISTS 'SaveComment';
 DROP VIEW IF EXISTS 'SaveUser';
+DROP VIEW IF EXISTS 'SaveUserStory';
+DROP VIEW IF EXISTS 'SaveUserComment';
 
 CREATE VIEW SaveStory AS
-SELECT *
+SELECT SA.*, S.userid, S.savedat
 FROM Save S
-JOIN StoryAll SA ON S.entityid = SA.entityid;
+JOIN StoryAll SA ON S.entityid = SA.entityid
+ORDER BY entityid ASC;
 
 CREATE VIEW SaveComment AS
-SELECT *
+SELECT CA.*, S.userid, S.savedat
 FROM Save S
-JOIN CommentAll CA ON S.entityid = CA.entityid;
+JOIN CommentAll CA ON S.entityid = CA.entityid
+ORDER BY entityid ASC;
 
 CREATE VIEW SaveUser AS
-SELECT *
+SELECT S.entityid, U.*, S.savedat
 FROM Save S
-JOIN User U ON S.userid = U.userid;
+JOIN User U ON S.userid = U.userid
+ORDER BY entityid ASC;
+
+CREATE VIEW SaveUserStory AS
+SELECT SS.*, coalesce(V.vote, '') vote
+FROM SaveStory SS
+NATURAL LEFT JOIN Vote V
+ORDER BY userid ASC;
+
+CREATE VIEW SaveUserComment AS
+SELECT SC.*, coalesce(V.vote, '') vote
+FROM SaveComment SC
+NATURAL LEFT JOIN Vote V
+ORDER BY userid ASC;
+
+/**
+ * Vote Views
+ */
+DROP VIEW IF EXISTS 'UserVote';
+
+CREATE VIEW UserVote AS
+SELECT U.userid, E.entityid, coalesce(V.vote, "") vote
+FROM Entity E
+JOIN UserClean U
+LEFT JOIN Vote V ON V.userid = U.userid AND V.entityid = E.entityid
+ORDER BY U.userid ASC, E.entityid;
+
+
+SELECT ST.*, coalesce(V.vote, '') vote
+FROM CommentSortTop ST JOIN UserVote V ON V.entityid = ST.entityid
+WHERE parentid = 1 AND V.userid = ?
+ORDER BY rating DESC;

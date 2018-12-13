@@ -10,21 +10,27 @@ $resource = 'comment';
 $methods = ['GET', 'POST', 'PUT', 'DELETE'];
 
 $actions = [
-    'create'               => ['POST', ['parentid', 'authorid'], ['content']],
+    'create'                  => ['POST', ['parentid', 'authorid'], ['content']],
 
-    'edit'                 => ['PUT', ['commentid'], ['content']],
+    'edit'                    => ['PUT', ['commentid'], ['content']],
 
-    'get-id'               => ['GET', ['commentid']],
-    'get-parent-author'    => ['GET', ['parentid', 'authorid'], [], ['order', 'since', 'limit', 'offset']],
-    'get-parent'           => ['GET', ['parentid'], [], ['order', 'since', 'limit', 'offset']],
-    'get-author'           => ['GET', ['authorid'], [], ['order', 'since', 'limit', 'offset']],
-    'get-all'              => ['GET', ['all'], [], ['order', 'since', 'limit', 'offset']],
+    'get-id-voted'            => ['GET', ['voterid', 'commentid']],
+    'get-parent-author-voted' => ['GET', ['voterid', 'parentid', 'authorid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-parent-voted'        => ['GET', ['voterid', 'parentid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-author-voted'        => ['GET', ['voterid', 'authorid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-all-voted'           => ['GET', ['voterid', 'all'], [], ['order', 'since', 'limit', 'offset']],
 
-    'delete-id'            => ['DELETE', ['commentid']],
-    'delete-parent-author' => ['DELETE', ['parentid', 'authorid']],
-    'delete-parent'        => ['DELETE', ['parentid']],
-    'delete-author'        => ['DELETE', ['authorid']],
-    'delete-all'           => ['DELETE', ['all']]
+    'get-id'                  => ['GET', ['commentid']],
+    'get-parent-author'       => ['GET', ['parentid', 'authorid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-parent'              => ['GET', ['parentid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-author'              => ['GET', ['authorid'], [], ['order', 'since', 'limit', 'offset']],
+    'get-all'                 => ['GET', ['all'], [], ['order', 'since', 'limit', 'offset']],
+
+    'delete-id'               => ['DELETE', ['commentid']],
+    'delete-parent-author'    => ['DELETE', ['parentid', 'authorid']],
+    'delete-parent'           => ['DELETE', ['parentid']],
+    'delete-author'           => ['DELETE', ['authorid']],
+    'delete-all'              => ['DELETE', ['all']]
 ];
 
 /**
@@ -40,7 +46,7 @@ $args = API::cast($_GET);
 
 /**
  * 2. GET: Check query parameter identifying resources
- * COMMENT: commentid, parentid, authorid, all
+ * COMMENT: commentid, parentid, authorid, voterid, all
  */
 // commentid
 if (API::gotargs('commentid')) {
@@ -76,6 +82,18 @@ if (API::gotargs('authorid')) {
     }
 
     $authorname = $author['username'];
+}
+// voterid
+if (API::gotargs('voterid')) {
+    $userid = $args['voterid'];
+
+    $user = User::read($userid);
+
+    if (!$user) {
+        HTTPResponse::notFound("User with id $userid");
+    }
+
+    $auth = Auth::demandLevel('authid', $userid);
 }
 
 /**
@@ -122,6 +140,36 @@ if ($action === 'edit') {
 }
 
 //GET
+if ($action === 'get-id-voted') {
+    $comment = Comment::readVoted($commentid, $userid);
+
+    HTTPResponse::ok("Comment with id $commentid (voted by $userid)", $comment);
+}
+
+if ($action === 'get-parent-author-voted') {
+    $comments = Comment::getChildrenAuthorVoted($parentid, $authorid, $userid, $args);
+
+    HTTPResponse::ok("Comments of user $authorid children of $parentid (voted by $userid)", $comments);
+}
+
+if ($action === 'get-parent-voted') {
+    $comments = Comment::getChildrenVoted($parentid, $userid, $args);
+
+    HTTPResponse::ok("Comments children of $parentid (voted by $userid)", $comments);
+}
+
+if ($action === 'get-author-voted') {
+    $comments = Comment::getAuthorVoted($authorid, $userid, $args);
+
+    HTTPResponse::ok("Comments of user $authorid (voted by $userid)", $comments);
+}
+
+if ($action === 'get-all-voted') {
+    $comments = Comment::readAllVoted($args, $userid);
+
+    HTTPResponse::ok("All comments (voted by $userid)", $comments);
+}
+
 if ($action === 'get-id') {
     HTTPResponse::ok("Comment with id $commentid", $comment);
 }

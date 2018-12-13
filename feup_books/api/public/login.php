@@ -11,7 +11,8 @@ $methods = ['GET', 'PUT'];
 
 $actions = [
     'login'  => ['PUT', ['username', 'login'], ['password']],
-    'logout' => ['GET', ['logout']]
+    'logout' => ['GET', ['logout']],
+    'auth'   => ['GET', ['auth']]
 ];
 
 /**
@@ -64,5 +65,9 @@ if ($action === 'logout') {
         $authname = $auth['username'];
         HTTPResponse::accepted("Successfully logged out $authname");
     }
+}
+
+if ($action === 'auth') {
+    HTTPResponse::ok("Login query", $auth);
 }
 ?>

@@ -15,7 +15,7 @@ CREATE TABLE User (
   --  'createdat'    INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
   --  'updatedat'    INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
     'hash'          TEXT NOT NULL,
-    'admin'         INTEGER NOT NULL DEFAULT 1,
+    'admin'         INTEGER NOT NULL DEFAULT 0,
     CONSTRAINT BooleanAdmin CHECK (admin IN (0,1))
 );
 
@@ -82,7 +82,7 @@ CREATE TABLE Save (
 CREATE TABLE Vote (
     'entityid'      INTEGER NOT NULL,
     'userid'        INTEGER NOT NULL,
-    'vote'          CHAR NOT NULL DEFAULT '+',
+    'vote'          CHAR NOT NULL,
     FOREIGN KEY('entityid') REFERENCES Entity('entityid') ON DELETE CASCADE,
     FOREIGN KEY('userid') REFERENCES User('userid') ON DELETE CASCADE,
     PRIMARY KEY('entityid','userid'),

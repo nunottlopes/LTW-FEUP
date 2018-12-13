@@ -23,7 +23,7 @@ class DB {
         $path = $_SERVER['DOCUMENT_ROOT'] . static::$apipath;
 
         static::$db = new PDO('sqlite:' . $path, 
-            '', '', [PDO::ATTR_PERSISTENT => true]);
+            '', '', [/*PDO::ATTR_PERSISTENT => true*/]);
 
         if (static::$db == null) {
             throw new Error("Failed to open database at $path");

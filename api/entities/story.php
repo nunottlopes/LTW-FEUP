@@ -171,6 +171,98 @@ class Story extends APIEntity {
     }
 
     /**
+     * VOTED READ
+     */
+    public static function getChannelAuthorVoted(int $channelid, int $authorid,
+            int $userid, array $more = []) {
+        $sorttable = static::sortTablename($more);
+
+        $query = "
+            SELECT ST.*, coalesce(V.vote, '') vote
+            FROM $sorttable ST NATURAL JOIN UserVote V
+            WHERE channelid = ? AND authorid = ? AND V.userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
+            ";
+
+        $queryArguments = static::extend([$channelid, $authorid, $userid], $more);
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute($queryArguments);
+        return static::fetchAll($stmt);
+    }
+
+    public static function getChannelVoted(int $channelid, int $userid, array $more = []) {
+        $sorttable = static::sortTablename($more);
+
+        $query = "
+            SELECT ST.*, coalesce(V.vote, '') vote
+            FROM $sorttable ST NATURAL JOIN UserVote V
+            WHERE channelid = ? AND V.userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
+            ";
+
+        $queryArguments = static::extend([$channelid, $userid], $more);
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute($queryArguments);
+        return static::fetchAll($stmt);
+    }
+
+    public static function getAuthorVoted(int $authorid, int $userid, array $more = []) {
+        $sorttable = static::sortTablename($more);
+
+        $query = "
+            SELECT ST.*, coalesce(V.vote, '') vote
+            FROM $sorttable ST NATURAL JOIN UserVote V
+            WHERE authorid = ? AND V.userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
+            ";
+
+        $queryArguments = static::extend([$authorid, $userid], $more);
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute($queryArguments);
+        return static::fetchAll($stmt);
+    }
+
+    public static function readVoted(int $entityid, int $userid) {
+        $query = '
+            SELECT SA.*, coalesce(V.vote, "") vote
+            FROM StoryAll SA NATURAL JOIN UserVote V
+            WHERE entityid = ? AND V.userid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$entityid, $userid]);
+        return static::fetch($stmt);
+    }
+
+    public static function readAllVoted(int $userid, array $more = []) {
+        $sorttable = static::sortTablename($more);
+
+        $query = "
+            SELECT ST.*, coalesce(V.vote, '') vote
+            FROM $sorttable ST NATURAL JOIN UserVote V
+            WHERE V.userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
+            ";
+
+        $queryArguments = static::extend([$userid], $more);
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute($queryArguments);
+        return static::fetchAll($stmt);
+    }
+
+    /**
      * UPDATE
      */
     public static function update(int $entityid, string $content) {

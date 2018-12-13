@@ -15,69 +15,89 @@ var api = {
     "handlers": {
         counter: 0,
 
+        unhandled: [],
+
         200: function(response) {
             console.warn("API.FETCH UNHANDLED --- 200 OK");
             console.log(response); ++api.handlers.counter;
+            api.handlers.unhandled.push(response);
             response.json().then(json => console.log(json));
         },
 
         201: function(response) {
             console.warn("API.FETCH UNHANDLED --- 201 Created");
             console.log(response); ++api.handlers.counter;
+            api.handlers.unhandled.push(response);
             response.json().then(json => console.log(json));
         },
 
         202: function(response) {
             console.warn("API.FETCH UNHANDLED --- 202 Accepted");
             console.log(response); ++api.handlers.counter;
+            api.handlers.unhandled.push(response);
             response.json().then(json => console.log(json));
         },
 
         300: function(response) {
             console.warn("API.FETCH UNHANDLED --- 300 Multiple Choices");
             console.log(response); ++api.handlers.counter;
+            api.handlers.unhandled.push(response);
             response.json().then(json => console.log(json));
         },
 
         400: function(response) {
             console.warn("API.FETCH UNHANDLED --- 400 Bad Request");
             console.log(response); ++api.handlers.counter;
+            api.handlers.unhandled.push(response);
             response.json().then(json => console.log(json));
         },
 
         401: function(response) {
             console.warn("API.FETCH UNHANDLED --- 401 Unauthorized");
             console.log(response); ++api.handlers.counter;
+            api.handlers.unhandled.push(response);
             response.json().then(json => console.log(json));
         },
 
         403: function(response) {
             console.warn("API.FETCH UNHANDLED --- 403 Forbidden");
             console.log(response); ++api.handlers.counter;
+            api.handlers.unhandled.push(response);
             response.json().then(json => console.log(json));
         },
 
         404: function(response) {
             console.warn("API.FETCH UNHANDLED --- 404 Not Found");
             console.log(response); ++api.handlers.counter;
+            api.handlers.unhandled.push(response);
             response.json().then(json => console.log(json));
         },
 
         405: function(response) {
             console.warn("API.FETCH UNHANDLED --- 405 Method Not Allowed");
             console.log(response); ++api.handlers.counter;
+            api.handlers.unhandled.push(response);
+            response.json().then(json => console.log(json));
+        },
+
+        415: function(response) {
+            console.warn("API.FETCH UNHANDLED --- 415 Unsupported Media Type");
+            console.log(response); ++api.handlers.counter;
+            api.handlers.unhandled.push(response);
             response.json().then(json => console.log(json));
         },
 
         500: function(response) {
             console.warn("API.FETCH UNHANDLED --- 500 Server Error");
             console.log(response); ++api.handlers.counter;
+            api.handlers.unhandled.push(response);
             response.text().then(text => console.log(text));
         },
 
         503: function(response) {
             console.warn("API.FETCH UNHANDLED --- 503 Service Unavailable");
             console.log(response); ++api.handlers.counter;
+            api.handlers.unhandled.push(response);
             response.text().then(text => console.log(text));
         }
     },
@@ -135,6 +155,7 @@ var api = {
 
     "post": function(resource, query, data, userExpect) {
         userExpect = userExpect || [201, 404];
+        if (typeof data !== 'object') throw "Invalid data in post()";
         return this.fetch(resource, query, {
             method: 'POST',
             headers: {
@@ -146,6 +167,7 @@ var api = {
 
     "put": function(resource, query, data, userExpect) {
         userExpect = userExpect || [200, 201, 404];
+        if (typeof data !== 'object') throw "Invalid data in put()";
         return this.fetch(resource, query, {
             method: 'PUT',
             headers: {
@@ -157,6 +179,7 @@ var api = {
 
     "patch": function(resource, query, data, userExpect) {
         userExpect = userExpect || [200, 404];
+        if (typeof data !== 'object') throw "Invalid data in patch()";
         return this.fetch(resource, query, {
             method: 'PATCH',
             headers: {
@@ -276,13 +299,15 @@ var api = {
         return api.put("login", {
             login: 1,
             username: username
-        }, {password: password}, expect || [202, 401]);
+        }, {password: password}, expect || [202, 403]);
     },
 
     "logout": function logout(expect) {
-        return api.get("login", {
-            logout: 1
-        }, expect || [202]);
+        return api.get("login", "logout", expect || [202]);
+    },
+
+    "auth": function auth() {
+        return api.get("login", "auth", [200]);
     },
 
     "test": {

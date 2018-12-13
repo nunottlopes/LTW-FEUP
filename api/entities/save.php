@@ -92,7 +92,7 @@ class Save extends APIEntity {
      */
     public static function getComment(int $entityid, array $more = []) {
         $query = '
-            SELECT * FROM Save
+            SELECT * FROM SaveUser
             WHERE entityid = ? AND entityid IN (SELECT entityid FROM Comment)
             ORDER BY savedat DESC
             LIMIT ? OFFSET ?
@@ -107,7 +107,7 @@ class Save extends APIEntity {
 
     public static function getStory(int $entityid, array $more = []) {
         $query = '
-            SELECT * FROM Save
+            SELECT * FROM SaveUser
             WHERE entityid = ? AND entityid IN (SELECT entityid FROM Story)
             ORDER BY savedat DESC
             LIMIT ? OFFSET ?
@@ -130,7 +130,7 @@ class Save extends APIEntity {
 
     public static function getUserComments(int $userid, array $more = []) {
         $query = '
-            SELECT * FROM SaveComment
+            SELECT * FROM SaveUserComment
             WHERE userid = ?
             ORDER BY savedat DESC
             LIMIT ? OFFSET ?
@@ -145,7 +145,7 @@ class Save extends APIEntity {
 
     public static function getUserStories(int $userid, array $more = []) {
         $query = '
-            SELECT * FROM SaveStory
+            SELECT * FROM SaveUserStory
             WHERE userid = ?
             ORDER BY savedat DESC
             LIMIT ? OFFSET ?

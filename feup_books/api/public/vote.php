@@ -72,9 +72,9 @@ if ($action === 'put') {
     if ($vote === 'downvote') $vote = '-';
 
     if ($vote === '+') {
-        Vote::upvote($entityid, $userid);
+        $count = Vote::upvote($entityid, $userid);
     } else if ($vote === '-') {
-        Vote::downvote($entityid, $userid);
+        $count = Vote::downvote($entityid, $userid);
     } else {
         HTTPResponse::badRequest('Invalid vote', ['vote' => $vote]);
     }

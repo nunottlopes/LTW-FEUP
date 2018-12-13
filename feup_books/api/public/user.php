@@ -117,23 +117,23 @@ if ($action === 'create') {
     $password = $body['password'];
 
     if (!User::validUsername($username)) {
-        HTTPResponse::invalid('username', User::$usernameRequires);
+        HTTPResponse::invalid('username', $username, User::$usernameRequires);
     }
 
     if (!User::validEmail($useremail)) {
-        HTTPResponse::invalid('email', 'Valid email');
+        HTTPResponse::invalid('email', $email, 'Valid email');
     }
 
     if (!User::validPassword($password)) {
-        HTTPResponse::invalid('password', User::$passwordRequires);
+        HTTPResponse::invalid('password', null, User::$passwordRequires);
     }
 
     if (User::getByUsername($username)) {
-        HTTPResponse::conflict("Already existing username", 'username', $username);
+        HTTPResponse::conflict('username', $username, "Already existing username");
     }
 
     if (User::getByEmail($useremail)) {
-        HTTPResponse::conflict("Email already in use", 'email', $useremail);
+        HTTPResponse::conflict('email', $useremail, "Email already in use");
     }
 
     $userid = User::create($username, $useremail, $password);

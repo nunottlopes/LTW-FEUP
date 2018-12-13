@@ -187,6 +187,8 @@ async function testlogin() {
 
     await api.user.get("self"); // 403
 
+    await api.auth();
+
     testfooter();
 }
 

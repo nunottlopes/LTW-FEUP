@@ -91,7 +91,7 @@ class Comment extends APIEntity {
         $sorttable = static::sortTablename($more);
 
         $query = "
-            SELECT * FROM $sorttable WHERE parentid = ? AND authorid = ?
+            SELECT * FROM $sorttable ST WHERE parentid = ? AND authorid = ?
             AND createdat >= ?
             ORDER BY rating DESC
             LIMIT ? OFFSET ?
@@ -108,7 +108,7 @@ class Comment extends APIEntity {
         $sorttable = static::sortTablename($more);
 
         $query = "
-            SELECT * FROM $sorttable WHERE parentid = ?
+            SELECT * FROM $sorttable ST WHERE parentid = ?
             AND createdat >= ?
             ORDER BY rating DESC
             LIMIT ? OFFSET ?
@@ -125,7 +125,7 @@ class Comment extends APIEntity {
         $sorttable = static::sortTablename($more);
 
         $query = "
-            SELECT * FROM $sorttable WHERE authorid = ?
+            SELECT * FROM $sorttable ST WHERE authorid = ?
             AND createdat >= ?
             ORDER BY rating DESC
             LIMIT ? OFFSET ?
@@ -152,13 +152,105 @@ class Comment extends APIEntity {
         $sorttable = static::sortTablename($more);
 
         $query = "
-            SELECT * FROM $sorttable
+            SELECT * FROM $sorttable ST
             WHERE createdat >= ?
             ORDER BY rating DESC
             LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([], $more);
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute($queryArguments);
+        return static::fetchAll($stmt);
+    }
+
+    /**
+     * VOTED READ
+     */
+    public static function getChildrenAuthorVoted(int $parentid, int $authorid,
+            int $userid, array $more = []) {
+        $sorttable = static::sortTablename($more);
+
+        $query = "
+            SELECT ST.*, coalesce(V.vote, '') vote
+            FROM $sorttable ST NATURAL JOIN UserVote V
+            WHERE parentid = ? AND authorid = ? AND V.userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
+            ";
+
+        $queryArguments = static::extend([$parentid, $authorid, $userid], $more);
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute($queryArguments);
+        return static::fetchAll($stmt);
+    }
+
+    public static function getChildrenVoted(int $parentid, int $userid, array $more = []) {
+        $sorttable = static::sortTablename($more);
+
+        $query = "
+            SELECT ST.*, coalesce(V.vote, '') vote
+            FROM $sorttable ST NATURAL JOIN UserVote V
+            WHERE parentid = ? AND V.userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
+            ";
+
+        $queryArguments = static::extend([$parentid, $userid], $more);
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute($queryArguments);
+        return static::fetchAll($stmt);
+    }
+
+    public static function getAuthorVoted(int $authorid, int $userid, array $more = []) {
+        $sorttable = static::sortTablename($more);
+
+        $query = "
+            SELECT ST.*, coalesce(V.vote, '') vote
+            FROM $sorttable ST NATURAL JOIN UserVote V
+            WHERE authorid = ? AND V.userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
+            ";
+
+        $queryArguments = static::extend([$authorid, $userid], $more);
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute($queryArguments);
+        return static::fetchAll($stmt);
+    }
+
+    public static function readVoted(int $id, int $userid) {
+        $query = '
+            SELECT CA.*, coalesce(V.vote, "") vote
+            FROM CommentAll CA NATURAL JOIN UserVote V
+            WHERE CA.entityid = ? AND V.userid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$id, $userid]);
+        return static::fetch($stmt);
+    }
+
+    public static function readAllVoted(int $userid, array $more = []) {
+        $sorttable = static::sortTablename($more);
+
+        $query = "
+            SELECT ST.*, coalesce(V.vote, '') vote
+            FROM $sorttable ST NATURAL JOIN UserVote V
+            WHERE V.userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
+            ";
+
+        $queryArguments = static::extend([$userid], $more);
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute($queryArguments);
