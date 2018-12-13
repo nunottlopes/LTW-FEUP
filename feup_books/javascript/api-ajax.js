@@ -88,39 +88,6 @@ var api = {
         return url;
     },
 
-    "test": function(resource, query, userInit, userExpect) {
-        const url = this.resource(resource, query);
-        const expect = new Set(userExpect || this.settings.expect);
-        const init = Object.assign({
-            method: 'GET',
-            mode: 'same-origin',
-            credentials: this.settings.credentials,
-            redirect: this.settings.redirect
-        }, userInit || {});
-
-        return window.fetch(url, init).then(function(response) {
-            const status = response.status;
-            const headers = response.headers;
-
-            let string = '<pre style="font-size:150%">';
-
-            response.json().then(function(json) {
-                string += init.method + ' ' + url + ' ';
-                string += status + ' ' + response.statusText + '\n';
-
-                for (const header of headers.entries()) {
-                    const h = header[0], v = header[1];
-                    string += h + ': ' + v + '\n';
-                }
-
-                string += '\n' + JSON.stringify(json, null, 4);
-                string += '</pre>';
-
-                document.querySelector('body').innerHTML = string;
-            });
-        });
-    },
-
     "ajax": function(resource, query, userInit, userExpect) {
         const url = this.resource(resource, query);
         const expect = new Set(userExpect || this.settings.expect);
@@ -150,7 +117,7 @@ var api = {
 
     "fetch": function(resource, query, userInit, userExpect) {
         if (window.APITEST) {
-            return this.test(resource, query, userInit, userExpect);
+            return this.test.ajax(resource, query, userInit, userExpect);
         } else {
             return this.ajax(resource, query, userInit, userExpect);
         }
@@ -296,6 +263,12 @@ var api = {
         },
         "delete": function(query, expect) {
             return api.delete('vote', query, expect);
+        },
+        "upvote": function(query, expect) {
+            return this.put(query, {vote: '+'}, expect);
+        },
+        "downvote": function(query, expect) {
+            return this.put(query, {vote: '-'}, expect);
         }
     },
 
@@ -310,5 +283,66 @@ var api = {
         return api.get("login", {
             logout: 1
         }, expect || [202]);
+    },
+
+    "test": {
+        ajax: function(resource, query, userInit, userExpect) {
+            const url = api.resource(resource, query);
+            const expect = new Set(userExpect || api.settings.expect);
+            const init = Object.assign({
+                method: 'GET',
+                mode: 'same-origin',
+                credentials: api.settings.credentials,
+                redirect: api.settings.redirect
+            }, userInit || {});
+
+            const closure = {};
+
+            return window.fetch(url, init).then(function(response) {
+                closure.response = response;
+
+                const status = response.status;
+
+                if (!api.test.codes[status]) api.test.codes[status] = 0;
+                ++api.test.codes[status];
+
+                api.test.responses.push(response);
+
+                return response.json();
+            }).then(function(json) {
+                const response = closure.response;
+                const status = response.status, headers = response.headers;
+
+                api.test.json.push(json);
+                let string = '<pre style="font-size:150%">';
+
+                string += init.method + ' ' + url + ' ';
+                string += status + ' ' + response.statusText + '\n';
+
+                for (const header of headers.entries()) {
+                    const h = header[0], v = header[1];
+                    string += h + ': ' + v + '\n';
+                }
+
+                string += '\n' + JSON.stringify(json, null, 4);
+                string += '</pre>';
+
+                document.querySelector('body').innerHTML = string;
+
+                return json;
+            }).catch(function(reason) {
+                console.warn("ERROR: ", reason);
+            });
+        },
+
+        responses: [],
+        json: [],
+        codes: {},
+
+        clear: function() {
+            this.responses.length = 0;
+            this.json.length = 0;
+            this.codes = {};
+        }
     }
 };

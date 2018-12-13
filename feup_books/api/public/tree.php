@@ -12,7 +12,7 @@ $methods = ['GET'];
 $actions = [
     'get-tree'     => ['GET', ['ascendantid'], [], ['order', 'maxdepth', 'since', 'limit', 'offset']],
     'get-ancestry' => ['GET', ['descendantid']],
-    'get-storyof'  => ['GET', ['commentid', 'story']]
+    'get-storyof'  => ['GET', ['commentid', 'storyof']]
 ];
 
 /**
@@ -77,7 +77,7 @@ if ($action === 'get-ancestry') {
     HTTPResponse::ok("Ancestry of $descendantid", $ancestry);
 }
 
-if ($action === 'get-comment') {
+if ($action === 'get-storyof') {
     $story = Tree::getStoryOf($commentid);
 
     HTTPResponse::ok("Story of comment $commentid", $story);

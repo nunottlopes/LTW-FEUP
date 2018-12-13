@@ -10,7 +10,7 @@ class Comment extends APIEntity {
     protected static $defaultSince = 0;
     protected static $defaultLimit = 50;
     protected static $defaultOffset = 0;
-    protected static $defaultSortTable = 'CommentAll';
+    protected static $defaultSortTable = 'CommentSortBest';
 
     /**
      * Extend a normal query's arguments $args with since, limit and offset.
@@ -66,7 +66,7 @@ class Comment extends APIEntity {
      */
     public static function create(int $parentid, int $authorid, string $content) {
         $query = '
-            INSERT INTO CommentEntity(parentid, authorid, content)
+            INSERT INTO Comment(parentid, authorid, content)
             VALUES (?, ?, ?)
             ';
 
@@ -75,9 +75,9 @@ class Comment extends APIEntity {
         try {
             DB::get()->beginTransaction();
             $stmt->execute([$parentid, $authorid, $content]);
-            $id = (int)DB::get()->lastInsertId();
+            $row = DB::get()->query('SELECT max(entityid) id FROM Entity')->fetch();
             DB::get()->commit();
-            return $id;
+            return (int)$row['id'];
         } catch (PDOException $e) {
             DB::get()->rollback();
             return false;
@@ -92,7 +92,9 @@ class Comment extends APIEntity {
 
         $query = "
             SELECT * FROM $sorttable WHERE parentid = ? AND authorid = ?
-            AND createdat >= ? LIMIT ? OFFSET ?
+            AND createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([$parentid, $authorid], $more);
@@ -107,7 +109,9 @@ class Comment extends APIEntity {
 
         $query = "
             SELECT * FROM $sorttable WHERE parentid = ?
-            AND createdat >= ? LIMIT ? OFFSET ?
+            AND createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([$parentid], $more);
@@ -122,7 +126,9 @@ class Comment extends APIEntity {
 
         $query = "
             SELECT * FROM $sorttable WHERE authorid = ?
-            AND createdat >= ? LIMIT ? OFFSET ?
+            AND createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([$authorid], $more);
@@ -147,7 +153,9 @@ class Comment extends APIEntity {
 
         $query = "
             SELECT * FROM $sorttable
-            AND createdat >= ? LIMIT ? OFFSET ?
+            WHERE createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([], $more);
@@ -160,35 +168,35 @@ class Comment extends APIEntity {
     /**
      * UPDATE
      */
-    public static function update(int $id, string $content) {
+    public static function update(int $entityid, string $content) {
         $query = '
-            UPDATE CommentEntity SET content = ? WHERE entityid = ?
+            UPDATE Comment SET content = ? WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$content, $id]);
+        $stmt->execute([$content, $entityid]);
         return $stmt->rowCount();
     }
 
-    public static function clear(int $id) {
+    public static function clear(int $entityid) {
         $query = '
-            UPDATE CommentEntity SET content = "" WHERE entityid = ?
+            UPDATE Comment SET content = "" WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        return $stmt->execute([$id]);
+        return $stmt->execute([$entityid]);
     }
 
     /**
      * DELETE
      */
-    public static function delete(int $id) {
+    public static function delete(int $entityid) {
         $query = '
             DELETE FROM Comment WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$id]);
+        $stmt->execute([$entityid]);
         return $stmt->rowCount();
     }
 

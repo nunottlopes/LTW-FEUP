@@ -180,11 +180,22 @@ class User extends APIEntity {
     /**
      * AUTHENTICATE
      */
+    public static function isAdmin(int $userid) {
+        $query = '
+            SELECT admin FROM User WHERE userid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$userid]);
+        $row = static::fetch();
+        return $row ? (bool)$row['admin'] : false;
+    }
+
     public static function authenticate(string $name, string $password, &$error = null) {
         $user = static::getHash($name);
 
         if (!$user) {
-            $error = 'User $username does not exist'; // no it doesn't
+            $error = "User $name does not exist"; // no it doesn't
             return false;
         }
 

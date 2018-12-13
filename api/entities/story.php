@@ -10,7 +10,7 @@ class Story extends APIEntity {
     protected static $defaultSince = 0;
     protected static $defaultLimit = 25;
     protected static $defaultOffset = 0;
-    protected static $defaultSortTable = 'StoryAll';
+    protected static $defaultSortTable = 'StorySortBest';
 
     /**
      * AUXILIARY
@@ -67,7 +67,7 @@ class Story extends APIEntity {
     public static function create(string $channelid, int $authorid, string $title,
             string $type, string $content) {
         $query = '
-            INSERT INTO StoryEntity(channelid, authorid, storyTitle, storyType, content)
+            INSERT INTO Story(channelid, authorid, storyTitle, storyType, content)
             VALUES (?, ?, ?, ?, ?)
             ';
 
@@ -76,9 +76,9 @@ class Story extends APIEntity {
         try {
             DB::get()->beginTransaction();
             $stmt->execute([$channelid, $authorid, $title, $type, $content]);
-            $id = (int)DB::get()->lastInsertId("Story");
+            $row = DB::get()->query('SELECT max(entityid) id FROM Entity')->fetch();
             DB::get()->commit();
-            return $id;
+            return (int)$row['id'];
         } catch (PDOException $e) {
             DB::get()->rollback();
             return false;
@@ -94,7 +94,9 @@ class Story extends APIEntity {
         $query = "
             SELECT * FROM $sorttable
             WHERE channelid = ? AND authorid = ?
-            AND createdat >= ? LIMIT ? OFFSET ?
+            AND createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([$channelid, $authorid], $more);
@@ -110,7 +112,9 @@ class Story extends APIEntity {
         $query = "
             SELECT * FROM $sorttable
             WHERE channelid = ?
-            AND createdat >= ? LIMIT ? OFFSET ?
+            AND createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([$channelid], $more);
@@ -126,7 +130,9 @@ class Story extends APIEntity {
         $query = "
             SELECT * FROM $sorttable
             WHERE authorid = ?
-            AND createdat >= ? LIMIT ? OFFSET ?
+            AND createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([$authorid], $more);
@@ -136,14 +142,14 @@ class Story extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function read(int $id) {
+    public static function read(int $entityid) {
         $query = '
             SELECT * FROM StoryAll
             WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$id]);
+        $stmt->execute([$entityid]);
         return static::fetch($stmt);
     }
 
@@ -152,7 +158,9 @@ class Story extends APIEntity {
 
         $query = "
             SELECT * FROM $sorttable
-            WHERE createdat >= ? LIMIT ? OFFSET ?
+            WHERE createdat >= ?
+            ORDER BY rating DESC
+            LIMIT ? OFFSET ?
             ";
 
         $queryArguments = static::extend([], $more);
@@ -165,26 +173,66 @@ class Story extends APIEntity {
     /**
      * UPDATE
      */
-    public static function update(int $id, string $content) {
+    public static function update(int $entityid, string $content) {
         $query = '
-            UPDATE StoryEntity SET content = ? WHERE entityid = ?
+            UPDATE Story SET content = ? WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$content, $id]);
+        $stmt->execute([$content, $entityid]);
         return $stmt->rowCount();
     }
 
     /**
      * DELETE
      */
-    public static function delete(int $id) {
+    public static function delete(int $entityid) {
         $query = '
             DELETE FROM Story WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$id]);
+        $stmt->execute([$entityid]);
+        return $stmt->rowCount();
+    }
+
+    public static function deleteAuthor(int $authorid) {
+        $query = '
+            DELETE FROM Story WHERE authorid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$authorid]);
+        return $stmt->rowCount();
+    }
+
+    public static function deleteChannel(int $channelid) {
+        $query = '
+            DELETE FROM Story WHERE channelid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$channelid]);
+        return $stmt->rowCount();
+    }
+
+    public static function deleteChannelAuthor(int $channelid, int $authorid) {
+        $query = '
+            DELETE FROM Story WHERE channelid = ? AND authorid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$channelid, $authorid]);
+        return $stmt->rowCount();
+    }
+
+    public static function deleteAll() {
+        $query = '
+            DELETE FROM Story
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute();
         return $stmt->rowCount();
     }
 }

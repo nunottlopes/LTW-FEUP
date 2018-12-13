@@ -23,5 +23,5 @@ echo '<pre>';
 echo json_encode($hashes, JSON_PRETTY_PRINT);
 echo '</pre>'
 
-// This is an old file used to generate password hashes for db/sql/populate.sql
+// This is an old file used to generate password hashes for sql/populate.sql
 ?>

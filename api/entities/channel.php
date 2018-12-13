@@ -13,7 +13,7 @@ class Channel extends APIEntity {
 
     public static function check(string $channelname) {
         if (!static::valid($channelname)) {
-            throw new Error($error);
+            throw new Error("Invalid channelname");
         }
     }
 
@@ -47,7 +47,7 @@ class Channel extends APIEntity {
      */
     public static function get(string $channelname) {
         $query = '
-            SELECT * FROM Channel WHERE channelname = ?
+            SELECT * FROM ChannelCreator WHERE channelname = ?
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -57,7 +57,7 @@ class Channel extends APIEntity {
 
     public static function read(int $channelid) {
         $query = '
-            SELECT * FROM Channel WHERE channelid = ?
+            SELECT * FROM ChannelCreator WHERE channelid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -67,7 +67,7 @@ class Channel extends APIEntity {
 
     public static function readAll() {
         $query = '
-            SELECT * FROM Channel
+            SELECT * FROM ChannelCreator
             ';
 
         $stmt = DB::get()->prepare($query);

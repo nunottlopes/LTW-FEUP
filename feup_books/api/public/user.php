@@ -21,8 +21,9 @@ $actions = [
     'valid-email'     => ['GET', ['valid-email']],
 
     'delete-id'       => ['DELETE', ['userid']],
-    'delete-name'     => ['DELETE', ['username']],
+    'delete-username' => ['DELETE', ['username']],
     'delete-email'    => ['DELETE', ['email']]
+    // no delete-all for users
 ];
 
 /**
@@ -202,10 +203,6 @@ if ($action === 'admin') {
 if ($action === 'delete-id') {
     $auth = Auth::demandLevel('authid', $userid);
 
-    if (Auth::isAdminUser($userid)) {
-        HTTPResponse::badRequest("Cannot delete admin account");
-    }
-
     $count = User::delete($userid);
 
     $data = ['count' => $count];
@@ -213,12 +210,8 @@ if ($action === 'delete-id') {
     HTTPResponse::deleted("Deleted user $userid", $data);
 }
 
-if ($action === 'delete-name') {
+if ($action === 'delete-username') {
     $auth = Auth::demandLevel('authid', $userid);
-
-    if (Auth::isAdminUser($userid)) {
-        HTTPResponse::badRequest("Cannot delete admin account");
-    }
 
     $count = User::delete($userid);
 
@@ -229,10 +222,6 @@ if ($action === 'delete-name') {
 
 if ($action === 'delete-email') {
     $auth = Auth::demandLevel('authid', $userid);
-
-    if (Auth::isAdminUser($userid)) {
-        HTTPResponse::badRequest("Cannot delete admin account");
-    }
 
     $count = User::delete($userid);
 

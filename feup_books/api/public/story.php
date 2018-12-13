@@ -24,7 +24,7 @@ $actions = [
     'delete-channel-author' => ['DELETE', ['channelid', 'authorid']],
     'delete-channel'        => ['DELETE', ['channelid']],
     'delete-author'         => ['DELETE', ['authorid']],
-    'delete-all'            => ['DELETE', ['all']],
+    'delete-all'            => ['DELETE', ['all']]
 ];
 
 /**
@@ -166,11 +166,11 @@ if ($action === 'delete-id') {
 if ($action === 'delete-channel-author') {
     $auth = Auth::demandLevel('authid', $authorid);
 
-    $count = Story::deleteChannelUser($channelid, $authorid);
+    $count = Story::deleteChannelAuthor($channelid, $authorid);
 
     $data = ['count' => $count];
 
-    HTTPResponse::deleted("Deleted stories of user $userid in channel $channelid", $data);
+    HTTPResponse::deleted("Deleted stories of user $authorid in channel $channelid", $data);
 }
 
 if ($action === 'delete-channel') {
@@ -186,11 +186,11 @@ if ($action === 'delete-channel') {
 if ($action === 'delete-author') {
     $auth = Auth::demandLevel('authid', $authorid);
 
-    $count = Story::deleteUser($authorid);
+    $count = Story::deleteAuthor($authorid);
 
     $data = ['count' => $count];
 
-    HTTPResponse::deleted("Deleted stories of user $userid", $data);
+    HTTPResponse::deleted("Deleted stories of user $authorid", $data);
 }
 
 if ($action === 'delete-all') {

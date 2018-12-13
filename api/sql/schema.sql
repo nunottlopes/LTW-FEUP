@@ -16,17 +16,15 @@ CREATE TABLE User (
   --  'updatedat'    INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
     'hash'          TEXT NOT NULL,
     'admin'         INTEGER NOT NULL DEFAULT 1,
-    CHECK (admin IN (0,1))
+    CONSTRAINT BooleanAdmin CHECK (admin IN (0,1))
 );
 
 CREATE TABLE Entity (
-    'entityid'      INTEGER NOT NULL PRIMARY KEY,
-    'authorid'      INTEGER,
+    'entityid'      INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     'createdat'     INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
     'updatedat'     INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
     'upvotes'       INTEGER NOT NULL DEFAULT 0,
     'downvotes'     INTEGER NOT NULL DEFAULT 0,
-    FOREIGN KEY('authorid') REFERENCES User('userid') ON DELETE SET NULL,
     CONSTRAINT PositiveUpvotes CHECK (upvotes >= 0),
     CONSTRAINT PositiveDownvotes CHECK (downvotes >= 0),
     CONSTRAINT UpdateTime CHECK (updatedat >= createdat)
@@ -41,19 +39,23 @@ CREATE TABLE Channel (
 
 CREATE TABLE Story (
     'entityid'      INTEGER NOT NULL PRIMARY KEY,
-    'channelid'     INTEGER,
+    'authorid'      INTEGER,
+    'channelid'     INTEGER NOT NULL,
     'storyTitle'    TEXT NOT NULL,
     'storyType'     TEXT NOT NULL,
     'content'       TEXT NOT NULL,
     FOREIGN KEY('entityid') REFERENCES Entity('entityid') ON DELETE CASCADE,
-    FOREIGN KEY('channelid') REFERENCES Channel('channelid') ON DELETE SET NULL
+    FOREIGN KEY('authorid') REFERENCES User('userid') ON DELETE SET NULL,
+    FOREIGN KEY('channelid') REFERENCES Channel('channelid') ON DELETE CASCADE
 );
 
 CREATE TABLE Comment (
     'entityid'      INTEGER NOT NULL PRIMARY KEY,
+    'authorid'      INTEGER,
     'parentid'      INTEGER NOT NULL,
     'content'       TEXT NOT NULL,
     FOREIGN KEY('entityid') REFERENCES Entity('entityid') ON DELETE CASCADE,
+    FOREIGN KEY('authorid') REFERENCES User('userid') ON DELETE SET NULL,
     FOREIGN KEY('parentid') REFERENCES Entity('entityid') ON DELETE CASCADE
 );
 
@@ -64,6 +66,7 @@ CREATE TABLE Tree ( -- ClosureTable
     FOREIGN KEY('ascendantid') REFERENCES Entity('entityid') ON DELETE CASCADE,
     FOREIGN KEY('descendantid') REFERENCES Entity('entityid') ON DELETE CASCADE,
     PRIMARY KEY('ascendantid', 'descendantid'),
+    CONSTRAINT PositiveDepth CHECK (depth > 0),
     CONSTRAINT OneParent UNIQUE('descendantid', 'depth') -- Should create an implicit index
 );
 
@@ -83,7 +86,7 @@ CREATE TABLE Vote (
     FOREIGN KEY('entityid') REFERENCES Entity('entityid') ON DELETE CASCADE,
     FOREIGN KEY('userid') REFERENCES User('userid') ON DELETE CASCADE,
     PRIMARY KEY('entityid','userid'),
-    CHECK (vote IN ('+','-'))
+    CONSTRAINT UpDown CHECK (vote IN ('+','-'))
 );
 
 CREATE TABLE Subscribe (

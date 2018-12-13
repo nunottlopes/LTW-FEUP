@@ -5,7 +5,7 @@ require_once API::entity('user');
 /**
  * 1.1. LOAD resource description variables
  */
-$resource = 'user';
+$resource = 'login';
 
 $methods = ['GET', 'PUT'];
 
@@ -58,9 +58,10 @@ if ($action === 'login') {
 if ($action === 'logout') {
     Auth::logout();
 
-    if ($auth === true) {
+    if ($auth == null) {
         HTTPResponse::accepted("Not logged in");
     } else {
+        $authname = $auth['username'];
         HTTPResponse::accepted("Successfully logged out $authname");
     }
 }

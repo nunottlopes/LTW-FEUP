@@ -99,7 +99,7 @@ class Tree extends APIEntity {
     public static function getAncestry(int $descendantid) {
         $query = '
             SELECT * FROM CommentAncestryTree WHERE descendantid = ?
-            ORDER BY depth ASC;
+            ORDER BY level ASC;
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -122,7 +122,7 @@ class Tree extends APIEntity {
         return $line;
     }
 
-    public static function getAllDescendants(int $ascendantid, array $more) {
+    private static function getAllDescendants(int $ascendantid, array $more) {
         $sorttable = static::sortTablename($more);
 
         $query = "

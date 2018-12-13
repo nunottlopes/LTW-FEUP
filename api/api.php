@@ -176,15 +176,6 @@ class Auth {
     private static $authRegex = '/^Basic ((?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?)$/';
 
     /**
-     * Check if userid is an admin.
-     * Admin specs might change in the future, e.g. another column on the
-     * database's user table specifying authorization level, or specific username.
-     */
-    public static function isAdminUser(int $userid) {
-        return $userid === 0;
-    }
-
-    /**
      * Authenticate a user without creating a logged in session.
      *
      * Returns an object holding the userid, username and email if successful.
@@ -193,10 +184,6 @@ class Auth {
     public static function autho(string $name, string $password, &$error = null) {
         if (User::authenticate($name, $password, $error)) {
             $user = User::get($name);
-
-            $admin = static::isAdminUser($user['userid']);
-
-            $user['admin'] = $admin;
 
             return $user;
         }
@@ -221,13 +208,9 @@ class Auth {
             $_SESSION['userid'] = $user['userid'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['useremail'] = $user['email'];
+            $_SESSION['admin'] = $user['admin'];
             $_SESSION['login_timestamp'] = time();
             newCSRF();
-
-            $admin = static::isAdminUser($user['userid']);
-
-            $_SESSION['admin'] = $admin;
-            $user['admin'] = $admin;
 
             return $user;
         }
@@ -304,10 +287,10 @@ class Auth {
         $userid = $_SESSION['userid'];
 
         return [
-            'userid' => $userid,
+            'userid' => $_SESSION['userid'],
             'username' => $_SESSION['username'],
             'email' => $_SESSION['useremail'],
-            'admin' => static::isAdminUser($userid)
+            'admin' => $_SESSION['admin']
         ];
     }
 
@@ -871,6 +854,20 @@ class HTTPResponse {
     }
 
     /**
+     * 400 Wrong Credentials
+     * Wrong credentials
+     */
+    public static function wrongCredentials(string $reason) {
+        http_response_code(400);
+
+        $error = "Invalid credentials: $reason";
+
+        $data = ['reason' => $reason];
+
+        static::error('Wrong credentials', $error, $data);
+    }
+
+    /**
      * 400 Bad Request
      * General 400 error with a generic message and data JSON.
      */
@@ -878,22 +875,6 @@ class HTTPResponse {
         http_response_code(400);
 
         static::error('Bad Request', $error, $data);
-    }
-
-    /**
-     * 401 Unauthorized
-     * Wrong credentials
-     */
-    public static function wrongCredentials(string $reason) {
-        http_response_code(401);
-        $realm = static::$authenticationRealm;
-        header("WWW-Authenticate: Basic realm=\"$realm\"");
-
-        $error = "Invalid credentials: $reason";
-
-        $data = ['reason' => $reason];
-
-        static::error('Wrong credentials', $error, $data);
     }
 
     /**
@@ -910,7 +891,7 @@ class HTTPResponse {
             $error = "Unauthorized request: requires login";
 
             $data = [];
-        } else if (Auth::isAdminUser($userid)) {
+        } else if (User::isAdmin($userid)) {
             $error = "Unauthorized request: requires administrator login";
 
             $data = [];
@@ -935,7 +916,9 @@ class HTTPResponse {
             $error = "Forbidden request: requires privileged access";
         }
 
-        static::error('Forbidden', $error);
+        $data = ['reason' => $error];
+
+        static::error('Forbidden', $error, $data);
     }
 
     /**
@@ -945,7 +928,7 @@ class HTTPResponse {
     public static function notFound(string $resource) {
         http_response_code(404);
 
-        $error = "Requested resource does not exist: $resource";
+        $error = "Not found: $resource";
 
         $data = [
             'resource' => $resource

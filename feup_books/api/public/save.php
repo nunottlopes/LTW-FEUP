@@ -12,15 +12,15 @@ $methods = ['GET', 'PUT', 'DELETE'];
 $actions = [
     'put'               => ['PUT', ['entityid', 'userid']],
 
-    'get-comment'       => ['GET', ['commentid']],
-    'get-story'         => ['GET', ['storyid']],
-    'get-entity'        => ['GET', ['entityid']],
-    'get-user-comments' => ['GET', ['userid', 'comments']],
-    'get-user-stories'  => ['GET', ['userid', 'stories']],
-    'get-user-all'      => ['GET', ['userid', 'all']],
-    'get-comments'      => ['GET', ['comments']],
-    'get-stories'       => ['GET', ['stories']],
-    'get-all'           => ['GET', ['all']],
+    'get-comment'       => ['GET', ['commentid'], [], ['limit', 'offset']],
+    'get-story'         => ['GET', ['storyid'], [], ['limit', 'offset']],
+    'get-entity'        => ['GET', ['entityid'], [], ['limit', 'offset']],
+    'get-user-comments' => ['GET', ['userid', 'comments'], [], ['limit', 'offset']],
+    'get-user-stories'  => ['GET', ['userid', 'stories'], [], ['limit', 'offset']],
+    'get-user-all'      => ['GET', ['userid', 'all'], [], ['limit', 'offset']],
+    'get-comments'      => ['GET', ['comments'], [], ['limit', 'offset']],
+    'get-stories'       => ['GET', ['stories'], [], ['limit', 'offset']],
+    'get-all'           => ['GET', ['all'], [], ['limit', 'offset']],
 
     'delete-id'         => ['DELETE', ['entityid', 'userid']],
     'delete-user'       => ['DELETE', ['userid', 'all']],
@@ -110,7 +110,7 @@ if ($action === 'put') {
 if ($action === 'get-comment') {
     $auth = Auth::demandLevel('admin');
 
-    $saves = Save::getComment($commentid);
+    $saves = Save::getComment($commentid, $args);
 
     HTTPResponse::ok("All saves of comment $commentid", $saves);
 }
@@ -118,7 +118,7 @@ if ($action === 'get-comment') {
 if ($action === 'get-story') {
     $auth = Auth::demandLevel('admin');
 
-    $saves = Save::getStory($storyid);
+    $saves = Save::getStory($storyid, $args);
 
     HTTPResponse::ok("All saves of story $storyid", $saves);
 }
@@ -126,7 +126,7 @@ if ($action === 'get-story') {
 if ($action === 'get-entity') {
     $auth = Auth::demandLevel('admin');
 
-    $saves = Save::getEntity($entityid);
+    $saves = Save::getEntity($entityid, $args);
 
     HTTPResponse::ok("All saves of entity $entityid", $saves);
 }
@@ -134,7 +134,7 @@ if ($action === 'get-entity') {
 if ($action === 'get-user-comments') {
     $auth = Auth::demandLevel('authid', $userid);
 
-    $saves = Save::getUserComments($userid);
+    $saves = Save::getUserComments($userid, $args);
 
     HTTPResponse::ok("All saved comments of user $userid", $saves);
 }
@@ -142,7 +142,7 @@ if ($action === 'get-user-comments') {
 if ($action === 'get-user-stories') {
     $auth = Auth::demandLevel('authid', $userid);
 
-    $saves = Save::getUserStories($userid);
+    $saves = Save::getUserStories($userid, $args);
 
     HTTPResponse::ok("All saved stories of user $userid", $saves);
 }
@@ -150,7 +150,7 @@ if ($action === 'get-user-stories') {
 if ($action === 'get-user-all') {
     $auth = Auth::demandLevel('authid', $userid);
 
-    $saves = Save::getUserAll($userid);
+    $saves = Save::getUserAll($userid, $args);
 
     HTTPResponse::ok("All saves of user $userid", $saves);
 }
@@ -158,7 +158,7 @@ if ($action === 'get-user-all') {
 if ($action === 'get-comments') {
     $auth = Auth::demandLevel('admin');
 
-    $saves = Save::readAllComments();
+    $saves = Save::readAllComments($args);
 
     HTTPResponse::ok("All comment saves", $saves);
 }
@@ -166,7 +166,7 @@ if ($action === 'get-comments') {
 if ($action === 'get-stories') {
     $auth = Auth::demandLevel('admin');
 
-    $saves = Save::readAllStories();
+    $saves = Save::readAllStories($args);
 
     HTTPResponse::ok("All story saves", $saves);
 }
@@ -174,7 +174,7 @@ if ($action === 'get-stories') {
 if ($action === 'get-all') {
     $auth = Auth::demandLevel('admin');
 
-    $saves = Save::readAll();
+    $saves = Save::readAll($args);
 
     HTTPResponse::ok("All saves", $saves);
 }
