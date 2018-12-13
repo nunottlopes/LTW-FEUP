@@ -26,7 +26,8 @@ ORDER BY creatorid ASC;
 DROP VIEW IF EXISTS 'ChannelCreator';
 
 CREATE VIEW ChannelCreator AS
-SELECT Ch.channelid, Ch.channelname, Cr.creatorid, Cr.creatorname
+SELECT Ch.channelid, Ch.channelname, Cr.creatorid, Cr.creatorname,
+    (SELECT count(*) FROM Story S WHERE S.channelid = Ch.channelid) count
 FROM Channel Ch
 NATURAL JOIN Creator Cr
 ORDER BY channelid ASC;

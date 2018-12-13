@@ -1,8 +1,9 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/api.php';
-//require_once API::entity('image');
+require_once API::entity('image');
 
-$target_dir = "uploads/";
+/**
+$target_dir = "uploads/";             $UPLOAD_DIR
 $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
 $uploadOk = 1;
 $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
@@ -44,15 +45,32 @@ if ($uploadOk == 0) {
         echo "Sorry, there was an error uploading your file.";
     }
 }
+**/
 
+$userfilename = basename($_FILES['upload-file']['name']);
+$tmpfilename = $_FILES['upload-file']['tmp_name'];
+$storefilename = $UPLOAD_DIR . "$userfilename";
 
+$fileExtension = strtolower(pathinfo($userfilename, PATHINFO_EXTENSION));
 
+$size = getimagesize($tmpfilename);
 
+$fileExists = file_exists($storefilename);
 
+echo '<pre style="font-size:150%">';
 
+echo json_encode([
+    'userfilename' => $userfilename,
+    'tmpfilename' => $tmpfilename,
+    'storefilename' => $storefilename,
+    'fileExtension' => $fileExtension,
+    'size' => $size,
+    'fileExists' => $fileExists
+], JSON_PRETTY_PRINT);
 
-
-
-
-
+echo '</pre>';
 ?>
+<form action="/feup_books/api/upload.php" method="post" enctype="multipart/form-data">
+    <input type="file" name="upload-file" id="upload-file"/>
+    <input type="submit" value="Upload Image" name="submit"/>
+</form>
