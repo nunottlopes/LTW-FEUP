@@ -1,0 +1,9 @@
+#channel_page {
+    padding-top: 1em; 
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+}
+
+#channel_page_posts{
+    margin: 0 1em;
+}

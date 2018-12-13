@@ -1,6 +1,6 @@
 <div id="view_post" class="page">
 
-    <div id="post_page_post" story-id="<?php echo $_GET['id']?>">
+    <div id="post_page_post" story-id="<?=$_GET['id']?>">
 
         <article class="post_complete"></article>
 
@@ -27,7 +27,7 @@
                 <div id="hot_dropdown">HOT</div>
             </div>
         </div>
-        <script src="javascript/dropdown.js"></script>
+        <script src="javascript/dropdown.js" defer></script>
 
         <section id="post_comments"></section>
     </div>

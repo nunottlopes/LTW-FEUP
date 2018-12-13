@@ -1,9 +1,14 @@
-api.story.get("all", [200])
-.then(response => response.json())
-.then(json => getStories(json.data));
+let main_page_posts = document.querySelector('#main_page_posts');
+
+getContent(document.querySelector("#dropdown_selection").getAttribute("selectionid"));
+
+function getContent(sort) {
+    api.story.get("all&order="+sort, [200])
+    .then(response => response.json())
+    .then(json => getStories(json.data));
+}
 
 function getStories(data) {
-    let main_page_posts = document.querySelector('#main_page_posts');
     for(let story in data) {
 
         let a1 =
@@ -23,19 +28,24 @@ function getStories(data) {
             default:
                 break;
         }
-        
-        // TODO: falta adicionar o número de comments na main_page
+    
         let a3 = `</a>
             <footer>
                 <button class="post_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> ${data[story].upvotes} Upvotes</button>
                 <button class="post_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> ${data[story].downvotes} Downvotes</button>
-                <button class="post_button" onclick="comments()"><i class="fa fa-comment"></i> Comments</button>
+                <button class="post_button" onclick="comments()"><i class="fa fa-comment"></i> ${data[story].count} Comments</button>
                 <button class="post_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
                 <button class="post_button" onclick="share()"><i class="fa fa-share-alt"></i> Share</button>
             </footer>
         </article>`;
 
-        main_page_posts.innerHTML += a1 + a2 + a3;
-        
+        main_page_posts.innerHTML += a1 + a2 + a3;   
     }
 }
+
+document.querySelectorAll("#dropdown_options > *").forEach(element => {
+    element.addEventListener('click', () => {
+        main_page_posts.innerHTML = "";
+        getContent(element.getAttribute("id"));
+    });
+})

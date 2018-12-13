@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/dropdown.css">
     <link rel="stylesheet" href="css/tab.css">
     <link rel="stylesheet" href="css/pages/main_page.css">
+    <link rel="stylesheet" href="css/pages/channel_page.css">
     <link rel="stylesheet" href="css/pages/profile_page.css">
     <link rel="stylesheet" href="css/pages/post_page.css">
     <link rel="stylesheet" href="css/pages/create_post_page.css">
