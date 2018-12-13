@@ -1,9 +1,15 @@
 let main_page_posts = document.querySelector('#main_page_posts');
 
-getContent(document.querySelector("#dropdown_selection").getAttribute("selectionid"));
+let settings = {
+    sort: document.querySelector("#dropdown_selection").getAttribute("selectionid"),
+    limit: 5,
+    offset: 0
+}
 
-function getContent(sort) {
-    api.story.get("all&order="+sort, [200])
+getContent();
+
+function getContent() {
+    api.story.get({all: 1, order: settings.sort, limit: settings.limit, offset: settings.offset}, [200])
     .then(response => response.json())
     .then(json => getStories(json.data));
 }
@@ -43,9 +49,38 @@ function getStories(data) {
     }
 }
 
+api.channel.get({all: 1}, [200])
+.then(response => response.json())
+.then(json => getChannels(json.data));
+
+function getChannels(data) {
+    let all_channels = document.querySelector('#aside_channels ul');
+    all_channels.innerHTML = "";
+    for(let channel in data) {
+        let li = document.createElement('li');
+        let channelname = data[channel].channelname;
+        let channelid = data[channel].channelid;
+        let a = document.createElement('a');
+        a.textContent = channelname;
+        a.setAttribute('href', `channel.php?id=${channelid}`);
+
+        li.appendChild(a);
+        all_channels.appendChild(li);   
+    }
+}
+
 document.querySelectorAll("#dropdown_options > *").forEach(element => {
     element.addEventListener('click', () => {
         main_page_posts.innerHTML = "";
-        getContent(element.getAttribute("id"));
+        settings.offset = 0;
+        settings.sort = element.getAttribute("id");
+        getContent();
     });
 })
+
+window.onscroll = () => {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+        settings.offset += settings.limit;
+        getContent();
+    }
+}

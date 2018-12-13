@@ -37,6 +37,26 @@
     cursor: pointer;
 }
 
+#aside_channels header {
+    margin: 0.4em;
+    font-size:12px;
+    font-weight:900; 
+}
+
+#aside_channels {
+    display: flex;
+    flex-direction: column;
+}
+
+#aside_channels ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#aside_channels ul > li{
+    padding: 0.5em 1em;
+}
+
 #aside_favorite_post{
     display: inline-block;
 }
@@ -47,7 +67,7 @@
     font-weight:900;
 }
 
-#aside_favorite_post a {
+#aside_favorite_post a , #aside_channels a{
     text-decoration: none;
     color:black;
 }
