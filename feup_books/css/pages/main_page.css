@@ -37,54 +37,43 @@
     cursor: pointer;
 }
 
-#aside_channels header {
-    margin: 0.4em;
-    font-size:12px;
-    font-weight:900; 
-}
-
 #aside_channels {
     display: flex;
     flex-direction: column;
-}
-
-#aside_channels ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-#aside_channels ul > li{
-    padding: 0.5em 1em;
-}
-
-#aside_channels ul > li:hover{
-    background-color: #A5483E;
-    color: white;
-    padding: 0.5em 1em;
-}
-
-#aside_channels a{
-    text-decoration: none;
-    color:inherit;
 }
 
 #aside_favorite_post{
     display: inline-block;
 }
 
-#aside_favorite_post header{
+#aside_channels header, #aside_favorite_post header {
     margin: 0.4em;
     font-size:12px;
-    font-weight:900;
+    font-weight:900; 
 }
 
-#aside_favorite_post a {
+#aside_favorite_post ul, #aside_channels ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#aside_favorite_post ul > li, #aside_channels ul > li{
+    padding: 0.5em 1em;
+}
+
+#aside_favorite_post ul > li:hover, #aside_channels ul > li:hover{
+    background-color: #A5483E;
+    color: white;
+    padding: 0.5em 1em;
+}
+
+#aside_favorite_post a, #aside_channels a {
     text-decoration: none;
-    color:black;
+    color:inherit;
 }
 
 #aside_favorite_post p{
-    padding: 0 1em;
+    margin: 0;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
