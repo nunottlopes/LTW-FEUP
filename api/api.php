@@ -8,6 +8,11 @@ require_once __DIR__ . '/db.php';
 $AUTH_MODE = 'SESSION';
 
 /**
+ * Image storage directory
+ */
+$UPLOAD_DIR = $_SERVER['DOCUMENT_ROOT'] . '/feup_books/images';
+
+/**
  * Error reporting.
  */
 error_reporting(E_ALL);
