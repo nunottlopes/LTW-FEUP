@@ -57,6 +57,17 @@
     padding: 0.5em 1em;
 }
 
+#aside_channels ul > li:hover{
+    background-color: #A5483E;
+    color: white;
+    padding: 0.5em 1em;
+}
+
+#aside_channels a{
+    text-decoration: none;
+    color:inherit;
+}
+
 #aside_favorite_post{
     display: inline-block;
 }
@@ -67,7 +78,7 @@
     font-weight:900;
 }
 
-#aside_favorite_post a , #aside_channels a{
+#aside_favorite_post a {
     text-decoration: none;
     color:black;
 }

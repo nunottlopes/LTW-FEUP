@@ -57,5 +57,6 @@
         <?php include('templates/user/register.php') ?>
         <script src="javascript/user_header.js"></script> 
 
-      <?php }?>
+    <?php }?>
+    
     </header>
