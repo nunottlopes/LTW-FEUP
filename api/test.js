@@ -621,3 +621,20 @@ async function testvote() {
     testfooter();
 }
 
+async function testimage() {
+    testheader();
+
+    console.log("EXPECTED: [OK] 4, [Deleted] 3");
+    console.log("EXPECTED: [200] 7");
+
+    await api.image.get("imageid=1");
+    await api.image.get("imageid=2");
+    await api.image.get("imageid=3");
+    await api.image.get("all");
+
+    await api.image.delete("imageid=1");
+    await api.image.delete("imageid=2");
+    await api.image.delete("imageid=3");
+
+    testfooter();
+}

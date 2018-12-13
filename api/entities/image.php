@@ -1,20 +1,53 @@
 <?php
 require_once __DIR__ . '/apientity.php';
 
+const THUMBNAIL_SIDE = 256;
+const SMALL_MAXWIDTH = 512;
+const MEDIUM_MAXWIDTH = 1024;
+
 class Image extends APIEntity {
+    /**
+     * CONVENTION
+     */
+    public static function filename(string $imageid, string $extension) {
+        return "img$imageid.$extension";
+    }
+
+    public static function files(string $imagefile) {
+        $UPLOAD_DIR = $_SERVER['DOCUMENT_ROOT'] . '/feup_books/images/upload';
+
+        return [
+            'original'  => "$UPLOAD_DIR/original/$imagefile",
+            'medium'    => "$UPLOAD_DIR/medium/$imagefile",
+            'small'     => "$UPLOAD_DIR/small/$imagefile",
+            'thumbnail' => "$UPLOAD_DIR/thumbnail/$imagefile"
+        ];
+    }
+
+    public static function glob() {
+        $UPLOAD_DIR = $_SERVER['DOCUMENT_ROOT'] . '/feup_books/images/upload';
+
+        return [
+            'original'  => "$UPLOAD_DIR/original/*",
+            'medium'    => "$UPLOAD_DIR/medium/*",
+            'small'     => "$UPLOAD_DIR/small/*",
+            'thumbnail' => "$UPLOAD_DIR/thumbnail/*"
+        ];
+    }
+
     /**
      * CREATE
      */
-    public static function create(string $filename) {
+    public static function create() {
         $query = '
-            INSERT INTO Image(filename) VALUES (?)
+            INSERT INTO Image DEFAULT VALUES
             ';
 
         $stmt = DB::get()->prepare($query);
 
         try {
             DB::get()->beginTransaction();
-            $stmt->execute([$filename]);
+            $stmt->execute();
             $id = (int)DB::get()->lastInsertId();
             DB::get()->commit();
             return $id;
@@ -51,11 +84,83 @@ class Image extends APIEntity {
      * NO UPDATE
      * There's nothing to be updated.
      */
+    public static function setInfo(int $imageid, string $imagefile, array $info) {
+        $width = $info['original']['width'];
+        $height = $info['original']['height'];
+        $filesize = $info['filesize'];
+        $format = $info['format'];
+
+        $query = '
+            UPDATE Image
+            SET imagefile = ?,
+                width = ?,
+                height = ?,
+                filesize = ?,
+                format = ?
+            WHERE imageid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$imagefile, $width, $height, $filesize, $format, $imageid]);
+        return $stmt->rowCount();
+    }
+
+    public static function clearInfo(int $imageid) {
+        $query = '
+            UPDATE Image
+            SET imagefile = NULL,
+                width = NULL,
+                height = NULL,
+                filesize = NULL,
+                format = NULL
+            WHERE imageid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$imageid]);
+        return $stmt->rowCount();
+    }
     
     /**
      * DELETE
      */
+    public static function unlink(string $imagefile) {
+        $files = static::files($imagefile);
+
+        $count = 0;
+
+        foreach ($files as $file) {
+            if (file_exists($file)) {
+                ++$count;
+                unlink($file);
+            }
+        }
+
+        return $count;
+    }
+
+    public static function unlinkAll() {
+        $files = static::glob();
+
+        $count = 0;
+
+        foreach ($files as $file) {
+            if (file_exists($file) && is_file($file)) {
+                ++$count;
+                unlink($file);
+            }
+        }
+    }
+
     public static function delete(int $imageid) {
+        $image = static::read($imageid);
+
+        if (!$image) return 0;
+
+        if (isset($image['imagefile'])) {
+            static::unlink($image['imagefile']);
+        }
+
         $query = '
             DELETE FROM Image WHERE imageid = ?
             ';
@@ -66,6 +171,8 @@ class Image extends APIEntity {
     }
 
     public static function deleteAll() {
+        static::unlinkAll();
+
         $query = '
             DELETE FROM Image
             ';

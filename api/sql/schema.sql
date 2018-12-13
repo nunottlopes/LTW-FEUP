@@ -21,10 +21,17 @@ CREATE TABLE User (
 );
 
 CREATE TABLE Image (
-    'id'            INTEGER NOT NULL PRIMARY KEY,
-    'storyid'       INTEGER,
-    'filename'      TEXT NOT NULL UNIQUE,
-    FOREIGN KEY('storyid') REFERENCES Story('entityid') ON DELETE SET NULL
+    'imageid'       INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    'imagefile'     TEXT DEFAULT NULL,
+    'width'         INTEGER DEFAULT NULL,
+    'height'        INTEGER DEFAULT NULL,
+    'filesize'      INTEGER DEFAULT NULL,
+    'format'        TEXT DEFAULT NULL,
+    CONSTRAINT GoodWidth CHECK
+        ((imagefile IS NULL AND width IS NULL) OR (imagefile IS NOT NULL AND width > 0)),
+    CONSTRAINT GoodHeight CHECK
+        ((imagefile IS NULL AND height IS NULL) OR (imagefile IS NOT NULL AND height > 0)),
+    CONSTRAINT SupportedImages CHECK (format IN ('gif','jpeg','png'))
 );
 
 CREATE TABLE Entity (

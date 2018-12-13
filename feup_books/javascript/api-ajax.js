@@ -295,6 +295,15 @@ var api = {
         }
     },
 
+    "image": {
+        "get": function(query, expect) {
+            return api.get('image', query, expect);
+        },
+        "delete": function(query, expect) {
+            return api.delete('image', query, expect);
+        }
+    },
+
     "login": function login(username, password, expect) {
         return api.put("login", {
             login: 1,

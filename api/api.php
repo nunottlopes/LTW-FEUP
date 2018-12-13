@@ -7,10 +7,6 @@ require_once __DIR__ . '/db.php';
  */
 $AUTH_MODE = 'SESSION';
 
-/**
- * Image storage directory
- */
-$UPLOAD_DIR = $_SERVER['DOCUMENT_ROOT'] . '/feup_books/images/';
 
 /**
  * Error reporting.
@@ -37,6 +33,9 @@ class API {
         return $file;
     }
 
+    /**
+     * Cast $value according to key $key
+     */
     public static function single(string $key, $value) {
         // IDs
         if (preg_match('/^\w*id$/i', $key)) {
@@ -90,24 +89,6 @@ class API {
         }
 
         return $casted;
-    }
-
-    /**
-     * Iterate through the elements of $array, and for each element $el,
-     * unset $el[$key] if it is null. Return the result.
-     */
-    public static function filterNulls(array $array, array $keys) {
-        $copy = [];
-        foreach ($array as $id => $entry) {
-            foreach ($keys as $key) {
-                if ($entry[$key] === NULL) {
-                    unset($entry[$key]);
-                }
-            }
-
-            $copy[] = $entry;
-        }
-        return $copy;
     }
 
     /**

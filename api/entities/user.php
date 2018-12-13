@@ -223,5 +223,15 @@ class User extends APIEntity {
         $stmt->execute([$userid]);
         return $stmt->rowCount();
     }
+
+    public static function deleteAll() {
+        $query = '
+            DELETE FROM User
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
 }
 ?>
