@@ -63,7 +63,7 @@ class Channel extends APIEntity {
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$creatorid]);
-        return static::fetch($stmt);
+        return static::fetchAll($stmt);
     }
 
     public static function read(int $channelid) {

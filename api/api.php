@@ -876,7 +876,7 @@ class HTTPResponse {
         $error = "Conflict: $error";
 
         $data = [
-            'key' => $key,
+            'key' => $what,
             'culprit' => $culprit,
             'error' => $error
         ];

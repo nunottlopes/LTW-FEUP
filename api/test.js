@@ -27,8 +27,8 @@ function testfooter() {
 async function testchannel(all) {
     await testheader();
 
-    console.log("EXPECTED: [Created] 2, [Updated] 2, [OK] 6, [Deleted] 2/3, [404] 6");
-    console.log("EXPECTED: [200] 10/11, [201] 2, [404] 6");
+    console.log("EXPECTED: [Created] 2, [Updated] 2, [OK] 6, [Deleted] 2, [404] 6");
+    console.log("EXPECTED: [200] 10, [201] 2, [404] 6");
 
     // create
     await api.channel.put("creatorid=5", {channelname: "Amadeuses"});
@@ -45,6 +45,10 @@ async function testchannel(all) {
     // get-name
     await api.channel.get("channelname=showerthoughts");
     await api.channel.get("channelname=Amadeuses");
+
+    // get-id
+    await api.channel.get("creatorid=2");
+    await api.channel.get("creatorid=5");
 
     // get-valid
     await api.channel.get("valid=Amadeuses");
@@ -70,11 +74,11 @@ async function testchannel(all) {
     testfooter();
 }
 
-async function testcomment() {
+async function testcomment(all) {
     await testheader();
 
-    console.log("EXPECTED: [Created] 3, [Updated] 2, [OK] 34, [404] 4, [Deleted] 5");
-    console.log("EXPECTED: [200] 41, [201] 3, [404] 4");
+    console.log("EXPECTED: [Created] 3, [Updated] 2, [OK] 34, [Deleted] 4, [404] 4");
+    console.log("EXPECTED: [200] 40, [201] 3, [404] 4");
 
     // create
     await api.comment.post("parentid=99&authorid=4", {content: "Comment#101-#1-#7"});
@@ -158,7 +162,7 @@ async function testcomment() {
     await api.comment.delete("authorid=8"); // count = 4 | deleted = 7
     
     // delete-all
-    await api.comment.delete("all"); // count = (73 + 3 - 8 - 2 - 1 - 7) = 58
+    if (all) await api.comment.delete("all"); // count = (73 + 3 - 8 - 2 - 1 - 7) = 58
 
     testfooter();
 }
@@ -303,11 +307,11 @@ async function testsave() {
     testfooter();
 }
 
-async function teststory() {
+async function teststory(all) {
     await testheader();
 
-    console.log("EXPECTED: [Created] 7, [Updated] 2, [OK] 34, [Deleted] 6, [Bad] 6, [404] 4");
-    console.log("EXPECTED: [200] 42, [201] 7, [400] 6, [404] 4");
+    console.log("EXPECTED: [Created] 7, [Updated] 2, [OK] 34, [Deleted] 5, [Bad] 6, [404] 4");
+    console.log("EXPECTED: [200] 41, [201] 7, [400] 6, [404] 4");
 
     // create
     await api.story.post("channelid=1&authorid=5", {
@@ -380,7 +384,8 @@ async function teststory() {
 
     // edit
     await api.story.patch("storyid=4", {
-        content: "New story content #1"
+        content: "New story content #1",
+        imageid: 8 // ignored
     }); // 200
 
     await api.story.patch("storyid=5", {
@@ -390,7 +395,6 @@ async function teststory() {
 
     await api.story.patch("storyid=5", {
         content: "New story content #2",
-        content: 'Failed'
     }); // 400
 
     await api.story.patch("storyid=2", {
@@ -479,7 +483,7 @@ async function teststory() {
     await api.story.delete("authorid=3"); // 4
 
     // delete-all
-    await api.story.delete("all"); // 16
+    if (all) await api.story.delete("all"); // 16
 
     testfooter();
 }
@@ -531,35 +535,34 @@ async function testtree() {
     //    ^-- #100
     
     // get-ancestry
-    await api.tree.get("descendantid=100"); // story=#1, comments=#28,#41,#66,#81,#91,#100
-    await api.tree.get("descendantid=97"); // story=#1, comments=#30,#50,#73,#88,#97
+    await api.tree.get("voterid=1&descendantid=100"); // story=#1, comments=#28,#41,#66,#81,#91,#100
+    await api.tree.get("voterid=1&descendantid=97"); // story=#1, comments=#30,#50,#73,#88,#97
 
     // Same but voted (+14)
     // get-tree
-    await api.tree.get("ascendantid=1&maxdepth=10&limit=60");
+    await api.tree.get("voterid=1&ascendantid=1&maxdepth=10&limit=60");
     
-    await api.tree.get("ascendantid=1&maxdepth=10&order=top&limit=1");
+    await api.tree.get("voterid=1&ascendantid=1&maxdepth=10&order=top&limit=1");
     
-    await api.tree.get("ascendantid=1&maxdepth=10&order=top&limit=2");
+    await api.tree.get("voterid=1&ascendantid=1&maxdepth=10&order=top&limit=2");
 
-    await api.tree.get("ascendantid=1&maxdepth=10&order=top&limit=3");
+    await api.tree.get("voterid=1&ascendantid=1&maxdepth=10&order=top&limit=3");
 
-    await api.tree.get("ascendantid=1&maxdepth=10&order=top&limit=4");
+    await api.tree.get("voterid=1&ascendantid=1&maxdepth=10&order=top&limit=4");
 
-    await api.tree.get("ascendantid=1&maxdepth=10&order=top&limit=5");
+    await api.tree.get("voterid=1&ascendantid=1&maxdepth=10&order=top&limit=5");
     
-    await api.tree.get("ascendantid=1&maxdepth=10&order=top&limit=3&offset=2");
+    await api.tree.get("voterid=1&ascendantid=1&maxdepth=10&order=top&limit=3&offset=2");
 
-    await api.tree.get("ascendantid=1&maxdepth=10&order=top&limit=1&offset=4");
+    await api.tree.get("voterid=1&ascendantid=1&maxdepth=10&order=top&limit=1&offset=4");
 
-    await api.tree.get("ascendantid=100"); // []
-    await api.tree.get("ascendantid=81");
+    await api.tree.get("voterid=1&ascendantid=100"); // []
+    await api.tree.get("voterid=1&ascendantid=81");
     
     // get-ancestry
-    await api.tree.get("descendantid=100"); // story=#1, comments=#28,#41,#66,#81,#91,#100
-    await api.tree.get("descendantid=97"); // story=#1, comments=#30,#50,#73,#88,#97
+    await api.tree.get("voterid=1&descendantid=100"); // story=#1, comments=#28,#41,#66,#81,#91,#100
+    await api.tree.get("voterid=1&descendantid=97"); // story=#1, comments=#30,#50,#73,#88,#97
 
-    await api.tree.get("storyof&commentid=20"); // 404
     await api.tree.get("ascendantid=700"); // 404
     await api.tree.get("descendantid=20"); // 404
     await api.tree.get("descendantid=300"); // 404

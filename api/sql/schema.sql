@@ -22,7 +22,7 @@ CREATE TABLE Image (
     ((imagefile IS NULL AND height IS NULL) OR (imagefile IS NOT NULL AND height > 0)),
     CONSTRAINT GoodFilesize CHECK
     ((imagefile IS NULL AND filesize IS NULL) OR (imagefile IS NOT NULL AND filesize > 0)),
-    CONSTRAINT GoodHeight CHECK
+    CONSTRAINT GoodFormat CHECK
     ((imagefile IS NULL AND format IS NULL) OR (imagefile IS NOT NULL AND format IS NOT NULL)),
     CONSTRAINT SupportedImages CHECK (format IN ('gif','jpeg','png'))
 );
@@ -111,7 +111,7 @@ CREATE TABLE Save (
 CREATE TABLE Vote (
     'entityid'      INTEGER NOT NULL,
     'userid'        INTEGER NOT NULL,
-    'vote'          CHAR NOT NULL,
+    'vote'          CHAR NOT NULL DEFAULT '+',
     FOREIGN KEY('entityid') REFERENCES Entity('entityid') ON DELETE CASCADE,
     FOREIGN KEY('userid') REFERENCES User('userid') ON DELETE CASCADE,
     PRIMARY KEY('entityid','userid'),
