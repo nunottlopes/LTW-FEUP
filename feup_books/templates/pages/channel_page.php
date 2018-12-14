@@ -9,7 +9,6 @@
             <h1></h1>
             <h2></h2>
             <p></p>
-            <a href="#"><button type="button">Subscribe</button></a>
         </div>
 
         <div id="aside_footer" class="aside_div">

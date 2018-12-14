@@ -1,8 +1,10 @@
 let dropdown_options = document.querySelector("#dropdown_options");
 let dropdown_selection = document.querySelector("#dropdown_selection");
 
+api.auth().then(response => {return response.json()}).then(json =>{
+    if(json.data == null) {window.location.replace("index.php");}
+})
 
-// TODO: get logged in user channels
 let channels = api.channel.get('all', [200])
 .then(response => response.json())
 .then(channels => {

@@ -26,14 +26,11 @@
         <section id="post_comments"></section>
     </div>
 
-    <script src="javascript/pages/post_page.js"></script>
-    <script src="javascript/post_buttons.js"></script>
-
     <div id="post_page_aside">
         <div id="channel_subscription" class="aside_div">
-            <h1>Channel</h1>
-            <h2>123123 Subscribers</h1>
-            <a href="#"><button type="button">Subscribe</button></a>
+            <h1></h1>
+            <h2></h2>
+            <p></p>
         </div>
 
         <div id="aside_footer" class="aside_div">
@@ -41,4 +38,8 @@
         </div>
 
     </div>
+
+    <script src="javascript/pages/post_page.js"></script>
+    <script src="javascript/post_buttons.js"></script>
+
 </div>

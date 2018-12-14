@@ -1,4 +1,5 @@
 let main_page_posts = document.querySelector('#main_page_posts');
+let user;
 
 let settings = {
     sort: document.querySelector("#dropdown_selection").getAttribute("selectionid"),
@@ -7,16 +8,17 @@ let settings = {
 }
 
 api.auth().then(response => {return response.json()}).then(json =>{
-    getContent(json.data);
+    user = json.data;
+    getContent();
 })
 
-function getContent(user) {
+function getContent() {
     api.story.get({all: 1, order: settings.sort, limit: settings.limit, offset: settings.offset}, [200])
     .then(response => response.json())
-    .then(json => getStories(user, json.data));
+    .then(json => getStories(json.data));
 }
 
-function getStories(user, data) {
+function getStories(data) {
     for(let story in data) {
 
         let a1 =

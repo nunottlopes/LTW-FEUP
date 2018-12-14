@@ -18,7 +18,12 @@ function getPageContent(){
             throw response;
         }
     })
-    .then(json => getStory(json.data));
+    .then(json => {
+        api.channel.get({channelid: json.data.channelid}, [200])
+        .then(response => response.json())
+        .then( r => updateAside(r.data))
+        getStory(json.data);
+    });
 
     // Get Comments
     api.tree.get({ascendantid:storyid}, [200])
@@ -187,3 +192,12 @@ document.querySelectorAll("#dropdown_options > *").forEach(element => {
         .then(json => getComments(json.data));
     });
 })
+
+function updateAside(data) {
+    document.querySelector("#channel_subscription h1").textContent =
+        data.channelname;
+    document.querySelector("#channel_subscription h2").textContent =
+        data.count + ((data.count == 1) ? " Post" : " Posts");
+    document.querySelector("#channel_subscription p").textContent =
+        "by " + data.creatorname;
+}

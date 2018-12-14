@@ -27,7 +27,6 @@
         <div id="new_post_image" class="tabcontent">
             <form enctype="multipart/form-data">
                 <input type="text" name="post_title" placeholder="Title"/>
-                <!-- <input type="text" name="post_image" placeholder="Image URL"> -->
                 <input type="file" name="post_image" accept="image/*"/>
                 <input type="submit" name="post_submission" value="Post"/>
             </form>
