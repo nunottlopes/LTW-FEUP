@@ -47,7 +47,7 @@ class Channel extends APIEntity {
      */
     public static function get(string $channelname) {
         $query = '
-            SELECT * FROM ChannelCreator WHERE channelname = ?
+            SELECT * FROM ChannelAll WHERE channelname = ?
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -55,9 +55,19 @@ class Channel extends APIEntity {
         return static::fetch($stmt);
     }
 
+    public static function getCreator(int $creatorid) {
+        $query = '
+            SELECT * FROM ChannelBanner WHERE creatorid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$creatorid]);
+        return static::fetch($stmt);
+    }
+
     public static function read(int $channelid) {
         $query = '
-            SELECT * FROM ChannelCreator WHERE channelid = ?
+            SELECT * FROM ChannelAll WHERE channelid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -67,7 +77,7 @@ class Channel extends APIEntity {
 
     public static function readAll() {
         $query = '
-            SELECT * FROM ChannelCreator
+            SELECT * FROM ChannelAll
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -76,9 +86,27 @@ class Channel extends APIEntity {
     }
 
     /**
-     * NO UPDATE
-     * There's nothing to be updated.
+     * UPDATE
      */
+    public static function setBanner(int $channelid, int $imageid) {
+        $query = '
+            UPDATE Channel SET imageid = ? WHERE channelid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$imageid, $channelid]);
+        return $stmt->rowCount();
+    }
+
+    public static function clearBanner(int $channelid) {
+        $query = '
+            UPDATE Channel SET imageid = NULL WHERE channelid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$channelid]);
+        return $stmt->rowCount();
+    }
     
     /**
      * DELETE

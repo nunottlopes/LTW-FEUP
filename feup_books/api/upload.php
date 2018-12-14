@@ -117,13 +117,13 @@ imagecopyresized($thumbnail, $crop, 0, 0, 0, 0, 256, 256, $side, $side);
 
 // 3. Small
 $smallwidth = min($width, 512);
-$smallheight = scale_height($width, $height, 512);
+$smallheight = scale_height($width, $height, $smallwidth);
 $small = imagecreatetruecolor($smallwidth, $smallheight);
 imagecopyresized($small, $original, 0, 0, 0, 0, $smallwidth, $smallheight, $width, $height);
 
 // 4. Medium
 $mediumwidth = min($width, 1024);
-$mediumheight = scale_height($width, $height, 1024);
+$mediumheight = scale_height($width, $height, $mediumwidth);
 $medium = imagecreatetruecolor($mediumwidth, $mediumheight);
 imagecopyresized($medium, $original, 0, 0, 0, 0, $mediumwidth, $mediumheight, $width, $height);
 

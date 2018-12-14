@@ -81,8 +81,7 @@ class Image extends APIEntity {
     }
 
     /**
-     * NO UPDATE
-     * There's nothing to be updated.
+     * UPDATE
      */
     public static function setInfo(int $imageid, string $imagefile, array $info) {
         $width = $info['original']['width'];
@@ -105,7 +104,7 @@ class Image extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function clearInfo(int $imageid) {
+    public static function eraseInfo(int $imageid) {
         $query = '
             UPDATE Image
             SET imagefile = NULL,

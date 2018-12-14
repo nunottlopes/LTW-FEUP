@@ -10,7 +10,7 @@ class Story extends APIEntity {
     protected static $defaultSince = 0;
     protected static $defaultLimit = 25;
     protected static $defaultOffset = 0;
-    protected static $defaultSortTable = 'StorySortBest';
+    protected static $defaultSort = 'top';
 
     /**
      * AUXILIARY
@@ -42,22 +42,28 @@ class Story extends APIEntity {
      *
      * Switch statement prevents SQL injection.
      */
-    private static function sortTablename($more) {
-        if (!isset($more['order'])) return static::$defaultSortTable;
-
-        $order = $more['order'];
-        if (!is_string($order)) return static::$defaultSortTable;
+    private static function sort($more) {
+        $order = static::order($more);
 
         switch ($order) {
-        case 'top': return 'StorySortTop';
-        case 'bot': return 'StorySortBot';
-        case 'new': return 'StorySortNew';
-        case 'old': return 'StorySortOld';
-        case 'best': return 'StorySortBest';
-        case 'controversial': return 'StorySortControversial';
-        case 'average': return 'StorySortAverage';
-        case 'hot': return 'StorySortHot';
-        default: return static::$defaultSortTable;
+        case 'top':
+            return 'score';
+        case 'bot':
+            return '-score';
+        case 'new':
+            return 'createdat';
+        case 'old':
+            return '-createdat';
+        case 'best':
+            return 'WILSONLOWERBOUND(upvotes, downvotes)';
+        case 'controversial':
+            return 'REDDITCONTROVERSIAL(upvotes, downvotes)';
+        case 'hot':
+            return 'REDDITHOT(upvotes, downvotes, createdat)';
+        case 'average':
+            return 'CAST(upvotes + 1 AS float) / CAST(upvotes + downvotes + 1 AS float)';
+        default:
+            return 'score'; // top
         }
     }
 
@@ -65,17 +71,17 @@ class Story extends APIEntity {
      * CREATE
      */
     public static function create(string $channelid, int $authorid, string $title,
-            string $type, string $content) {
+            string $type, string $content, int $imageid = NULL) {
         $query = '
-            INSERT INTO Story(channelid, authorid, storyTitle, storyType, content)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO Story(channelid, authorid, storyTitle, storyType, content, imageid)
+            VALUES (?, ?, ?, ?, ?, ?)
             ';
 
         $stmt = DB::get()->prepare($query);
 
         try {
             DB::get()->beginTransaction();
-            $stmt->execute([$channelid, $authorid, $title, $type, $content]);
+            $stmt->execute([$channelid, $authorid, $title, $type, $content, $imageid]);
             $row = DB::get()->query('SELECT max(entityid) id FROM Entity')->fetch();
             DB::get()->commit();
             return (int)$row['id'];
@@ -85,35 +91,41 @@ class Story extends APIEntity {
         }
     }
 
+    public static function createText(string $channelid, int $authorid, string $title,
+            string $content) {
+        return static::create($channelid, $authorid, $title, 'text', $content, NULL);
+    }
+
+    public static function createTitle(string $channelid, int $authorid, string $title) {
+        return static::create($channelid, $authorid, $title, 'title', '', NULL);
+    }
+
+    public static function createImage(string $channelid, int $authorid, string $title,
+            string $content, int $imageid) {
+        return static::create($channelid, $authorid, $title, 'image', $content, $imageid);
+    }
+
     /**
      * READ
      */
-    public static function getChannelAuthor(int $channelid, int $authorid, array $more = []) {
-        $sorttable = static::sortTablename($more);
-
-        $query = "
-            SELECT * FROM $sorttable
-            WHERE channelid = ? AND authorid = ?
-            AND createdat >= ?
-            ORDER BY rating DESC
-            LIMIT ? OFFSET ?
-            ";
-
-        $queryArguments = static::extend([$channelid, $authorid], $more);
+    public static function read(int $id) {
+        $query = '
+            SELECT * FROM StoryAll WHERE entityid = ?
+            ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute($queryArguments);
-        return static::fetchAll($stmt);
+        $stmt->execute([$id]);
+        return static::fetch($stmt);
     }
 
     public static function getChannel(int $channelid, array $more = []) {
-        $sorttable = static::sortTablename($more);
+        $sort = static::sort($more);
 
         $query = "
-            SELECT * FROM $sorttable
-            WHERE channelid = ?
+            SELECT *, $sort AS rating
+            FROM StoryImageAuthor WHERE channelid = ?
             AND createdat >= ?
-            ORDER BY rating DESC
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -125,13 +137,13 @@ class Story extends APIEntity {
     }
 
     public static function getAuthor(int $authorid, array $more = []) {
-        $sorttable = static::sortTablename($more);
+        $sort = static::sort($more);
 
         $query = "
-            SELECT * FROM $sorttable
-            WHERE authorid = ?
+            SELECT *, $sort AS rating
+            FROM StoryImageChannel WHERE authorid = ?
             AND createdat >= ?
-            ORDER BY rating DESC
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -142,24 +154,33 @@ class Story extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function read(int $entityid) {
-        $query = '
-            SELECT * FROM StoryAll
-            WHERE entityid = ?
-            ';
+    public static function getChannelAuthor(int $channelid, int $authorid,
+            array $more = []) {
+        $sort = static::sort($more);
+
+        $query = "
+            SELECT *, $sort AS rating
+            FROM StoryImage WHERE channelid = ? AND authorid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC, createdat DESC, entityid ASC
+            LIMIT ? OFFSET ?
+            ";
+
+        $queryArguments = static::extend([$channelid, $authorid], $more);
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$entityid]);
-        return static::fetch($stmt);
+        $stmt->execute($queryArguments);
+        return static::fetchAll($stmt);
     }
 
     public static function readAll(array $more = []) {
-        $sorttable = static::sortTablename($more);
+        $sort = static::sort($more);
 
         $query = "
-            SELECT * FROM $sorttable
+            SELECT *, $sort AS rating
+            FROM StoryAll
             WHERE createdat >= ?
-            ORDER BY rating DESC
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -173,35 +194,27 @@ class Story extends APIEntity {
     /**
      * VOTED READ
      */
-    public static function getChannelAuthorVoted(int $channelid, int $authorid,
-            int $userid, array $more = []) {
-        $sorttable = static::sortTablename($more);
-
-        $query = "
-            SELECT ST.*, coalesce(V.vote, '') vote
-            FROM $sorttable ST NATURAL JOIN UserVote V
-            WHERE channelid = ? AND authorid = ? AND V.userid = ?
-            AND createdat >= ?
-            ORDER BY rating DESC
-            LIMIT ? OFFSET ?
-            ";
-
-        $queryArguments = static::extend([$channelid, $authorid, $userid], $more);
+    public static function readVoted(int $entityid, int $userid) {
+        $query = '
+            SELECT R.*, V.vote
+            FROM StoryAll R NATURAL JOIN UserVote V
+            WHERE entityid = ? AND V.userid = ?
+            ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute($queryArguments);
-        return static::fetchAll($stmt);
+        $stmt->execute([$entityid, $userid]);
+        return static::fetch($stmt);
     }
 
     public static function getChannelVoted(int $channelid, int $userid, array $more = []) {
-        $sorttable = static::sortTablename($more);
+        $sort = static::sort($more);
 
         $query = "
-            SELECT ST.*, coalesce(V.vote, '') vote
-            FROM $sorttable ST NATURAL JOIN UserVote V
-            WHERE channelid = ? AND V.userid = ?
-            AND createdat >= ?
-            ORDER BY rating DESC
+            SELECT R.*, V.vote, $sort AS rating
+            FROM StoryImageAuthor R NATURAL JOIN UserVote V
+            WHERE R.channelid = ? AND V.userid = ?
+            AND R.createdat >= ?
+            ORDER BY rating DESC, R.createdat DESC, R.entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -213,14 +226,14 @@ class Story extends APIEntity {
     }
 
     public static function getAuthorVoted(int $authorid, int $userid, array $more = []) {
-        $sorttable = static::sortTablename($more);
+        $sort = static::sort($more);
 
         $query = "
-            SELECT ST.*, coalesce(V.vote, '') vote
-            FROM $sorttable ST NATURAL JOIN UserVote V
-            WHERE authorid = ? AND V.userid = ?
-            AND createdat >= ?
-            ORDER BY rating DESC
+            SELECT R.*, V.vote, $sort AS rating
+            FROM StoryImageChannel R NATURAL JOIN UserVote V
+            WHERE R.authorid = ? AND V.userid = ?
+            AND R.createdat >= ?
+            ORDER BY rating DESC, R.createdat DESC, R.entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -231,27 +244,35 @@ class Story extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function readVoted(int $entityid, int $userid) {
-        $query = '
-            SELECT SA.*, coalesce(V.vote, "") vote
-            FROM StoryAll SA NATURAL JOIN UserVote V
-            WHERE entityid = ? AND V.userid = ?
-            ';
+    public static function getChannelAuthorVoted(int $channelid, int $authorid,
+            int $userid, array $more = []) {
+        $sort = static::sort($more);
+
+        $query = "
+            SELECT R.*, V.vote, $sort AS rating
+            FROM StoryImage R NATURAL JOIN UserVote V
+            WHERE R.channelid = ? AND R.authorid = ? AND V.userid = ?
+            AND R.createdat >= ?
+            ORDER BY rating DESC, R.createdat DESC, R.entityid ASC
+            LIMIT ? OFFSET ?
+            ";
+
+        $queryArguments = static::extend([$channelid, $authorid, $userid], $more);
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$entityid, $userid]);
-        return static::fetch($stmt);
+        $stmt->execute($queryArguments);
+        return static::fetchAll($stmt);
     }
 
     public static function readAllVoted(int $userid, array $more = []) {
-        $sorttable = static::sortTablename($more);
+        $sort = static::sort($more);
 
         $query = "
-            SELECT ST.*, coalesce(V.vote, '') vote
-            FROM $sorttable ST NATURAL JOIN UserVote V
+            SELECT R.*, V.vote, $sort AS rating
+            FROM StoryAll R NATURAL JOIN UserVote V
             WHERE V.userid = ?
-            AND createdat >= ?
-            ORDER BY rating DESC
+            AND R.createdat >= ?
+            ORDER BY rating DESC, R.createdat DESC, R.entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -265,13 +286,52 @@ class Story extends APIEntity {
     /**
      * UPDATE
      */
-    public static function update(int $entityid, string $content) {
+    public static function update(int $entityid, string $content, int $imageid) {
+        $query = '
+            UPDATE Story SET content = ?, imageid = ? WHERE entityid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$content, $imageid, $entityid]);
+        return $stmt->rowCount();
+    }
+    public static function updateContent(int $entityid, string $content) {
         $query = '
             UPDATE Story SET content = ? WHERE entityid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$content, $entityid]);
+        return $stmt->rowCount();
+    }
+
+    public static function setImage(int $entityid, int $imageid) {
+        $query = '
+            UPDATE Story SET imageid = ? WHERE entityid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$imageid, $entityid]);
+        return $stmt->rowCount();
+    }
+
+    public static function clearContent(int $entityid) {
+        $query = '
+            UPDATE Story SET content = "" WHERE entityid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$entityid]);
+        return $stmt->rowCount();
+    }
+
+    public static function clearImage(int $entityid) {
+        $query = '
+            UPDATE Story SET imageid = NULL WHERE entityid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$entityid]);
         return $stmt->rowCount();
     }
 

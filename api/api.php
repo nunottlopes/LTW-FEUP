@@ -36,43 +36,48 @@ class API {
     /**
      * Cast $value according to key $key
      */
-    public static function single(string $key, $value) {
+    public static function single(string $key, $value, bool $force = false) {
         // IDs
         if (preg_match('/^\w*id$/i', $key)) {
-            return (int)$value;
+            return ($value !== null || $force) ? (int)$value : $value;
         }
 
         // Votes
-        if (preg_match('/^(?:\w*votes\w*|score)$/i', $key)) {
-            return (int)$value;
+        if (preg_match('/^(?:\w*votes|score|rating)$/i', $key)) {
+            return ($value !== null || $force) ? (int)$value : $value;
         }
 
         // Timestamps
-        if (preg_match('/^(?:\w+at|\w*date|\w*time|timestamp)$/i', $key)) {
-            return (int)$value;
+        if (preg_match('/^(?:createdat|updatedat|\w*date|\w*time|timestamp)$/i', $key)) {
+            return ($value !== null || $force) ? (int)$value : $value;
         }
 
-        // Numbers
-        if (preg_match('/^(?:limit\w*|\w*since|\w*offset|\w*depth)$/i', $key)) {
-            return (int)$value;
+        // Magic numbers
+        if (preg_match('/^(?:limit|\w*since|\w*offset|\w*depth)$/i', $key)) {
+            return ($value !== null || $force) ? (int)$value : $value;
         }
 
         // Counts
         if (preg_match('/^(?:count|level)$/i', $key)) {
-            return (int)$value;
+            return ($value !== null || $force) ? (int)$value : $value;
+        }
+
+        // Dimensions
+        if (preg_match('/^(?:\w*size|\w*width|\w*height)$/i', $key)) {
+            return ($value !== null || $force) ? (int)$value : $value;
         }
 
         // Floats
         if (preg_match('/^(?:lowerbound|\w*average|rating)$/i', $key)) {
-            return (float)$value;
+            return ($value !== null || $force) ? (float)$value : $value;
         }
 
-        // Admin
-        if (preg_match('/^(?:admin)$/i', $key)) {
-            return (boolean)(int)$value;
+        // Booleans
+        if (preg_match('/^(?:admin|bool\w*)$/i', $key)) {
+            return ($value !== null || $force) ? (bool)(int)$value : $value;
         }
 
-        // Default text
+        // Default is self
         return $value;
     }
 
@@ -81,13 +86,11 @@ class API {
      * Used by database entities for database fetches (casting columns to their
      * appropriate types) and client argument parsing of $_GET, $_POST and body.
      */
-    public static function cast(array $data) {
+    public static function cast(array $data, bool $force = false) {
         $casted = [];
-
         foreach ($data as $key => $value) {
-            $casted[$key] = static::single($key, $value);
+            $casted[$key] = static::single($key, $value, $force);
         }
-
         return $casted;
     }
 
@@ -161,15 +164,40 @@ class API {
     }
 
     /**
-     * Assume $array is a collection of arrays and apply rekey to all of them.
+     * Remove null entries from the array $array whose key
+     * is present in $keys (or any if $keys is null).
      */
-    public static function rekeyAll(array $array, array $renames) {
-        foreach ($array as $element) $new[] = static::rekey($element, $renames);
-        return $new;
+    public static function nonull(array $array, array $safe = []) {
+        $result = [];
+        foreach ($array as $key => $value) {
+            if ($value !== null || in_array($key, $safe)) {
+                $result[$key] = $value;
+            }
+        }
+        return $result;
     }
 
     /**
-     * Convert $actions array to a cleaner format.
+     * If $keys is [A,B], $first is [...$fi], $second is [...$si],
+     * this returns [...[A => $fi, B => $si]].
+     */
+    public static function group(array $keys, array $first, array $second) {
+        $keyFirst = $keys[0];
+        $keySecond = $keys[1];
+
+        $count = min(count($first), count($second));
+        $merged = [];
+        for ($i = 0; $i < $count; ++$i) {
+            $merged[] = [
+                $keyFirst => $first[$i],
+                $keySecond => $second[$i]
+            ];    
+        }
+        return $merged;
+    }
+
+    /**
+     * Convert $actions array to a cleaner format, every action.
      */
     public static function prettyActions(array $actions) {
         $prettys = [];
@@ -179,6 +207,9 @@ class API {
         return $prettys;
     }
 
+    /**
+     * Convert $action array to a cleaner format.
+     */
     public static function prettyAction(array $spec) {
         $pretty['method'] = $spec[0];
 
@@ -197,23 +228,16 @@ class API {
         return $pretty;
     }
 
+    /**
+     * Stringify a descriptor with && and || logic.
+     */
     public static function stringifyDescriptor(array $descriptor) {
-        $query = '';
-
-        for ($i = 0; $i < count($descriptor); ++$i) {
-            if ($i > 0) $query .= ' && ';
-
-            $arg = $descriptor[$i];
-
-            if (is_string($arg)) {
-                $query .= $arg;
-            } else {
-                $imp = implode(' || ', $arg);
-                $query .= "($imp)";
-            }
+        $query = [];
+        foreach ($descriptor as $arg) {
+            if (is_string($arg)) $query[] = $arg;
+            else $query[] = '(' . implode(' || ', $arg) . ')';
         }
-
-        return $query;
+        return implode(' && ', $query);
     }
 }
 
@@ -507,17 +531,17 @@ class HTTPRequest {
         if (strpos($contentType, 'application/json') !== false) {
             $body = static::bodyString();
 
-            $json = json_decode($body, true);
+            $obj = json_decode($body, true);
 
-            if ($json == null) {
+            if ($obj == null) {
                 HTTPResponse::malformedJSON();
             }
 
-            if (!API::got($json, $keys)) {
-                HTTPResponse::missingBodyParameters();
+            if (!API::got($obj, $keys)) {
+                HTTPResponse::missingBodyParameters($keys);
             }
 
-            $casted = API::cast($json);
+            $casted = API::cast($obj);
 
             if (count($keys) === 1) return $casted[$keys[0]];
             else return $casted;
@@ -529,7 +553,7 @@ class HTTPRequest {
         if ((strpos($contentType, 'application/x-www-form-urlencoded') !== false) ||
             (strpos($contentType, 'multipart/form-data') !== false)) {
             if (!API::got($_POST, $keys)) {
-                HTTPResponse::missingBodyParameters();
+                HTTPResponse::missingBodyParameters($keys);
             }
 
             $casted = API::cast($_POST);
@@ -542,7 +566,7 @@ class HTTPRequest {
         // The body string is the argument, and only one key must be required.
         if (strpos($contentType, 'text/plain') !== false) {
             if (count($keys) !== 1) {
-                HTTPResponse::missingBodyParameters();
+                HTTPResponse::missingBodyParameters($keys);
             }
 
             $body = static::bodyString();
@@ -800,7 +824,7 @@ class HTTPResponse {
      * action based on the arguments provided, but that action requires one or more
      * body arguments which were not provided.
      */
-    public static function missingBodyParameters() {
+    public static function missingBodyParameters(array $parameters) {
         http_response_code(400);
 
         global $actions, $action;
@@ -809,13 +833,13 @@ class HTTPResponse {
 
         $pretty = API::prettyAction($spec);
 
-        $body = $pretty['body'];
+        $require = implode(', ', $parameters);
 
-        $error = "Required body parameter(s) not present: \"$body\"";
+        $error = "Required body parameter(s) not present: \"$require\"";
 
         $data = [
             'action' => $pretty,
-            'body' => $body
+            'body' => $require
         ];
 
         static::error('Missing Body Parameters', $error, $data);

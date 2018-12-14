@@ -33,45 +33,29 @@ class Save extends APIEntity {
         return $args;
     }
 
-    private static function mergeSaves($stories, $comments, array $more) {
-        // Null checks
-        if (!$stories) return $comments;
-        if (!$comments) return $stories;
+    /**
+     * Transform a mixed query of stories and comments. Add the ascendant stories
+     * to the comments.
+     */
+    private static function remix(array $all, array $ascendants) {
+        $count = min(count($all), count($ascendants));
+        $mix = [];
+        for ($i = 0; $i < $count; ++$i) {
+            $save = $all[$i];
+            $ascendant = $ascendants[$i];
 
-        $storyTotal = count($stories);
-        $commentTotal = count($comments);
-        // ^ both positive
-
-        $merged = [];
-
-        $s = 0; $c = 0;
-        while ($s < $storyTotal && $c < $commentTotal) {
-            $story = $stories[$s];
-            $comment = $comments[$c];
-
-            $storyTime = $story['savedat'];
-            $commentTime = $comment['savedat'];
-
-            // Most recent first
-            if ($storyTime > $commentTime) {
-                ++$s;
-                array_push($merged, $story);
+            if ($save['type'] === 'story') {
+                $mix[] = [
+                    'story' => $save
+                ];
             } else {
-                ++$c;
-                array_push($merged, $comment);
+                $mix[] = [
+                    'story' => $ascendant,
+                    'comment' => $save
+                ];
             }
         }
-
-        if ($s === $storyTotal) {
-            $merged = array_merge($merged, array_slice($comments, $c));
-        } else if ($c === $commentTotal) {
-            $merged = array_merge($merged, array_slice($stories, $s));
-        }
-
-        $limit = static::limit($more);
-        $offset = static::offset($more);
-
-        return array_slice($merged, $offset, $limit);
+        return $mix;
     }
 
     /**
@@ -90,7 +74,7 @@ class Save extends APIEntity {
     /**
      * READ
      */
-    public static function getComment(int $entityid, array $more = []) {
+    public static function getComment(int $commentid, array $more = []) {
         $query = '
             SELECT * FROM SaveUser
             WHERE entityid = ? AND entityid IN (SELECT entityid FROM Comment)
@@ -98,14 +82,14 @@ class Save extends APIEntity {
             LIMIT ? OFFSET ?
             ';
 
-        $queryArguments = static::extend([$entityid], $more);
+        $queryArguments = static::extend([$commentid], $more);
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute($queryArguments);
         return static::fetchAll($stmt);
     }
 
-    public static function getStory(int $entityid, array $more = []) {
+    public static function getStory(int $storyid, array $more = []) {
         $query = '
             SELECT * FROM SaveUser
             WHERE entityid = ? AND entityid IN (SELECT entityid FROM Story)
@@ -113,7 +97,7 @@ class Save extends APIEntity {
             LIMIT ? OFFSET ?
             ';
 
-        $queryArguments = static::extend([$entityid], $more);
+        $queryArguments = static::extend([$storyid], $more);
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute($queryArguments);
@@ -121,33 +105,90 @@ class Save extends APIEntity {
     }
 
     public static function getEntity(int $entityid, array $more = []) {
-        if (Story::read($entityid)) {
-            return static::getStory($entityid, $more);
-        } else {
-            return static::getComment($entityid, $more);
-        }
-    }
-
-    public static function getUserComments(int $userid, array $more = []) {
         $query = '
-            SELECT * FROM SaveUserComment
-            WHERE userid = ?
+            SELECT * FROM SaveUser
+            WHERE entityid = ?
             ORDER BY savedat DESC
             LIMIT ? OFFSET ?
             ';
 
-        $queryArguments = static::extend([$userid], $more);
+        $queryArguments = static::extend([$entityid], $more);
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute($queryArguments);
         return static::fetchAll($stmt);
     }
 
+    public static function getCommentVoted(int $commentid, int $userid) {
+        $query = '
+            SELECT * FROM SaveUserComment
+            WHERE entityid = ? AND userid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$commentid, $userid]);
+        $comment = static::fetch($stmt);
+
+        $query = '
+            SELECT * FROM SaveUserAscendant
+            WHERE commentid = ? AND userid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$commentid, $userid]);
+        $story = static::fetch($stmt);
+
+        $merge = ['story' => $story, 'comment' => $comment];
+        return $merge;
+    }
+
+    public static function getStoryVoted(int $storyid, int $userid) {
+        $query = '
+            SELECT * FROM SaveUserStory
+            WHERE entityid = ? AND userid = ?
+            ORDER BY savedat DESC, entityid ASC
+            LIMIT ? OFFSET ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$storyid, $userid]);
+        return static::fetch($stmt);
+    }
+
+    public static function getUserComments(int $userid, array $more = []) {
+        $queryArguments = static::extend([$userid], $more);
+
+        $query = '
+            SELECT * FROM SaveUserComment
+            WHERE userid = ?
+            ORDER BY savedat DESC, entityid ASC
+            LIMIT ? OFFSET ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute($queryArguments);
+        $comments = static::fetchAll($stmt);
+
+        $query = '
+            SELECT * FROM SaveUserAscendant
+            WHERE userid = ?
+            ORDER BY savedat DESC, entityid ASC
+            LIMIT ? OFFSET ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute($queryArguments);
+        $stories = static::fetchAll($stmt);
+
+        $merge = API::group(['story', 'comment'], $stories, $comments);
+        return $merge;
+    }
+
     public static function getUserStories(int $userid, array $more = []) {
         $query = '
             SELECT * FROM SaveUserStory
             WHERE userid = ?
-            ORDER BY savedat DESC
+            ORDER BY savedat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ';
 
@@ -159,11 +200,33 @@ class Save extends APIEntity {
     }
 
     public static function getUserAll(int $userid, array $more = []) {
-        $stories = static::getUserStories($userid);
-        $comments = static::getUserComments($userid);
+        $queryArguments = static::extend([$userid], $more);
 
-        // Merge $stories and $comments descendingly by save_date
-        return static::mergeSaves($stories, $comments, $more);
+        $query = '
+            SELECT * FROM SaveUserAll
+            WHERE userid = ?
+            ORDER BY savedat DESC, entityid ASC
+            LIMIT ? OFFSET ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute($queryArguments);
+        $saves = static::fetchAll($stmt);
+
+        $query = '
+            SELECT *
+            FROM SaveUserAllAscendant
+            WHERE userid = ?
+            ORDER BY savedat DESC, entityid ASC
+            LIMIT ? OFFSET ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute($queryArguments);
+        $ascendants = static::fetchAll($stmt);
+
+        $mix = static::remix($saves, $ascendants);
+        return $mix;
     }
 
     public static function readAllComments(array $more = []) {
@@ -196,7 +259,7 @@ class Save extends APIEntity {
 
     public static function readAll(array $more = []) {
         $query = '
-            SELECT * FROM Save
+            SELECT * FROM SaveAll
             ORDER BY savedat
             LIMIT ? OFFSET ?
             ';
