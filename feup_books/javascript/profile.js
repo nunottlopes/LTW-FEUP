@@ -111,36 +111,26 @@ function loadPage(user){
 
   /////////////// MY CHANNELS ///////////////
 
-  //TODO: faltam a função api.channel.get que devolve os channels subscribes por um user
+  api.channel.get({creatorid:userid}).then(response => {return response.json()}).then(json => {
+    var content = "";
+    content += `<h1>My Channels</h1>
+    <div class="profile_content_inside">`;
+
+    if(json.data.length == 0){
+      content += `<h3>No channels created by you. <a href="create_channel.php">Create a new channel now</a>.</h3>`;
+    }
+
+    for(let channel in json.data){
+      content += `<div class="profile_post">
+        <a href="channel.php?id=${json.data[channel].channelid}"><h2>${json.data[channel].channelname}</h2></a>
+      </div>`;
+    }
+    content += '</div>';
+    
+    arrayContentDiv["my_channels"] = content;
+  })
 
   document.querySelector("#my_channels").addEventListener("click", function(){
-    arrayContentDiv["my_channels"] = `<h1>My Channels</h1>
-      <div class="profile_content_inside">
-        <div onmouseover="bigImg()" onmouseout="normalImg()" class="profile_post">
-          <a href="#"><h2>Channel1</h2></a>
-          <div id="edit_delete_object">	
-            <i class="fa fa-edit"></i>
-            <i class="fa fa-trash-o"></i>
-          </div>
-          <h5>Subscribed 4 hours ago</h5>
-        </div>
-        <div onmouseover="bigImg()" onmouseout="normalImg()" class="profile_post">
-          <a href="#"><h2>Channel2</h2></a>
-          <div id="edit_delete_object">	
-            <i class="fa fa-edit"></i>
-            <i class="fa fa-trash-o"></i>
-          </div>
-          <h5>Subscribed 4 hours ago</h5>
-        </div>
-        <div class="profile_post">
-          <a href="#"><h2>Channel3</h2></a>
-          <h5>Subscribed 4 hours ago</h5>
-        </div>
-        <div class="profile_post">
-          <a href="#"><h2>Channel4</h2></a>
-          <h5>Subscribed 4 hours ago</h5>
-        </div>
-      </div>`;
     contentDiv.innerHTML = arrayContentDiv["my_channels"];
   });
 
@@ -165,21 +155,23 @@ function loadPage(user){
       }
 
       for(let saved in json.data){
-        content += `<div class="profile_post" id="profile_post_${json.data[saved].entityid}" onmouseover="showEditDeleteButton(${json.data[saved].entityid})" onmouseout="hideEditDeleteButton(${json.data[saved].entityid})">`;
-        if(!isNaN(json.data[saved].parentid)){
-          content += `<a href="post.php?id=${json.data[saved].storyid}#comment${json.data[saved].parentid}"><h4> ${json.data[saved].content} </h4></a>
-            <div id="edit_delete_object_${json.data[saved].entityid}">	
-              <a onclick="deleteSave(${userid}, ${json.data[saved].entityid})"><i class="fa fa-trash-o"></i></a>
+        if(json.data[saved].type == "comment"){
+          content += `<div class="profile_post" id="profile_post_${json.data[saved].comment.entityid}" onmouseover="showEditDeleteButton(${json.data[saved].comment.entityid})" onmouseout="hideEditDeleteButton(${json.data[saved].comment.entityid})">`;
+          content += `<a href="post.php?id=${json.data[saved].story.storyid}#comment${json.data[saved].comment.parentid}"><h3> ${json.data[saved].story.storyTitle} </h3></a>
+            <h4> ${json.data[saved].comment.content} </h4>
+            <div id="edit_delete_object_${json.data[saved].comment.entityid}">	
+              <a onclick="deleteSave(${userid}, ${json.data[saved].comment.entityid})"><i class="fa fa-trash-o"></i></a>
             </div>
-            <h5>Posted ${timeDifference(json.data[saved].createdat)}</h5>
+            <h5>Posted ${timeDifference(json.data[saved].comment.updatedat)}</h5>
           </div>`;
         }
         else{
-          content += `<a href="post.php?id=${json.data[saved].entityid}"><h2>${json.data[saved].storyTitle}</h2></a>
-            <div id="edit_delete_object_${json.data[saved].entityid}">	
-              <a onclick="deleteSave(${userid}, ${json.data[saved].entityid})"><i class="fa fa-trash-o"></i></a>
+          content += `<div class="profile_post" id="profile_post_${json.data[saved].story.entityid}" onmouseover="showEditDeleteButton(${json.data[saved].story.entityid})" onmouseout="hideEditDeleteButton(${json.data[saved].story.entityid})">`;
+          content += `<a href="post.php?id=${json.data[saved].story.storyid}"><h2>${json.data[saved].story.storyTitle}</h2></a>
+            <div id="edit_delete_object_${json.data[saved].story.entityid}">	
+              <a onclick="deleteSave(${userid}, ${json.data[saved].story.entityid})"><i class="fa fa-trash-o"></i></a>
             </div>
-            <h5>Posted ${timeDifference(json.data[saved].createdat)}</h5>
+            <h5>Posted ${timeDifference(json.data[saved].story.updatedat)}</h5>
           </div>`;
         }
       }
