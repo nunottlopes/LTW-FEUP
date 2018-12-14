@@ -42,12 +42,16 @@ function loadPage(user){
       var content = "";
       content += `<h1>My Posts</h1>
       <div class="profile_content_inside">`;
+
+      if(json.data.length == 0){
+        content += `<h3>No posts available. <a href="create_post.php">Create a post now</a>.</h3>`;
+      }
       for(let story in json.data){
-        content += `<div class="profile_post" onmouseover="showEditDeleteButton(${json.data[story].entityid})" onmouseout="hideEditDeleteButton(${json.data[story].entityid})">
+        content += `<div class="profile_post" id="profile_post_${json.data[story].entityid}" onmouseover="showEditDeleteButton(${json.data[story].entityid})" onmouseout="hideEditDeleteButton(${json.data[story].entityid})">
           <a href="post.php?id=${json.data[story].entityid}"><h2>${json.data[story].storyTitle}</h2></a>
-          <div id="edit_delete_object_${json.data[story].entityid}" style="display: none; position: relative; float: right;">	
-            <a href="" onclick="editPost(${json.data[story].entityid})"><i class="fa fa-edit" style="margin-right: 1em; color: black;"></i></a>
-            <a href="" onclick="deletePost(${json.data[story].entityid})"><i class="fa fa-trash-o" style="margin-right: 1em; color: black;"></i></a>
+          <div id="edit_delete_object_${json.data[story].entityid}">	
+            <a onclick="editPost(${json.data[story].entityid})"><i class="fa fa-edit"></i></a>
+            <a onclick="deletePost(${json.data[story].entityid})"><i class="fa fa-trash-o"></i></a>
           </div>
           <h5>Posted ${timeDifference(json.data[story].createdat)}</h5>
         </div>`;
@@ -77,13 +81,18 @@ function loadPage(user){
       var content = "";
       content += `<h1>My Comments</h1>
       <div class="profile_content_inside">`;
+
+      if(json.data.length == 0){
+        content += `<h3>No comments available.</h3>`;
+      }
+
       for(let comment in json.data){
         var storyid = json.data[comment].storyid;
-        content += `<div class="profile_post" onmouseover="showEditDeleteButton(${json.data[comment].entityid})" onmouseout="hideEditDeleteButton(${json.data[comment].entityid})">
+        content += `<div class="profile_post" id="profile_post_${json.data[comment].entityid}" onmouseover="showEditDeleteButton(${json.data[comment].entityid})" onmouseout="hideEditDeleteButton(${json.data[comment].entityid})">
           <a href="post.php?id=${storyid}#comment${json.data[comment].parentid}"><h4> ${json.data[comment].content} </h4></a>
-          <div id="edit_delete_object_${json.data[comment].entityid}" style="display: none; position: relative; float: right;">	
-            <a href="" onclick="editComment(${json.data[comment].entityid})"><i class="fa fa-edit" style="margin-right: 1em; color: black;"></i></a>
-            <a href="" onclick="deleteComment(${json.data[comment].entityid})"><i class="fa fa-trash-o" style="margin-right: 1em; color: black;"></i></a>
+          <div id="edit_delete_object_${json.data[comment].entityid}">	
+            <a onclick="editComment(${json.data[comment].entityid})"><i class="fa fa-edit"></i></a>
+            <a onclick="deleteComment(${json.data[comment].entityid})"><i class="fa fa-trash-o"></i></a>
           </div>
           <h5>Posted ${timeDifference(json.data[comment].createdat)}</h5>
         </div>`;
@@ -150,18 +159,28 @@ function loadPage(user){
       var content = "";
       content += `<h1>My Saved Posts</h1>
       <div class="profile_content_inside">`;
+
+      if(json.data.length == 0){
+        content += `<h3>No saved posts or comments available.`;
+      }
+
       for(let saved in json.data){
+        content += `<div class="profile_post" id="profile_post_${json.data[saved].entityid}" onmouseover="showEditDeleteButton(${json.data[saved].entityid})" onmouseout="hideEditDeleteButton(${json.data[saved].entityid})">`;
         if(!isNaN(json.data[saved].parentid)){
-          content += `<div class="profile_post">
-          <a href="post.php?id=${json.data[saved].storyid}#comment${json.data[saved].parentid}"><h4> ${json.data[saved].content} </h4></a>
-          <h5>Posted ${timeDifference(json.data[saved].createdat)}</h5>
-        </div>`;
+          content += `<a href="post.php?id=${json.data[saved].storyid}#comment${json.data[saved].parentid}"><h4> ${json.data[saved].content} </h4></a>
+            <div id="edit_delete_object_${json.data[saved].entityid}">	
+              <a onclick="deleteSave(${userid}, ${json.data[saved].entityid})"><i class="fa fa-trash-o"></i></a>
+            </div>
+            <h5>Posted ${timeDifference(json.data[saved].createdat)}</h5>
+          </div>`;
         }
         else{
-          content += `<div class="profile_post">
-          <a href="post.php?id=${json.data[saved].entityid}"><h2>${json.data[saved].storyTitle}</h2></a>
-          <h5>Posted ${timeDifference(json.data[saved].createdat)}</h5>
-        </div>`;
+          content += `<a href="post.php?id=${json.data[saved].entityid}"><h2>${json.data[saved].storyTitle}</h2></a>
+            <div id="edit_delete_object_${json.data[saved].entityid}">	
+              <a onclick="deleteSave(${userid}, ${json.data[saved].entityid})"><i class="fa fa-trash-o"></i></a>
+            </div>
+            <h5>Posted ${timeDifference(json.data[saved].createdat)}</h5>
+          </div>`;
         }
       }
       content += '</div>';
@@ -214,19 +233,26 @@ function hideEditDeleteButton(entityid){
 }
 
 function deletePost(entityid){
+  document.querySelector(".profile_content_inside").removeChild(document.querySelector("#profile_post_"+entityid));
   api.story.delete({storyid: entityid});
-  console.log(entityid);
 }
 
 function editPost(entityid){
+  console.log("Edit post: ");
   console.log(entityid);
 }
 
 function deleteComment(entityid){
+  document.querySelector(".profile_content_inside").removeChild(document.querySelector("#profile_post_"+entityid));
   api.comment.delete({commentid: entityid});
-  console.log(entityid);
 }
 
 function editComment(entityid){
+  console.log("Edit comment: ");
   console.log(entityid);
+}
+
+function deleteSave(userid, entityid){
+  document.querySelector(".profile_content_inside").removeChild(document.querySelector("#profile_post_"+entityid));
+  api.save.delete({userid:userid, entityid: entityid});
 }

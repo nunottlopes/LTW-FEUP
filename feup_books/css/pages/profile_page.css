@@ -148,6 +148,15 @@ body > section#account > nav > ul > a{
     color: white;
 }
 
+.profile_content_inside > h3 > a{
+    text-decoration: none;
+    color: black;
+}
+.profile_content_inside > h3 > a:hover{
+    text-decoration: underline;
+    color: blue;
+}
+
 .profile_post{
     border-bottom: 1px solid rgb(235, 225, 225);
 }
@@ -169,12 +178,16 @@ body > section#account > nav > ul > a{
     color: rgb(121, 119, 119);
 }
 
-.profile_post > div#edit_delete_object{
+.profile_post > div{
     display: none;
     position: relative;
     float: right;
 }
 
-.profile_post > div#edit_delete_object i{
+.profile_post > div > a > i{
     margin-right: 1em;
+}
+
+.profile_post > div > a > i:hover{
+    cursor: pointer;
 }
