@@ -1,15 +1,11 @@
 var post_page_post = document.querySelector("#post_page_post");
 var storyid = post_page_post.getAttribute("story-id");
 
-// var user;
-// api.user.get().then(response => {
-//     return response.json();
-// })
-// .then(json => {user = json.data; console.log("ok"); getPageContent()})
+api.auth().then(response => {return response.json()}).then(json =>{
+    getPageContent(json.data);
+})
 
-getPageContent();
-
-function getPageContent(){
+function getPageContent(user){
     // Get Post 
     api.story.get({storyid:storyid}).then(response => {
         if(response.ok){
@@ -20,7 +16,7 @@ function getPageContent(){
             throw response;
         }
     })
-    .then(json => getStory(json.data));
+    .then(json => getStory(user, json.data));
 
     // Get Comments
     api.tree.get({ascendantid:storyid}).then(response => {
@@ -32,10 +28,10 @@ function getPageContent(){
             throw response;
         }
     })
-    .then(json => getComments(json.data));
+    .then(json => getComments(user, json.data));
 }
 
-function getStory(story){
+function getStory(user, story){
     // Article
     var article = document.querySelector(".post_complete");
     let article1 = `<article class="post_complete">
@@ -54,51 +50,61 @@ function getStory(story){
             break;
     }
 
-    // TODO: falta adicionar o número de comments na post_page
     let article3 = `<footer>
-            <button class="post_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> ${story.upvotes} Upvotes</button>
-            <button class="post_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> ${story.downvotes} Downvotes</button>
-            <button class="post_button" onclick="comments()"><i class="fa fa-comment"></i> ${story.count} Comments</button>
-            <button class="post_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
-            <button class="post_button" onclick="share()"><i class="fa fa-share-alt"></i> Share</button>
+            <button class="post_button" onclick="upvote(${story.entityid})"><i class='fas fa-arrow-up'></i> ${story.upvotes} Upvotes</button>
+            <button class="post_button" onclick="downvote(${story.entityid})"><i class='fas fa-arrow-down'></i> ${story.downvotes} Downvotes</button>
+            <button class="post_button"><i class="fa fa-comment"></i> ${story.count} Comments</button>
+            <button class="post_button" onclick="save(${story.entityid})"><i class="fa fa-bookmark"></i> Save</button>
+            <button class="post_button" onclick="share(${story.entityid})"><i class="fa fa-share-alt"></i> Share</button>
         </footer>
     </article>`;
 
     article.innerHTML = article1 + article2 + article3;
-    console.log(article.innerHTML);
+
+    //Comment Form
+    if(user != null){
+        document.querySelector("#add_comment").innerHTML = `<img src="images/users/user.png">
+        <form action="api/public/comment.php?parentid=${story.entityid}&authorid=${user.userid}" method="post">
+            <textarea name="content" placeholder="Add your comment here..."></textarea>
+            <input type="submit" value="Add comment" class="submit_comment_button">
+        </form>`;
+    }
+    else{
+        document.querySelector("#add_comment").innerHTML = `<h3><a onclick='loginpopup()'>Login</a> or <a onclick='signuppopup()'>Signup</a> to comment the post.</h3>`
+    }
 }
 
 // Get All Comments
 var allComments = "";
 
-function getComments(data){
+function getComments(user, data){
     allComments = "";
     // Comments
     var comments = document.querySelector("#post_comments");
 
-    getCommentsFromTree(data);
+    getCommentsFromTree(user, data);
 
     comments.innerHTML = allComments;
 }
 
-function getCommentsFromTree(data){
+function getCommentsFromTree(user, data){
     for(let comment in data){
         var currentComment = data[comment];
 
-        var article = `<article id=${currentComment.entityid} class="post_comment">
+        var article = `<article id=comment${currentComment.entityid} class="post_comment">
         <header>${currentComment.authorname}, ${timeDifference(currentComment.updatedat)}</header>
         <p>${currentComment.content}</p>
         <footer>
-            <button class="comment_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> ${currentComment.upvotes} Upvotes</button>
-            <button class="comment_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> ${currentComment.downvotes} Downvotes</button>
-            <button class="comment_button" onclick="reply()"><i class="fa fa-comment"></i> Reply</button>
-            <button class="comment_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
+            <button class="comment_button" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${currentComment.upvotes} Upvotes</button>
+            <button class="comment_button" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${currentComment.downvotes} Downvotes</button>
+            <button class="comment_button" onclick="reply(${currentComment.entityid})"><i class="fa fa-comment"></i> Reply</button>
+            <button class="comment_button" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>
         </footer>`;
 
         allComments += article;
 
         if(currentComment.children.length > 0){
-            getCommentsFromTree(currentComment.children);
+            getCommentsFromTree(user, currentComment.children);
         }
         allComments += '</article>';
     }

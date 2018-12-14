@@ -37,11 +37,11 @@ function getStories(data) {
     
         let a3 = `</a>
             <footer>
-                <button class="post_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> ${data[story].upvotes} Upvotes</button>
-                <button class="post_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> ${data[story].downvotes} Downvotes</button>
-                <button class="post_button" onclick="comments()"><i class="fa fa-comment"></i> ${data[story].count} Comments</button>
-                <button class="post_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
-                <button class="post_button" onclick="share()"><i class="fa fa-share-alt"></i> Share</button>
+                <button class="post_button" onclick="upvote(${data[story].entityid})"><i class='fas fa-arrow-up'></i> ${data[story].upvotes} Upvotes</button>
+                <button class="post_button" onclick="downvote(${data[story].entityid})"><i class='fas fa-arrow-down'></i> ${data[story].downvotes} Downvotes</button>
+                <a href="post.php?id=${data[story].entityid}"><button class="post_button"><i class="fa fa-comment"></i> ${data[story].count} Comments</button></a>
+                <button class="post_button" onclick="save(${data[story].entityid})"><i class="fa fa-bookmark"></i> Save</button>
+                <button class="post_button" onclick="share(${data[story].entityid})"><i class="fa fa-share-alt"></i> Share</button>
             </footer>
         </article>`;
 
@@ -57,15 +57,13 @@ function getChannels(data) {
     let all_channels = document.querySelector('#aside_channels ul');
     all_channels.innerHTML = "";
     for(let channel in data) {
-        let li = document.createElement('li');
         let channelname = data[channel].channelname;
         let channelid = data[channel].channelid;
         let a = document.createElement('a');
         a.textContent = channelname;
         a.setAttribute('href', `channel.php?id=${channelid}`);
-
-        li.appendChild(a);
-        all_channels.appendChild(li);   
+ 
+        all_channels.appendChild(a);  
     }
 }
 

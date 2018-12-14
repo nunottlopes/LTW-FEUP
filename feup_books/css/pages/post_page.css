@@ -67,6 +67,19 @@
     height: 2em;
 }
 
+#add_comment h3{
+    padding-left: 1em;
+}
+
+#add_comment > h3 a{
+    cursor: pointer;
+}
+
+#add_comment > h3 a:hover{
+    text-decoration: underline;
+    color: blue;
+}
+
 .submit_comment_button{
     display: inline-block;
     padding: 0.3em 1.2em;

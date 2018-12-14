@@ -4,13 +4,7 @@
 
         <article class="post_complete"></article>
 
-        <div id="add_comment">
-            <img src="images/users/user.png">
-            <form action="#" method="post">
-                <textarea name="comment" placeholder="Add your comment here..."></textarea>
-                <input type="submit" value="Add comment" class="submit_comment_button">
-            </form>
-        </div>
+        <div id="add_comment"></div>
 
         <div class="default_dropdown">
             <header>Sort by</header>

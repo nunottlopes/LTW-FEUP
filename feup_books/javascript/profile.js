@@ -75,18 +75,8 @@ function loadPage(user){
       <div class="profile_content_inside">`;
       for(let comment in json.data){
         var storyid = json.data[comment].storyid;
-
-        // TODO: FALTA ALTERA O STORY TITLE
-        // api.story.get({storyid:storyid}).then(response => {return response.json()}).then(json => {
-        //   content += `<div class="profile_post">
-        //   <a href="post.php?id=${storyid}"><h2>${json.data.storyTitle}</h2></a>
-        //   <h5>Posted ${timeDifference(json.data.createdat)}</h5>
-        //   </div>`;
-        // })
-
         content += `<div class="profile_post">
-          <a href="post.php?id=${storyid}"><h2>${json.data[comment].storyTitle}</h2></a>
-          <h4> ${json.data[comment].content} </h4>
+          <a href="post.php?id=${storyid}#comment${json.data[comment].parentid}"><h4> ${json.data[comment].content} </h4></a>
           <h5>Posted ${timeDifference(json.data[comment].createdat)}</h5>
         </div>`;
       }
@@ -143,10 +133,8 @@ function loadPage(user){
       <div class="profile_content_inside">`;
       for(let saved in json.data){
         if(!isNaN(json.data[saved].parentid)){
-          // TODO: FALTA A STORY TITLE
           content += `<div class="profile_post">
-          <a href="post.php?id=${json.data[saved].storyid}"><h2>${json.data[saved].storyTitle}</h2></a>
-          <h4> ${json.data[saved].content} </h4>
+          <a href="post.php?id=${json.data[saved].storyid}#comment${json.data[saved].parentid}"><h4> ${json.data[saved].content} </h4></a>
           <h5>Posted ${timeDifference(json.data[saved].createdat)}</h5>
         </div>`;
         }
@@ -171,11 +159,11 @@ function loadPage(user){
   document.querySelector("#edit_profile").addEventListener("click", function(){
     arrayContentDiv["edit_profile"] = `<h1>Edit Profile</h1>
       <div class="profile_content_inside">
-      <form action="#" method="get">
+      <form action="handlers/updateProfile_handler.php" method="post">
         <div id="profile_button">
           <div id="profile_info">
-            Username <input type="text" name="username" value="Amadeu Pereira">
-            Email <input type="email" name="email" value="amadeupereira@gmail.com">
+            Username <input type="text" name="username" value="${user.username}">
+            Email <input type="email" name="email" value="${user.email}">
             New Password <input type="password" name="password">
             Retype Password <input type="password" name="repeat_password">
             Update Profile Picture <input type="file" name="fileToUpload">
@@ -194,6 +182,6 @@ function loadPage(user){
   /////////////// LOG OUT ///////////////
   document.querySelector("#logout").addEventListener("click", function(){
       api.logout();
-      window.location.replace("index.php");
+      window.location.reload();
   });
 }

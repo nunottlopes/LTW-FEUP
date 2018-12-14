@@ -19,8 +19,8 @@
         <div id="aside_favorite_post" class="aside_div">
             <header>FAVORITE POSTS AND COMMENTS</header>
             <ul>
-            <li><a href="#"><p>primeirolink blalbalbalba lbbabalbalba lbbbalbalba lbblbalbalba lbbabalbalba lbbbalbalbalba lbbabalbalba lbbbalbalbalba lbbabalbalba lbbba</p></a></li>
-            <li><a href="#"><p>primeirolink blalbalbalba lbbabalbalba lbbbalbalba lbblbalbalba lbbabalbalba lbbbalbalbalba lbbabalbalba lbbbalbalbalba lbbabalbalba lbbba</p></a></li>
+            <a href="#"><p>primeirolink blalbalbalba lbbabalbalba lbbbalbalba lbblbalbalba lbbabalbalba lbbbalbalbalba lbbabalbalba lbbbalbalbalba lbbabalbalba lbbba</p></a>
+            <a href="#"><p>primeirolink blalbalbalba lbbabalbalba lbbbalbalba lbblbalbalba lbbabalbalba lbbbalbalbalba lbbabalbalba lbbbalbalbalba lbbabalbalba lbbba</p></a>
             <ul>
         </div>
 

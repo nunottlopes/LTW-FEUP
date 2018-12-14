@@ -55,21 +55,20 @@
 #aside_favorite_post ul, #aside_channels ul {
     list-style-type: none;
     padding: 0;
+    display: flex;
+    flex-direction: column;
 }
 
-#aside_favorite_post ul > li, #aside_channels ul > li{
+#aside_favorite_post ul > a, #aside_channels ul > a{
     padding: 0.5em 1em;
+    text-decoration: none;
+    color: black;
 }
 
-#aside_favorite_post ul > li:hover, #aside_channels ul > li:hover{
+#aside_favorite_post ul > a:hover, #aside_channels ul > a:hover{
     background-color: #A5483E;
     color: white;
     padding: 0.5em 1em;
-}
-
-#aside_favorite_post a, #aside_channels a {
-    text-decoration: none;
-    color:inherit;
 }
 
 #aside_favorite_post p{

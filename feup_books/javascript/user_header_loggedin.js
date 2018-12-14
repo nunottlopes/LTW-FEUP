@@ -14,16 +14,16 @@ document.querySelector(".createpost_user_dropdown").addEventListener("click", fu
 });
 
 document.querySelector(".viewprofile_user_dropdown").addEventListener("click", function(){
-    window.location.replace("profile.php?id=1");
+    window.location.replace("profile.php");
 });
 
 // document.querySelector(".settings_user_dropdown").addEventListener("click", function(){
-//     window.location.replace("profile.php?id=1");
+//     window.location.replace("profile.php");
 // });
 
 document.querySelector(".logout_user_dropdown").addEventListener("click", function(){
     api.logout();
-    window.location.replace("index.php");
+    window.location.reload();
 });
 
 window.onclick = function(event) {
