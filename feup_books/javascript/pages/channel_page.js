@@ -72,7 +72,7 @@ function updateAside(data) {
     document.querySelector("#channel_info p").textContent =
         "by " + data.creatorname;
     document.querySelector("#channel_info").style.backgroundImage = 
-    `url('images/upload/medium/${data.bannerfile}')`;
+    `url('images/upload/small/${data.bannerfile}')`;
 }
 
 document.querySelectorAll("#dropdown_options > *").forEach(element => {
