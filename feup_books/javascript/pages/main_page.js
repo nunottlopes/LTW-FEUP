@@ -1,14 +1,22 @@
 let main_page_posts = document.querySelector('#main_page_posts');
 
-getContent(document.querySelector("#dropdown_selection").getAttribute("selectionid"));
-
-function getContent(sort) {
-    api.story.get("all&order="+sort, [200])
-    .then(response => response.json())
-    .then(json => getStories(json.data));
+let settings = {
+    sort: document.querySelector("#dropdown_selection").getAttribute("selectionid"),
+    limit: 5,
+    offset: 0
 }
 
-function getStories(data) {
+api.auth().then(response => {return response.json()}).then(json =>{
+    getContent(json.data);
+})
+
+function getContent(user) {
+    api.story.get({all: 1, order: settings.sort, limit: settings.limit, offset: settings.offset}, [200])
+    .then(response => response.json())
+    .then(json => getStories(user, json.data));
+}
+
+function getStories(user, data) {
     for(let story in data) {
 
         let a1 =
@@ -30,22 +38,55 @@ function getStories(data) {
         }
     
         let a3 = `</a>
-            <footer>
-                <button class="post_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> ${data[story].upvotes} Upvotes</button>
-                <button class="post_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> ${data[story].downvotes} Downvotes</button>
-                <button class="post_button" onclick="comments()"><i class="fa fa-comment"></i> ${data[story].count} Comments</button>
-                <button class="post_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
-                <button class="post_button" onclick="share()"><i class="fa fa-share-alt"></i> Share</button>
+            <footer id=post_button_${data[story].entityid}>
+                <button class="post_button" onclick="upvote(${data[story].entityid})"><i class='fas fa-arrow-up'></i> ${data[story].upvotes} Upvotes</button>
+                <button class="post_button" onclick="downvote(${data[story].entityid})"><i class='fas fa-arrow-down'></i> ${data[story].downvotes} Downvotes</button>
+                <a href="post.php?id=${data[story].entityid}"><button class="post_button"><i class="fa fa-comment"></i> ${data[story].count} Comments</button></a>
+                <button class="post_button" onclick="save(${data[story].entityid})"><i class="fa fa-bookmark"></i> Save</button>
+                <button class="post_button" onclick="share(${data[story].entityid})"><i class="fa fa-share-alt"></i> Share</button>
             </footer>
         </article>`;
 
-        main_page_posts.innerHTML += a1 + a2 + a3;   
+        main_page_posts.innerHTML += a1 + a2 + a3;
+        
+    }
+    if(user != null){
+        for(let story in data){
+            updateButtons(user.userid, data[story].entityid);
+        }
+    }
+}
+
+api.channel.get({all: 1}, [200])
+.then(response => response.json())
+.then(json => getChannels(json.data));
+
+function getChannels(data) {
+    let all_channels = document.querySelector('#aside_channels ul');
+    all_channels.innerHTML = "";
+    for(let channel in data) {
+        let channelname = data[channel].channelname;
+        let channelid = data[channel].channelid;
+        let a = document.createElement('a');
+        a.textContent = channelname;
+        a.setAttribute('href', `channel.php?id=${channelid}`);
+ 
+        all_channels.appendChild(a);  
     }
 }
 
 document.querySelectorAll("#dropdown_options > *").forEach(element => {
     element.addEventListener('click', () => {
         main_page_posts.innerHTML = "";
-        getContent(element.getAttribute("id"));
+        settings.offset = 0;
+        settings.sort = element.getAttribute("id");
+        getContent();
     });
 })
+
+window.onscroll = () => {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+        settings.offset += settings.limit;
+        getContent();
+    }
+}

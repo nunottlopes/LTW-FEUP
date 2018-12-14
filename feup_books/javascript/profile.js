@@ -1,183 +1,232 @@
-var divs = document.querySelectorAll("#account ul>*");
+api.auth().then(response => {return response.json()}).then(json =>{
+  if(json.data == null){
+    window.location.replace("index.php");
+  }
+  else{
+    loadPage(json.data);
+  }
+})
 
-for(let i = 0; i < divs.length; i++){
-    divs[i].addEventListener("click", function(){
-        divs[i].classList.add("profile_options_selected");
-        for(let n = 0; n < divs.length; n++){
-            if(n != i){
-                divs[n].classList.remove("profile_options_selected");
-            }
+function loadPage(user){
+  var userid = user.userid;
+  var divs = document.querySelectorAll("#account ul>*");
+
+  for(let i = 0; i < divs.length; i++){
+      divs[i].addEventListener("click", function(){
+          divs[i].classList.add("profile_options_selected");
+          for(let n = 0; n < divs.length; n++){
+              if(n != i){
+                  divs[n].classList.remove("profile_options_selected");
+              }
+          }
+      });
+  }
+
+  //TODO: FALTA ALTERAR A IMAGEM TBM
+  document.querySelector("#account_menu_username").textContent = user.username;
+
+  var arrayContentDiv = [];
+  var contentDiv = document.querySelector("#profile_content");
+
+  /////////////// MY STORIES ///////////////
+  api.story.get({authorid:userid}).then(response => {
+    if(response.ok){
+        return response.json();
+    }
+    else{
+        window.location.replace("index.php");
+        throw response;
+    }
+  })
+  .then(json => {
+      var content = "";
+      content += `<h1>My Posts</h1>
+      <div class="profile_content_inside">`;
+      for(let story in json.data){
+        content += `<div class="profile_post" onmouseover="showEditDeleteButton(${json.data[story].entityid})" onmouseout="hideEditDeleteButton(${json.data[story].entityid})">
+          <a href="post.php?id=${json.data[story].entityid}"><h2>${json.data[story].storyTitle}</h2></a>
+          <div id="edit_delete_object_${json.data[story].entityid}" style="display: none; position: relative; float: right;">	
+            <a href="" onclick="editPost(${json.data[story].entityid})"><i class="fa fa-edit" style="margin-right: 1em; color: black;"></i></a>
+            <a href="" onclick="deletePost(${json.data[story].entityid})"><i class="fa fa-trash-o" style="margin-right: 1em; color: black;"></i></a>
+          </div>
+          <h5>Posted ${timeDifference(json.data[story].createdat)}</h5>
+        </div>`;
+      }
+      content += '</div>';
+      
+      arrayContentDiv["my_posts"] = content;
+      contentDiv.innerHTML = content;
+  });
+
+  document.querySelector("#my_posts").addEventListener("click", function(){
+    contentDiv.innerHTML = arrayContentDiv["my_posts"];
+  });
+
+
+  /////////////// MY COMMENTS ///////////////
+  api.comment.get({authorid:userid}).then(response => {
+    if(response.ok){
+        return response.json();
+    }
+    else{
+        window.location.replace("index.php");
+        throw response;
+    }
+  })
+  .then(json => {
+      var content = "";
+      content += `<h1>My Comments</h1>
+      <div class="profile_content_inside">`;
+      for(let comment in json.data){
+        var storyid = json.data[comment].storyid;
+        content += `<div class="profile_post" onmouseover="showEditDeleteButton(${json.data[comment].entityid})" onmouseout="hideEditDeleteButton(${json.data[comment].entityid})">
+          <a href="post.php?id=${storyid}#comment${json.data[comment].parentid}"><h4> ${json.data[comment].content} </h4></a>
+          <div id="edit_delete_object_${json.data[comment].entityid}" style="display: none; position: relative; float: right;">	
+            <a href="" onclick="editComment(${json.data[comment].entityid})"><i class="fa fa-edit" style="margin-right: 1em; color: black;"></i></a>
+            <a href="" onclick="deleteComment(${json.data[comment].entityid})"><i class="fa fa-trash-o" style="margin-right: 1em; color: black;"></i></a>
+          </div>
+          <h5>Posted ${timeDifference(json.data[comment].createdat)}</h5>
+        </div>`;
+      }
+      content += '</div>';
+      
+      arrayContentDiv["my_comments"] = content;
+
+
+  });
+
+  document.querySelector("#my_comments").addEventListener("click", function(){
+    contentDiv.innerHTML = arrayContentDiv["my_comments"];
+    
+  });
+
+  /////////////// MY CHANNELS ///////////////
+
+  //TODO: faltam a função api.channel.get que devolve os channels subscribes por um user
+
+  document.querySelector("#my_channels").addEventListener("click", function(){
+    arrayContentDiv["my_channels"] = `<h1>My Channels</h1>
+      <div class="profile_content_inside">
+        <div onmouseover="bigImg()" onmouseout="normalImg()" class="profile_post">
+          <a href="#"><h2>Channel1</h2></a>
+          <div id="edit_delete_object">	
+            <i class="fa fa-edit"></i>
+            <i class="fa fa-trash-o"></i>
+          </div>
+          <h5>Subscribed 4 hours ago</h5>
+        </div>
+        <div onmouseover="bigImg()" onmouseout="normalImg()" class="profile_post">
+          <a href="#"><h2>Channel2</h2></a>
+          <div id="edit_delete_object">	
+            <i class="fa fa-edit"></i>
+            <i class="fa fa-trash-o"></i>
+          </div>
+          <h5>Subscribed 4 hours ago</h5>
+        </div>
+        <div class="profile_post">
+          <a href="#"><h2>Channel3</h2></a>
+          <h5>Subscribed 4 hours ago</h5>
+        </div>
+        <div class="profile_post">
+          <a href="#"><h2>Channel4</h2></a>
+          <h5>Subscribed 4 hours ago</h5>
+        </div>
+      </div>`;
+    contentDiv.innerHTML = arrayContentDiv["my_channels"];
+  });
+
+
+  /////////////// MY SAVED POSTS ///////////////
+  api.save.get({userid:userid, all:""}).then(response => {
+    if(response.ok){
+        return response.json();
+    }
+    else{
+        window.location.replace("index.php");
+        throw response;
+    }
+  })
+  .then(json => {
+      var content = "";
+      content += `<h1>My Saved Posts</h1>
+      <div class="profile_content_inside">`;
+      for(let saved in json.data){
+        if(!isNaN(json.data[saved].parentid)){
+          content += `<div class="profile_post">
+          <a href="post.php?id=${json.data[saved].storyid}#comment${json.data[saved].parentid}"><h4> ${json.data[saved].content} </h4></a>
+          <h5>Posted ${timeDifference(json.data[saved].createdat)}</h5>
+        </div>`;
         }
-    });
+        else{
+          content += `<div class="profile_post">
+          <a href="post.php?id=${json.data[saved].entityid}"><h2>${json.data[saved].storyTitle}</h2></a>
+          <h5>Posted ${timeDifference(json.data[saved].createdat)}</h5>
+        </div>`;
+        }
+      }
+      content += '</div>';
+      
+      arrayContentDiv["my_saved_posts"] = content;
+  });
+
+  document.querySelector("#my_saved_posts").addEventListener("click", function(){
+    contentDiv.innerHTML = arrayContentDiv["my_saved_posts"];
+  });
+
+
+  /////////////// EDIT PROFILE ///////////////
+  document.querySelector("#edit_profile").addEventListener("click", function(){
+    arrayContentDiv["edit_profile"] = `<h1>Edit Profile</h1>
+      <div class="profile_content_inside">
+      <form action="handlers/updateProfile_handler.php" method="post">
+        <div id="profile_button">
+          <div id="profile_info">
+            Username <input type="text" name="username" value="${user.username}">
+            Email <input type="email" name="email" value="${user.email}">
+            New Password <input type="password" name="password">
+            Retype Password <input type="password" name="repeat_password">
+            Update Profile Picture <input type="file" name="fileToUpload">
+          </div>
+          <div id="button_profile">
+            <input type="submit" value="Save changes">
+          </div>
+        </div>
+      </form>
+      </div>`;
+
+    contentDiv.innerHTML = arrayContentDiv["edit_profile"];
+
+  });
+
+  /////////////// LOG OUT ///////////////
+  document.querySelector("#logout").addEventListener("click", function(){
+      api.logout();
+      window.location.reload();
+  });
 }
 
-//TODO: cannot do like this
-//change the way i get authorid
-var authorid = parseInt(document.querySelector("#account").getAttribute("user-id"));
-//
+function showEditDeleteButton(entityid){
+  document.querySelector("#edit_delete_object_"+entityid).style.display = "inline";
+}
 
-var arrayContentDiv = [];
-var contentDiv = document.querySelector("#profile_content");
+function hideEditDeleteButton(entityid){
+  document.querySelector("#edit_delete_object_"+entityid).style.display = "none";
+}
 
-api.story.get({authorid:authorid}).then(response => {
-  if(response.ok){
-      return response.json();
-  }
-  else{
-      window.location.replace("index.php");
-      throw response;
-  }
-})
-.then(json => {
-    var content = "";
-    content += `<h1>My Posts</h1>
-    <div class="profile_content_inside">`;
-    for(let story in json.data){
-      console.log(json.data[story]);
+function deletePost(entityid){
+  api.story.delete({storyid: entityid});
+  console.log(entityid);
+}
 
-      content += `<div class="profile_post">
-        <a href="post.php?id=${json.data[story].storyid}"><h2>${json.data[story].storyTitle}</h2></a>
-        <h5>Posted ${timeDifference(json.data[story].createdat)}</h5>
-      </div>`;
-    }
-    content += '</div>';
-    
-    arrayContentDiv["my_posts"] = content;
-    contentDiv.innerHTML = content;
-});
+function editPost(entityid){
+  console.log(entityid);
+}
 
-api.comment.get({authorid:authorid}).then(response => {
-  if(response.ok){
-      return response.json();
-  }
-  else{
-      window.location.replace("index.php");
-      throw response;
-  }
-})
-.then(json => {
-    // var content = "";
-    // content += `<h1>My Posts</h1>
-    // <div class="profile_content_inside">`;
-    // for(let story in json.data){
-    //   console.log(json.data[story]);
+function deleteComment(entityid){
+  api.comment.delete({commentid: entityid});
+  console.log(entityid);
+}
 
-    //   content += `<div class="profile_post">
-    //     <a href="post.php?id=${json.data[story].storyid}"><h2>${json.data[story].storyTitle}</h2></a>
-    //     <h5>Posted ${timeDifference(json.data[story].createdat)}</h5>
-    //   </div>`;
-    // }
-    // content += '</div>';
-    
-    // arrayContentDiv["my_comments"] = content;
-});
-
-//api.channel.get ainda não existe a função que devolve os channels subscribed
-//api.save.get("userid=1&all")
-
-document.querySelector("#my_posts").addEventListener("click", function(){
-  contentDiv.innerHTML = arrayContentDiv["my_posts"];
-});
-
-document.querySelector("#my_comments").addEventListener("click", function(){
-  contentDiv.innerHTML = arrayContentDiv["my_comments"];
-
-    contentDiv.innerHTML = `<h1>My Comments</h1>
-    <div class="profile_content_inside">
-      <div class="profile_post">
-        <a href="#"><h3>StoryTitle</h3></a>
-        <h4>comentáriotodo</h4>
-        <h5>Posted by Amadeu 4 hours ago</h5>
-      </div>
-      <div class="profile_post">
-        <a href="#"><h2>Comment2</h2></a>
-        <h5>Posted by Amadeu 4 hours ago</h5>
-      </div>
-      <div class="profile_post">
-        <a href="#"><h2>Comment3</h2></a>
-        <h5>Posted by Amadeu 4 hours ago</h5>
-      </div>
-      <div class="profile_post">
-        <a href="#"><h2>Comment4</h2></a>
-        <h5>Posted by Amadeu 4 hours ago</h5>
-      </div>
-    </div>`;
-});
-
-document.querySelector("#my_channels").addEventListener("click", function(){
-  arrayContentDiv["my_channels"] = `<h1>My Channels</h1>
-    <div class="profile_content_inside">
-      <div class="profile_post">
-        <a href="#"><h2>Channel1</h2></a>
-        <h5>Subscribed 4 hours ago</h5>
-      </div>
-      <div class="profile_post">
-        <a href="#"><h2>Channel2</h2></a>
-        <h5>Subscribed 4 hours ago</h5>
-      </div>
-      <div class="profile_post">
-        <a href="#"><h2>Channel3</h2></a>
-        <h5>Subscribed 4 hours ago</h5>
-      </div>
-      <div class="profile_post">
-        <a href="#"><h2>Channel4</h2></a>
-        <h5>Subscribed 4 hours ago</h5>
-      </div>
-    </div>`;
-
-  contentDiv.innerHTML = arrayContentDiv["my_channels"];
-
-});
-
-document.querySelector("#my_saved_posts").addEventListener("click", function(){
-  arrayContentDiv["my_saved_posts"] = `<h1>My Saved Posts</h1>
-    <div class="profile_content_inside">
-      <div class="profile_post">
-        <a href="#"><h2>Title</h2></a>
-        <h5>Posted by Amadeu 4 hours ago</h5>
-      </div>
-      <div class="profile_post">
-        <a href="#"><h2>Title2</h2></a>
-        <h5>Posted by Amadeu 4 hours ago</h5>
-      </div>
-      <div class="profile_post">
-        <a href="#"><h2>Title3</h2></a>
-        <h5>Posted by Amadeu 4 hours ago</h5>
-      </div>
-      <div class="profile_post">
-        <a href="#"><h2>Title4</h2></a>
-        <h5>Posted by Amadeu 4 hours ago</h5>
-      </div>
-    </div>`;
-
-  contentDiv.innerHTML = arrayContentDiv["my_saved_posts"];
-
-});
-
-document.querySelector("#edit_profile").addEventListener("click", function(){
-  arrayContentDiv["edit_profile"] = `<h1>Edit Profile</h1>
-    <div class="profile_content_inside">
-    <form action="#" method="get">
-      <div id="profile_button">
-        <div id="profile_info">
-          Username <input type="text" name="username" value="Amadeu Pereira">
-          Email <input type="email" name="email" value="amadeupereira@gmail.com">
-          New Password <input type="password" name="password">
-          Retype Password <input type="password" name="repeat_password">
-          Update Profile Picture <input type="file" name="fileToUpload">
-        </div>
-        <div id="button_profile">
-          <input type="submit" value="Save changes">
-        </div>
-      </div>
-    </form>
-    </div>`;
-
-  contentDiv.innerHTML = arrayContentDiv["edit_profile"];
-
-});
-
-document.querySelector("#logout").addEventListener("click", function(){
-    api.logout();
-    window.location.replace("index.php");
-});
+function editComment(entityid){
+  console.log(entityid);
+}

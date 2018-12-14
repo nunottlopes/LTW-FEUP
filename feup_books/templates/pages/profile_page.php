@@ -1,8 +1,8 @@
-<section id="account" user-id="<?=$_GET['id']?>" class="page">
+<section id="account" class="page">
   <nav id="account_menu">
     <div id="image_name">
       <img src="images/users/user.png" alt="">
-      <h1>Amadeu Pereira</h1>
+      <h1 id="account_menu_username"></h1>
     </div>
     <ul>
       <div id="my_posts" class="profile_options profile_options_selected">

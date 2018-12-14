@@ -1,37 +1,34 @@
 let channel_id = document.querySelector("#channel_page").getAttribute("channel_id");
-if(channel_id == "") window.location.replace("index.php");
 
-let nposts;
-let creatorname;
-let channel_data;
+let settings = {
+    sort: document.querySelector("#dropdown_selection").getAttribute("selectionid"),
+    limit: 5,
+    offset: 0
+}
 
 api.channel.get({channelid: channel_id})
-.then(response => {
-    if(response.ok) {
-        return response.json();
-    } else {
-        window.location.replace("index.php");
-        throw response;
-    }
-})
-.then(r => {
-    channel_data = r.data;
-    api.story.get({channelid: channel_id})
-    .then(response => response.json())
-    .then(json => {
-        getStories(json.data);
-        api.user.get({userid: channel_data.creatorid}, [200])
-        .then(response => response.json())
-        .then(r => {creatorname = r.data.username; updateAside()})
+    .then(response => {
+        if(response.ok) {
+            return response.json();
+        } else {
+            window.location.replace("index.php");
+            throw response;
+        }
+    }).then( r => {
+        updateAside(r.data);
+        getContent();
     })
-});
 
-
+function getContent() {
+    api.story.get({channelid: channel_id, order: settings.sort, limit: settings.limit, offset: settings.offset})
+    .then(response => response.json())
+    .then(json => getStories(json.data))
+}
 
 function getStories(data) {
     nposts = data.length;
 
-    let main_page_posts = document.querySelector('#channel_page_posts');
+    let channel_page_posts = document.querySelector('#channel_page_posts');
     for(let story in data) {
 
         let a1 =
@@ -62,16 +59,32 @@ function getStories(data) {
             </footer>
         </article>`;
 
-        main_page_posts.innerHTML += a1 + a2 + a3;
+        channel_page_posts.innerHTML += a1 + a2 + a3;
         
     }
 }
 
-function updateAside() {
+function updateAside(data) {
     document.querySelector("#channel_subscription h1").textContent =
-        channel_data.channelname;
+        data.channelname;
     document.querySelector("#channel_subscription h2").textContent =
-        nposts + ((nposts == 1) ? " Post" : " Posts");
+        data.count + ((data.count == 1) ? " Post" : " Posts");
     document.querySelector("#channel_subscription p").textContent =
-        "by " + creatorname;
+        "by " + data.creatorname;
+}
+
+document.querySelectorAll("#dropdown_options > *").forEach(element => {
+    element.addEventListener('click', () => {
+        channel_page_posts.innerHTML = "";
+        settings.offset = 0;
+        settings.sort = element.getAttribute("id");
+        getContent();
+    });
+})
+
+window.onscroll = () => {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+        settings.offset += settings.limit;
+        getContent();
+    }
 }

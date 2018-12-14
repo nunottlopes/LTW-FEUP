@@ -23,6 +23,7 @@
   text-align: center;
 }
 .popup .close {
+  border: 0;
   font-size: 30px;
   font-weight: bold;
   text-decoration: none;
@@ -31,6 +32,8 @@
   top: 0; right: 0;
   margin: 5px;
   line-height: 0.5em;
+  outline: none;
+  cursor: pointer;
 }
 
 @media(max-width: 700px){
