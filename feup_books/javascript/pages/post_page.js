@@ -1,11 +1,13 @@
-var post_page_post = document.querySelector("#post_page_post");
-var storyid = post_page_post.getAttribute("story-id");
+let post_page_post = document.querySelector("#post_page_post");
+let storyid = post_page_post.getAttribute("story-id");
+let user;
 
 api.auth().then(response => {return response.json()}).then(json =>{
-    getPageContent(json.data);
+    user = json.data;
+    getPageContent();
 })
 
-function getPageContent(user){
+function getPageContent(){
     // Get Post 
     api.story.get({storyid:storyid}).then(response => {
         if(response.ok){
@@ -16,24 +18,17 @@ function getPageContent(user){
             throw response;
         }
     })
-    .then(json => getStory(user, json.data));
+    .then(json => getStory(json.data));
 
     // Get Comments
-    api.tree.get({ascendantid:storyid}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(user, json.data));
+    api.tree.get({ascendantid:storyid}, [200])
+    .then(response => response.json())
+    .then(json => getComments(json.data));
 }
 
-function getStory(user, story){
+function getStory(story){
     // Article
-    var article = document.querySelector(".post_complete");
+    let article = document.querySelector(".post_complete");
     let article1 = `<article class="post_complete">
     <header>Posted by ${story.authorname} ${timeDifference(story.createdat)}</header>
         <h1>${story.storyTitle}</h1>`;
@@ -77,25 +72,25 @@ function getStory(user, story){
 }
 
 // Get All Comments
-var allComments = "";
+let allComments = "";
 
-function getComments(user, data){
+function getComments(data){
     allComments = "";
     // Comments
-    var comments = document.querySelector("#post_comments");
+    let comments = document.querySelector("#post_comments");
 
-    getCommentsFromTree(user, data);
+    getCommentsFromTree(data);
 
     comments.innerHTML = allComments;
 
-    updateButtonsComments(user, data);
+    updateButtonsComments(data);
 }
 
-function getCommentsFromTree(user, data){
+function getCommentsFromTree(data){
     for(let comment in data){
-        var currentComment = data[comment];
+        let currentComment = data[comment];
 
-        var article = `<article id=comment${currentComment.entityid} class="post_comment">
+        let article = `<article id=comment${currentComment.entityid} class="post_comment">
         <header>${currentComment.authorname}, ${timeDifference(currentComment.updatedat)}</header>
         <p>${currentComment.content}</p>
         <footer id=comment_button_${currentComment.entityid}>
@@ -106,136 +101,89 @@ function getCommentsFromTree(user, data){
         </footer>`;
 
         allComments += article;
-
+        
         if(currentComment.children.length > 0){
-            getCommentsFromTree(user, currentComment.children);
+            getCommentsFromTree(currentComment.children);
         }
         allComments += '</article>';
     }
 }
 
-function updateButtonsComments(user, data){
+function updateButtonsComments(data){
     for(let comment in data){
         
-        var currentComment = data[comment];
+        let currentComment = data[comment];
         updateButtons(user.userid, currentComment.entityid);
 
         if(currentComment.children.length > 0){
-            updateButtonsComments(user, currentComment.children);
+            updateButtonsComments(currentComment.children);
         }
     }
 }
 
-var selected_sort_option = document.querySelector("#dropdown_selection");
+// let selected_sort_option = document.querySelector("#dropdown_selection");
 
-document.querySelector("#top_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "TOP";
-    api.tree.get({ascendantid:storyid, order:"top"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
+// document.querySelector("#top_dropdown").addEventListener("click", function(){
+//     selected_sort_option.content = "TOP";
+//     api.tree.get({ascendantid:storyid, order:"top"}, [200])
+//     .then(response => response.json())
+//     .then(json => getComments(json.data));
+// });
 
-document.querySelector("#bot_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "BOT";
-    api.tree.get({ascendantid:storyid, order:"bot"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
+// document.querySelector("#bot_dropdown").addEventListener("click", function(){
+//     selected_sort_option.content = "BOT";
+//     api.tree.get({ascendantid:storyid, order:"bot"}, [200])
+//     .then(response => response.json())
+//     .then(json => getComments(json.data));
+// });
 
-document.querySelector("#new_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "NEW";
-    api.tree.get({ascendantid:storyid, order:"new"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
+// document.querySelector("#new_dropdown").addEventListener("click", function(){
+//     selected_sort_option.content = "NEW";
+//     api.tree.get({ascendantid:storyid, order:"new"}, [200])
+//     .then(response => response.json())
+//     .then(json => getComments(json.data));
+// });
 
-document.querySelector("#old_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "OLD";
-    api.tree.get({ascendantid:storyid, order:"old"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
+// document.querySelector("#old_dropdown").addEventListener("click", function(){
+//     selected_sort_option.content = "OLD";
+//     api.tree.get({ascendantid:storyid, order:"old"}, [200])
+//     .then(response => response.json())
+//     .then(json => getComments(json.data));
+// });
 
-document.querySelector("#best_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "BEST";
-    api.tree.get({ascendantid:storyid, order:"best"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
+// document.querySelector("#best_dropdown").addEventListener("click", function(){
+//     selected_sort_option.content = "BEST";
+//     api.tree.get({ascendantid:storyid, order:"best"}, [200])
+//     .then(response => response.json())
+//     .then(json => getComments(json.data));
+// });
 
-document.querySelector("#controversial_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "CONTROVERSIAL";
-    api.tree.get({ascendantid:storyid, order:"controversial"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
+// document.querySelector("#controversial_dropdown").addEventListener("click", function(){
+//     selected_sort_option.content = "CONTROVERSIAL";
+//     api.tree.get({ascendantid:storyid, order:"controversial"}, [200])
+//     .then(response => response.json())
+//     .then(json => getComments(json.data));
+// });
 
-document.querySelector("#average_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "AVERAGE";
-    api.tree.get({ascendantid:storyid, order:"average"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
+// document.querySelector("#average_dropdown").addEventListener("click", function(){
+//     selected_sort_option.content = "AVERAGE";
+//     api.tree.get({ascendantid:storyid, order:"average"}, [200])
+//     .then(response => response.json())
+//     .then(json => getComments(json.data));
+// });
 
-document.querySelector("#hot_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "HOT";
-    api.tree.get({ascendantid:storyid, order:"hot"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
+// document.querySelector("#hot_dropdown").addEventListener("click", function(){
+//     selected_sort_option.content = "HOT";
+//     api.tree.get({ascendantid:storyid, order:"hot"}, [200])
+//     .then(response => response.json())
+//     .then(json => getComments(json.data));
+// });
+
+document.querySelectorAll("#dropdown_options > *").forEach(element => {
+    element.addEventListener('click', () => {
+        let order = element.getAttribute('id');
+        api.tree.get({ascendantid:storyid, order: order}, [200])
+        .then(response => response.json())
+        .then(json => getComments(json.data));
+    });
+})

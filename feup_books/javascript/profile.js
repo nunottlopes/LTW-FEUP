@@ -1,3 +1,5 @@
+document.querySelector('body').style.height = '100%';
+
 api.auth().then(response => {return response.json()}).then(json =>{
   if(json.data == null){
     window.location.replace("index.php");
