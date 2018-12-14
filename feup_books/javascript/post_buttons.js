@@ -68,6 +68,7 @@ function reply(commentid) {
         loginpopup();
         return;
     }
+    console.log(commentid);
 
     var comment = document.querySelector("#comment"+commentid);
     var add_comment_element = document.createElement("div");
@@ -97,6 +98,11 @@ function signuppopup(){
 }
 
 function updateButtons(userid, entityid){
+    updatePostButtons(userid, entityid);
+    updateCommentButtons(userid, entityid);
+}
+
+function updatePostButtons(userid, entityid){
     var footer = document.querySelector("#post_button_" + entityid);
 
     if(footer != null){
@@ -130,41 +136,39 @@ function updateButtons(userid, entityid){
             })
         })
     }
-    else{
-        footer = document.querySelector("#comment_button_" + entityid);
+}
 
-        if(footer != null){
-            api.comment.get({commentid:entityid}).then(r => {return r.json()}).then(j => {
-                var upvotes = j.data.upvotes;
-                var downvotes = j.data.downvotes;
+function updateCommentButtons(userid, entityid){
+    var footer = document.querySelector("#comment_button_" + entityid);
 
-                var otherButtons = `<button class="comment_button" onclick="reply(${entityid})"><i class="fa fa-comment"></i> Reply</button>
-                <button class="comment_button" onclick="save(${entityid})"><i class="fa fa-bookmark"></i> Save</button>`
-                
-                api.vote.get({userid:userid, entityid:entityid}).then(response => {return response.json()}).then(json => {
-                    var upvote, downvote;
-                    if(json.data == false){
-                        upvote = `<button id="upvote${entityid}" class="comment_button" onclick="upvote(${entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
+    if(footer != null){
+        api.comment.get({commentid:entityid}).then(r => {return r.json()}).then(j => {
+            var upvotes = j.data.upvotes;
+            var downvotes = j.data.downvotes;
+
+            var otherButtons = `<button class="comment_button" onclick="reply(${entityid})"><i class="fa fa-comment"></i> Reply</button>
+            <button class="comment_button" onclick="save(${entityid})"><i class="fa fa-bookmark"></i> Save</button>`
+            
+            api.vote.get({userid:userid, entityid:entityid}).then(response => {return response.json()}).then(json => {
+                var upvote, downvote;
+                if(json.data == false){
+                    upvote = `<button id="upvote${entityid}" class="comment_button" onclick="upvote(${entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
+                    downvote = `<button id="downvote${entityid}" class="comment_button" onclick="downvote(${entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
+                }
+                else{
+                    if(json.data.vote == "+"){
+                        upvote = `<button id="upvote${entityid}" class="comment_button comment_button_selected" onclick="upvote(${entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
                         downvote = `<button id="downvote${entityid}" class="comment_button" onclick="downvote(${entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
                     }
                     else{
-                        if(json.data.vote == "+"){
-                            upvote = `<button id="upvote${entityid}" class="comment_button comment_button_selected" onclick="upvote(${entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
-                            downvote = `<button id="downvote${entityid}" class="comment_button" onclick="downvote(${entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
-                        }
-                        else{
-                            upvote = `<button id="upvote${entityid}" class="comment_button" onclick="upvote(${entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
-                            downvote = `<button id="downvote${entityid}" class="comment_button comment_button_selected" onclick="downvote(${entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
-                        }
+                        upvote = `<button id="upvote${entityid}" class="comment_button" onclick="upvote(${entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
+                        downvote = `<button id="downvote${entityid}" class="comment_button comment_button_selected" onclick="downvote(${entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
                     }
-            
-                    footer.innerHTML = upvote + downvote + otherButtons;
-            
-                })
+                }
+        
+                footer.innerHTML = upvote + downvote + otherButtons;
+        
             })
-        }
+        })
     }
-
-
-
 }

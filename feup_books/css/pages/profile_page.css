@@ -168,3 +168,13 @@ body > section#account > nav > ul > a{
     font-weight: lighter;
     color: rgb(121, 119, 119);
 }
+
+.profile_post > div#edit_delete_object{
+    display: none;
+    position: relative;
+    float: right;
+}
+
+.profile_post > div#edit_delete_object i{
+    margin-right: 1em;
+}

@@ -10,7 +10,7 @@ function timeDifference(previous) {
     const elapsed = current - previous;
 
     if (elapsed < msPerMinute) {
-         return Math.round(elapsed/1000) + ' seconds ago';   
+         return Math.round(elapsed) + ' seconds ago';   
     }
 
     else if (elapsed < msPerHour) {

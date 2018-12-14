@@ -43,8 +43,12 @@ function loadPage(user){
       content += `<h1>My Posts</h1>
       <div class="profile_content_inside">`;
       for(let story in json.data){
-        content += `<div class="profile_post">
+        content += `<div class="profile_post" onmouseover="showEditDeleteButton(${json.data[story].entityid})" onmouseout="hideEditDeleteButton(${json.data[story].entityid})">
           <a href="post.php?id=${json.data[story].entityid}"><h2>${json.data[story].storyTitle}</h2></a>
+          <div id="edit_delete_object_${json.data[story].entityid}" style="display: none; position: relative; float: right;">	
+            <a href="" onclick="editPost(${json.data[story].entityid})"><i class="fa fa-edit" style="margin-right: 1em; color: black;"></i></a>
+            <a href="" onclick="deletePost(${json.data[story].entityid})"><i class="fa fa-trash-o" style="margin-right: 1em; color: black;"></i></a>
+          </div>
           <h5>Posted ${timeDifference(json.data[story].createdat)}</h5>
         </div>`;
       }
@@ -71,22 +75,29 @@ function loadPage(user){
   })
   .then(json => {
       var content = "";
-      content += `<h1>My Posts</h1>
+      content += `<h1>My Comments</h1>
       <div class="profile_content_inside">`;
       for(let comment in json.data){
         var storyid = json.data[comment].storyid;
-        content += `<div class="profile_post">
+        content += `<div class="profile_post" onmouseover="showEditDeleteButton(${json.data[comment].entityid})" onmouseout="hideEditDeleteButton(${json.data[comment].entityid})">
           <a href="post.php?id=${storyid}#comment${json.data[comment].parentid}"><h4> ${json.data[comment].content} </h4></a>
+          <div id="edit_delete_object_${json.data[comment].entityid}" style="display: none; position: relative; float: right;">	
+            <a href="" onclick="editComment(${json.data[comment].entityid})"><i class="fa fa-edit" style="margin-right: 1em; color: black;"></i></a>
+            <a href="" onclick="deleteComment(${json.data[comment].entityid})"><i class="fa fa-trash-o" style="margin-right: 1em; color: black;"></i></a>
+          </div>
           <h5>Posted ${timeDifference(json.data[comment].createdat)}</h5>
         </div>`;
       }
       content += '</div>';
       
       arrayContentDiv["my_comments"] = content;
+
+
   });
 
   document.querySelector("#my_comments").addEventListener("click", function(){
     contentDiv.innerHTML = arrayContentDiv["my_comments"];
+    
   });
 
   /////////////// MY CHANNELS ///////////////
@@ -96,12 +107,20 @@ function loadPage(user){
   document.querySelector("#my_channels").addEventListener("click", function(){
     arrayContentDiv["my_channels"] = `<h1>My Channels</h1>
       <div class="profile_content_inside">
-        <div class="profile_post">
+        <div onmouseover="bigImg()" onmouseout="normalImg()" class="profile_post">
           <a href="#"><h2>Channel1</h2></a>
+          <div id="edit_delete_object">	
+            <i class="fa fa-edit"></i>
+            <i class="fa fa-trash-o"></i>
+          </div>
           <h5>Subscribed 4 hours ago</h5>
         </div>
-        <div class="profile_post">
+        <div onmouseover="bigImg()" onmouseout="normalImg()" class="profile_post">
           <a href="#"><h2>Channel2</h2></a>
+          <div id="edit_delete_object">	
+            <i class="fa fa-edit"></i>
+            <i class="fa fa-trash-o"></i>
+          </div>
           <h5>Subscribed 4 hours ago</h5>
         </div>
         <div class="profile_post">
@@ -184,4 +203,30 @@ function loadPage(user){
       api.logout();
       window.location.reload();
   });
+}
+
+function showEditDeleteButton(entityid){
+  document.querySelector("#edit_delete_object_"+entityid).style.display = "inline";
+}
+
+function hideEditDeleteButton(entityid){
+  document.querySelector("#edit_delete_object_"+entityid).style.display = "none";
+}
+
+function deletePost(entityid){
+  api.story.delete({storyid: entityid});
+  console.log(entityid);
+}
+
+function editPost(entityid){
+  console.log(entityid);
+}
+
+function deleteComment(entityid){
+  api.comment.delete({commentid: entityid});
+  console.log(entityid);
+}
+
+function editComment(entityid){
+  console.log(entityid);
 }
