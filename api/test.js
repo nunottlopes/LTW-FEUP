@@ -306,8 +306,8 @@ async function testsave() {
 async function teststory() {
     await testheader();
 
-    console.log("EXPECTED: [Created] 3, [Updated] 2, [OK] 34, [Deleted] 6, [404] 4");
-    console.log("EXPECTED: [200] 42, [201] 3, [404] 4");
+    console.log("EXPECTED: [Created] 7, [Updated] 2, [OK] 34, [Deleted] 6, [Bad] 6, [404] 4");
+    console.log("EXPECTED: [200] 42, [201] 7, [400] 6, [404] 4");
 
     // create
     await api.story.post("channelid=1&authorid=5", {
@@ -328,10 +328,54 @@ async function teststory() {
         content: "Content #103"
     }); // 201
 
-    await api.story.post("channelid=5&authorid=15", {
+    await api.story.post("channelid=1&authorid=4", {
         storyTitle: 'Story#104',
+        storyType: 'image',
+        content: 'Content #104',
+        imageid: 1
+    }); // 201
+
+    await api.story.post("channelid=1&authorid=4", {
+        storyTitle: 'Story#105',
+        storyType: 'image',
+        content: '',
+        imageid: 2
+    }); // 201
+
+    await api.story.post("channelid=1&authorid=4", {
+        storyTitle: 'Story#106',
+        storyType: 'title'
+    }); // 201
+
+    await api.story.post("channelid=2&authorid=1", {
+        storyTitle: 'Story#107',
+        storyType: 'title',
+        imageid: 3,                // ignored
+        content: 'Content Ignored' // ignored
+    }); // 201
+
+    await api.story.post("channelid=2&authorid=1", {
+        storyTitle: 'Story#108',
+        storyType: 'image',
+        content: 'Content #108'
+    }); // 400
+
+    await api.story.post("channelid=2&authorid=1", {
+        storyTitle: 'Story#108',
+        storyType: 'image',
+        imageid: 6
+    }); // 400
+
+    await api.story.post("channelid=2&authorid=1", {
+        storyTitle: 'Story#108',
         storyType: 'text',
-        content: "Content #104"
+        imageid: 6
+    }); // 400
+
+    await api.story.post("channelid=5&authorid=15", {
+        storyTitle: 'Story#108',
+        storyType: 'text',
+        content: "Content #108"
     }); // 404
 
     // edit
@@ -340,11 +384,25 @@ async function teststory() {
     }); // 200
 
     await api.story.patch("storyid=5", {
-        content: "New story content #5"
+        content: "New story content #2",
+        imageid: 2
     }); // 200
 
+    await api.story.patch("storyid=5", {
+        content: "New story content #2",
+        content: 'Failed'
+    }); // 400
+
+    await api.story.patch("storyid=2", {
+        content: "New story content #3",
+    }); // 400
+
+    await api.story.patch("storyid=7", {
+        imageid: 7
+    }); // 400
+
     await api.story.patch("storyid=40", {
-        content: "New story content #40"
+        content: "New story content #3"
     }); // 404
 
     // get-id

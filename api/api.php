@@ -4,6 +4,9 @@ require_once __DIR__ . '/db.php';
 
 /**
  * Authentication mode: Authorization or session?
+ *
+ * Note: Authorization mode is nice to test the API. However, the API interaction
+ * with the public website on Authorization mode has not and will not be tested.
  */
 $AUTH_MODE = 'SESSION';
 

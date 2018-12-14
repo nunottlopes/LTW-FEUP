@@ -46,10 +46,12 @@ class Save extends APIEntity {
 
             if ($save['type'] === 'story') {
                 $mix[] = [
+                    'type' => 'story',
                     'story' => $save
                 ];
             } else {
                 $mix[] = [
+                    'type' => 'comment',
                     'story' => $ascendant,
                     'comment' => $save
                 ];
