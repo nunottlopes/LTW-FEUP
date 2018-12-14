@@ -194,10 +194,12 @@ document.querySelectorAll("#dropdown_options > *").forEach(element => {
 })
 
 function updateAside(data) {
-    document.querySelector("#channel_subscription h1").textContent =
+    document.querySelector("#channel_info h1").textContent =
         data.channelname;
-    document.querySelector("#channel_subscription h2").textContent =
-        data.count + ((data.count == 1) ? " Post" : " Posts");
-    document.querySelector("#channel_subscription p").textContent =
+    document.querySelector("#channel_info h2").textContent =
+        data.stories + ((data.stories == 1) ? " Post" : " Posts");
+    document.querySelector("#channel_info p").textContent =
         "by " + data.creatorname;
+    document.querySelector("#channel_info").style.backgroundImage = 
+        `url('images/upload/medium/${data.bannerfile}')`;
 }

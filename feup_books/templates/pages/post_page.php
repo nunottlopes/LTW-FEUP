@@ -27,7 +27,7 @@
     </div>
 
     <div id="post_page_aside">
-        <div id="channel_subscription" class="aside_div">
+        <div id="channel_info" class="aside_div">
             <h1></h1>
             <h2></h2>
             <p></p>

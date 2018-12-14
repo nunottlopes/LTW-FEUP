@@ -5,7 +5,7 @@
         <div id="new_channel_post">
             <form>
                 <input type="text" name="channel_title" placeholder="Title"/>
-                <textarea name="channel_description" placeholder="Description"></textarea>
+                <input type="file" name="post_image" accept="image/*"/>
                 <input type="submit" name="channel_submission" value="Create"/>
             </form>
         </div>
