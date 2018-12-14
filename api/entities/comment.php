@@ -10,7 +10,7 @@ class Comment extends APIEntity {
     protected static $defaultSince = 0;
     protected static $defaultLimit = 50;
     protected static $defaultOffset = 0;
-    protected static $defaultSortTable = 'CommentSortBest';
+    protected static $defaultSort = 'top';
 
     /**
      * Extend a normal query's arguments $args with since, limit and offset.
@@ -38,26 +38,32 @@ class Comment extends APIEntity {
     /**
      * AUXILIARY
      *
-     * Select the appropriate story table view based on sorting desired.
+     * Select the appropriate sort function based on order desired.
      *
-     * Switch statement prevents SQL injection.
+     * IMPORTANT: Switch statement prevents any SQL injection.
      */
-    private static function sortTablename($more) {
-        if (!isset($more['order'])) return static::$defaultSortTable;
-
-        $order = $more['order'];
-        if (!is_string($order)) return static::$defaultSortTable;
+    private static function sort($more) {
+        $order = static::order($more);
 
         switch ($order) {
-        case 'top': return 'CommentSortTop';
-        case 'bot': return 'CommentSortBot';
-        case 'new': return 'CommentSortNew';
-        case 'old': return 'CommentSortOld';
-        case 'best': return 'CommentSortBest';
-        case 'controversial': return 'CommentSortControversial';
-        case 'average': return 'CommentSortAverage';
-        case 'hot': return 'CommentSortHot';
-        default: return static::$defaultSortTable;
+        case 'top':
+            return 'score';
+        case 'bot':
+            return '-score';
+        case 'new':
+            return 'createdat';
+        case 'old':
+            return '-createdat';
+        case 'best':
+            return 'WILSONLOWERBOUND(upvotes, downvotes)';
+        case 'controversial':
+            return 'REDDITCONTROVERSIAL(upvotes, downvotes)';
+        case 'hot':
+            return 'REDDITHOT(upvotes, downvotes, createdat)';
+        case 'average':
+            return 'CAST(upvotes + 1 AS float) / CAST(upvotes + downvotes + 1 AS float)';
+        default:
+            return 'score'; // top
         }
     }
 
@@ -87,30 +93,24 @@ class Comment extends APIEntity {
     /**
      * READ
      */
-    public static function getChildrenAuthor(int $parentid, int $authorid, array $more = []) {
-        $sorttable = static::sortTablename($more);
-
-        $query = "
-            SELECT * FROM $sorttable ST WHERE parentid = ? AND authorid = ?
-            AND createdat >= ?
-            ORDER BY rating DESC
-            LIMIT ? OFFSET ?
-            ";
-
-        $queryArguments = static::extend([$parentid, $authorid], $more);
+    public static function read(int $id) {
+        $query = '
+            SELECT * FROM CommentAll WHERE entityid = ?
+            ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute($queryArguments);
-        return static::fetchAll($stmt);
+        $stmt->execute([$id]);
+        return static::fetch($stmt);
     }
 
     public static function getChildren(int $parentid, array $more = []) {
-        $sorttable = static::sortTablename($more);
+        $sort = static::sort($more);
 
         $query = "
-            SELECT * FROM $sorttable ST WHERE parentid = ?
+            SELECT *, $sort AS rating
+            FROM CommentAuthor WHERE parentid = ?
             AND createdat >= ?
-            ORDER BY rating DESC
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -122,12 +122,13 @@ class Comment extends APIEntity {
     }
 
     public static function getAuthor(int $authorid, array $more = []) {
-        $sorttable = static::sortTablename($more);
+        $sort = static::sort($more);
 
         $query = "
-            SELECT * FROM $sorttable ST WHERE authorid = ?
+            SELECT *, $sort AS rating
+            FROM CommentExtra WHERE authorid = ?
             AND createdat >= ?
-            ORDER BY rating DESC
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -138,23 +139,32 @@ class Comment extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function read(int $id) {
-        $query = '
-            SELECT * FROM CommentAll WHERE entityid = ?
-            ';
+    public static function getChildrenAuthor(int $parentid, int $authorid, array $more = []) {
+        $sort = static::sort($more);
+
+        $query = "
+            SELECT *, $sort AS rating
+            FROM CommentEntity WHERE parentid = ? AND authorid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC, createdat DESC, entityid ASC
+            LIMIT ? OFFSET ?
+            ";
+
+        $queryArguments = static::extend([$parentid, $authorid], $more);
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$id]);
-        return static::fetch($stmt);
+        $stmt->execute($queryArguments);
+        return static::fetchAll($stmt);
     }
 
     public static function readAll(array $more = []) {
-        $sorttable = static::sortTablename($more);
+        $sort = static::sort($more);
 
         $query = "
-            SELECT * FROM $sorttable ST
+            SELECT *, $sort AS rating
+            FROM CommentAll
             WHERE createdat >= ?
-            ORDER BY rating DESC
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -168,35 +178,25 @@ class Comment extends APIEntity {
     /**
      * VOTED READ
      */
-    public static function getChildrenAuthorVoted(int $parentid, int $authorid,
-            int $userid, array $more = []) {
-        $sorttable = static::sortTablename($more);
-
-        $query = "
-            SELECT ST.*, coalesce(V.vote, '') vote
-            FROM $sorttable ST NATURAL JOIN UserVote V
-            WHERE parentid = ? AND authorid = ? AND V.userid = ?
-            AND createdat >= ?
-            ORDER BY rating DESC
-            LIMIT ? OFFSET ?
-            ";
-
-        $queryArguments = static::extend([$parentid, $authorid, $userid], $more);
+    public static function readVoted(int $id, int $userid) {
+        $query = '
+            SELECT * FROM CommentVotingAll WHERE entityid = ? AND userid = ?
+            ';
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute($queryArguments);
-        return static::fetchAll($stmt);
+        $stmt->execute([$id, $userid]);
+        return static::fetch($stmt);
     }
 
     public static function getChildrenVoted(int $parentid, int $userid, array $more = []) {
-        $sorttable = static::sortTablename($more);
+        $sort = static::sort($more);
 
         $query = "
-            SELECT ST.*, coalesce(V.vote, '') vote
-            FROM $sorttable ST NATURAL JOIN UserVote V
-            WHERE parentid = ? AND V.userid = ?
+            SELECT *, $sort AS rating
+            FROM CommentVotingAuthor
+            WHERE parentid = ? AND userid = ?
             AND createdat >= ?
-            ORDER BY rating DESC
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -208,14 +208,14 @@ class Comment extends APIEntity {
     }
 
     public static function getAuthorVoted(int $authorid, int $userid, array $more = []) {
-        $sorttable = static::sortTablename($more);
+        $sort = static::sort($more);
 
         $query = "
-            SELECT ST.*, coalesce(V.vote, '') vote
-            FROM $sorttable ST NATURAL JOIN UserVote V
-            WHERE authorid = ? AND V.userid = ?
+            SELECT *, $sort AS rating
+            FROM CommentVotingExtra
+            WHERE authorid = ? AND userid = ?
             AND createdat >= ?
-            ORDER BY rating DESC
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -226,27 +226,35 @@ class Comment extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function readVoted(int $id, int $userid) {
-        $query = '
-            SELECT CA.*, coalesce(V.vote, "") vote
-            FROM CommentAll CA NATURAL JOIN UserVote V
-            WHERE CA.entityid = ? AND V.userid = ?
-            ';
+    public static function getChildrenAuthorVoted(int $parentid, int $authorid,
+            int $userid, array $more = []) {
+        $sort = static::sort($more);
+
+        $query = "
+            SELECT *, $sort AS rating
+            FROM CommentVotingEntity
+            WHERE parentid = ? AND authorid = ? AND userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC, createdat DESC, entityid ASC
+            LIMIT ? OFFSET ?
+            ";
+
+        $queryArguments = static::extend([$parentid, $authorid, $userid], $more);
 
         $stmt = DB::get()->prepare($query);
-        $stmt->execute([$id, $userid]);
-        return static::fetch($stmt);
+        $stmt->execute($queryArguments);
+        return static::fetchAll($stmt);
     }
 
     public static function readAllVoted(int $userid, array $more = []) {
-        $sorttable = static::sortTablename($more);
+        $sort = static::sort($more);
 
         $query = "
-            SELECT ST.*, coalesce(V.vote, '') vote
-            FROM $sorttable ST NATURAL JOIN UserVote V
-            WHERE V.userid = ?
+            SELECT *, $sort AS rating
+            FROM CommentVotingAll
+            WHERE userid = ?
             AND createdat >= ?
-            ORDER BY rating DESC
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -292,16 +300,6 @@ class Comment extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function deleteAuthor(int $authorid) {
-        $query = '
-            DELETE FROM Comment WHERE authorid = ?
-            ';
-
-        $stmt = DB::get()->prepare($query);
-        $stmt->execute([$authorid]);
-        return $stmt->rowCount();
-    }
-
     public static function deleteChildren(int $parentid) {
         $query = '
             DELETE FROM Comment WHERE parentid = ?
@@ -309,6 +307,16 @@ class Comment extends APIEntity {
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$parentid]);
+        return $stmt->rowCount();
+    }
+
+    public static function deleteAuthor(int $authorid) {
+        $query = '
+            DELETE FROM Comment WHERE authorid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$authorid]);
         return $stmt->rowCount();
     }
 

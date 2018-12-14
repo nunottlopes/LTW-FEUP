@@ -5,7 +5,17 @@
  * 73 Comments [28-100] 6 levels
  * 11 Saves [Stories 1-4]
  */
-
+INSERT INTO Image(imageid, imagefile, width, height, filesize, format) VALUES
+    (1,  'img1.jpeg', 1920, 1080, 449815, 'jpeg'),
+    (2,  'img2.jpeg', 1920, 1080,1284828, 'jpeg'),
+    (3,  'img3.jpeg', 1920, 1080, 103230, 'jpeg'),
+    (4,  'img4.jpeg', 2048, 1543, 679971, 'jpeg'),
+    (5,  'img5.jpeg', 1920, 1080, 305224, 'jpeg'),
+    (6,  'img6.jpeg', 1920, 1080, 227905, 'jpeg'),
+    (7,  'img7.jpeg', 1920, 1080, 675886, 'jpeg'),
+    (8,  'img8.jpeg', 1920, 1080, 265404, 'jpeg'),
+    (9,  'img9.jpeg', 1920, 1200,2059155, 'jpeg'),
+    (10,'img10.jpeg', 1920, 1080, 721004, 'jpeg');
 
 /**
  * USER
@@ -20,16 +30,16 @@
  * 8  Nuno       nuno
  * 9  Jaime      jaime       ADMIN
  */
-INSERT INTO User(userid, username, email, hash, admin) VALUES
-    (1, 'admin', 'admin@feupnews.com', '$2y$10$p2It7atX5xmjgOCj1ueLLOO9ImNkg5jC/O84yu9yU/578RekCoY62', 1),
-    (2, 'Emanuel', 'emanuel@gmail.com', '$2y$10$xCpKMa8XygdBr3VOxsIOhOyl9HLzw8WgmxCdAs4rhEsjcQsMW87hO', 0),
-    (3, 'David', 'david.andrade@gmail.com', '$2y$10$xesrOHbPqklXV1I7FNfERuA37Indy1PJBIrxqqZ7tY7/qIJOxb5Ge', 0),
-    (4, 'Tiago', 'tiago@live.com.pt', '$2y$10$raS40nxOFgUViuNF61HRMOn6bDrJIobJM7TXsWyp0RXNuTtdEOTS.', 0),
-    (5, 'Sofia', 'sofia@hotmail.com', '$2y$10$ysl//9wSz70ld77ke0l2lOUd9H3lxzOH.ogY6gezjGl9y1xCK4pxO', 0),
-    (6, 'Bruno', 'bruno@gmail.com', '$2y$10$iDV2CXM5NbVVGphWIqQ73.Shl.xBrtO.QS2laFNPy7ojSMBKFfeUa', 0),
-    (7, 'Amadeu', 'amadeu@gmail.com', '$2y$10$CAEOQq547goKiJN3KzwSjus1kbdcchrGtSSW2g5v.zkll88Xbquse', 0),
-    (8, 'Nuno', 'nuno.lopes@gmail.com', '$2y$10$gPB0nQ76r4AzqKupnVGf3edvlgHBqB2EkAQQ5SrQ23yDl9D5CnaA6', 0),
-    (9, 'Jaime', 'jaime.lopes@hotmail.com', '$2y$10$kPrXjU1oOA7TTD2fxjTiRecK1H/BlV.6vBm4RuB.bD7GGwCSaMv5S', 1);
+INSERT INTO User(userid, username, email, hash, admin, imageid) VALUES
+    (1, 'admin', 'admin@feupnews.com', '$2y$10$p2It7atX5xmjgOCj1ueLLOO9ImNkg5jC/O84yu9yU/578RekCoY62', 1, 1),
+    (2, 'Emanuel', 'emanuel@gmail.com', '$2y$10$xCpKMa8XygdBr3VOxsIOhOyl9HLzw8WgmxCdAs4rhEsjcQsMW87hO', 0, 2),
+    (3, 'David', 'david.andrade@gmail.com', '$2y$10$xesrOHbPqklXV1I7FNfERuA37Indy1PJBIrxqqZ7tY7/qIJOxb5Ge', 0, NULL),
+    (4, 'Tiago', 'tiago@live.com.pt', '$2y$10$raS40nxOFgUViuNF61HRMOn6bDrJIobJM7TXsWyp0RXNuTtdEOTS.', 0, 3),
+    (5, 'Sofia', 'sofia@hotmail.com', '$2y$10$ysl//9wSz70ld77ke0l2lOUd9H3lxzOH.ogY6gezjGl9y1xCK4pxO', 0, NULL),
+    (6, 'Bruno', 'bruno@gmail.com', '$2y$10$iDV2CXM5NbVVGphWIqQ73.Shl.xBrtO.QS2laFNPy7ojSMBKFfeUa', 0, NULL),
+    (7, 'Amadeu', 'amadeu@gmail.com', '$2y$10$CAEOQq547goKiJN3KzwSjus1kbdcchrGtSSW2g5v.zkll88Xbquse', 0, NULL),
+    (8, 'Nuno', 'nuno.lopes@gmail.com', '$2y$10$gPB0nQ76r4AzqKupnVGf3edvlgHBqB2EkAQQ5SrQ23yDl9D5CnaA6', 0, 4),
+    (9, 'Jaime', 'jaime.lopes@hotmail.com', '$2y$10$kPrXjU1oOA7TTD2fxjTiRecK1H/BlV.6vBm4RuB.bD7GGwCSaMv5S', 1, NULL);
 
 /**
  * CHANNEL
@@ -39,46 +49,46 @@ INSERT INTO User(userid, username, email, hash, admin) VALUES
  * 3  jokes           Nuno
  * 4  askscience      Emanuel
  */
-INSERT INTO Channel(channelid, channelname, creatorid) VALUES
-    (1, 'showerthoughts', 6),
-    (2, 'philosophy', 4),
-    (3, 'jokes', 7),
-    (4, 'askscience', 1);
+INSERT INTO Channel(channelid, channelname, creatorid, imageid) VALUES
+    (1, 'showerthoughts', 6, 5),
+    (2, 'philosophy', 4, 6),
+    (3, 'jokes', 7, 7),
+    (4, 'askscience', 1, 8);
 
 /**
  * STORY
  */
-INSERT INTO Story(channelid, authorid, storyTitle, storyType, content) VALUES
-    (1, 6,  'Story#1','title', ''), -- 6 levels with votes
-    (1, 3,  'Story#2','title', ''),
-    (1, 2,  'Story#3', 'text', 'Content #3'),
+INSERT INTO Story(channelid, authorid, storyTitle, storyType, content, imageid) VALUES
+    (1, 6,  'Story#1','title', '', NULL), -- 6 levels with votes
+    (1, 3,  'Story#2','title', '', NULL),
+    (1, 2,  'Story#3', 'text', 'Content #3', NULL),
 
-    (2, 1,  'Story#4', 'text', 'Content #4'),
-    (2, 6,  'Story#5', 'text', 'Content #5'), -- 3 levels with votes
-    (2, 1,  'Story#6', 'text', 'Content #6'),
-    (2, 9,  'Story#7', 'text', 'Content #7'), -- 2 levels
-    (2, 1,  'Story#8', 'text', 'Content #8'),
+    (2, 1,  'Story#4', 'text', 'Content #4', NULL),
+    (2, 6,  'Story#5','image', 'Content #5', 9), -- 3 levels with votes
+    (2, 1,  'Story#6', 'text', 'Content #6', NULL),
+    (2, 9,  'Story#7','image', 'Content #7', 10), -- 2 levels
+    (2, 1,  'Story#8', 'text', 'Content #8', NULL),
 
-    (3, 2,  'Story#9', 'text', 'Content #9'),
-    (3, 8, 'Story#10', 'text', 'Content #10'),
-    (3, 3, 'Story#11', 'text', 'Content #11'),
-    (3, 7, 'Story#12', 'text', 'Content #12'),
-    (3, 7, 'Story#13', 'text', 'Content #13'),
-    (3, 2, 'Story#14', 'text', 'Content #14'),
-    (3, 2, 'Story#15', 'text', 'Content #15'),
+    (3, 2,  'Story#9', 'text', 'Content #9', NULL),
+    (3, 8, 'Story#10', 'text', 'Content #10', NULL),
+    (3, 3, 'Story#11', 'text', 'Content #11', NULL),
+    (3, 7, 'Story#12', 'text', 'Content #12', NULL),
+    (3, 7, 'Story#13', 'text', 'Content #13', NULL),
+    (3, 2, 'Story#14', 'text', 'Content #14', NULL),
+    (3, 2, 'Story#15', 'text', 'Content #15', NULL),
    
-    (4, 1, 'Story#16', 'text', 'Content #16'),
-    (4, 2, 'Story#17', 'text', 'Content #17'),
-    (4, 3, 'Story#18', 'text', 'Content #18'),
-    (4, 6, 'Story#19', 'text', 'Content #19'),
-    (4, 7, 'Story#20', 'text', 'Content #20'),
-    (4, 9, 'Story#21', 'text', 'Content #21'),
-    (4, 2, 'Story#22', 'text', 'Content #22'),
-    (4, 3, 'Story#23', 'text', 'Content #23'),
-    (4, 1, 'Story#24', 'text', 'Content #24'),
-    (4, 9, 'Story#25', 'text', 'Content #25'),
-    (4, 8, 'Story#26', 'text', 'Content #26'),
-    (4, 9, 'Story#27', 'text', 'Content #27');
+    (4, 1, 'Story#16', 'text', 'Content #16', NULL),
+    (4, 2, 'Story#17', 'text', 'Content #17', NULL),
+    (4, 3, 'Story#18', 'text', 'Content #18', NULL),
+    (4, 6, 'Story#19', 'text', 'Content #19', NULL),
+    (4, 7, 'Story#20', 'text', 'Content #20', NULL),
+    (4, 9, 'Story#21', 'text', 'Content #21', NULL),
+    (4, 2, 'Story#22', 'text', 'Content #22', NULL),
+    (4, 3, 'Story#23', 'text', 'Content #23', NULL),
+    (4, 1, 'Story#24', 'text', 'Content #24', NULL),
+    (4, 9, 'Story#25', 'text', 'Content #25', NULL),
+    (4, 8, 'Story#26', 'text', 'Content #26', NULL),
+    (4, 9, 'Story#27', 'text', 'Content #27', NULL);
 
 /**
  * COMMENT

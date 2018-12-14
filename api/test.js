@@ -24,15 +24,19 @@ function testfooter() {
 
 
 
-async function testchannel() {
+async function testchannel(all) {
     await testheader();
 
-    console.log("EXPECTED: [Created] 2 [OK] 6, [Deleted] 3, [404] 4");
-    console.log("EXPECTED: [200] 9, [201] 2, [404] 4");
+    console.log("EXPECTED: [Created] 2, [Updated] 2, [OK] 6, [Deleted] 2/3, [404] 6");
+    console.log("EXPECTED: [200] 10/11, [201] 2, [404] 6");
 
-    // create 201
+    // create
     await api.channel.put("creatorid=5", {channelname: "Amadeuses"});
     await api.channel.put("creatorid=4", {channelname: "Nunopedia"});
+
+    // set-banner
+    await api.channel.patch("channelid=5", {imageid: 1});
+    await api.channel.patch("channelid=6", {imageid: 2});
 
     // get-id
     await api.channel.get("channelid=2");
@@ -52,13 +56,16 @@ async function testchannel() {
     // delete-name
     await api.channel.delete("channelname=jokes");
 
+    // 404s
     await api.channel.get("channelid=9"); // 404
     await api.channel.get("channelname=roses"); // 404
+    await api.channel.patch("channelid=10", {imageid: 7}); // 404
+    await api.channel.patch("channelid=1", {imageid: 700}); // 404
     await api.channel.delete("channelid=10"); // 404
     await api.channel.delete("channelname=ayylmao"); // 404
 
     // delete-all
-    await api.channel.delete("all");
+    if (all) await api.channel.delete("all");
 
     testfooter();
 }
@@ -328,7 +335,7 @@ async function teststory() {
     }); // 404
 
     // edit
-    await api.story.patch("storyid=1", {
+    await api.story.patch("storyid=4", {
         content: "New story content #1"
     }); // 200
 
@@ -422,8 +429,8 @@ async function teststory() {
 async function testtree() {
     await testheader();
 
-    console.log("EXPECTED: [OK] 28, [404] 4");
-    console.log("EXPECTED: [200] 28, [404] 4");
+    console.log("EXPECTED: [OK] 24, [404] 4");
+    console.log("EXPECTED: [200] 24, [404] 4");
 
     // get-tree
     await api.tree.get("ascendantid=1&maxdepth=10&limit=60");
@@ -469,10 +476,6 @@ async function testtree() {
     await api.tree.get("descendantid=100"); // story=#1, comments=#28,#41,#66,#81,#91,#100
     await api.tree.get("descendantid=97"); // story=#1, comments=#30,#50,#73,#88,#97
 
-    // get-storyof
-    await api.tree.get("storyof&commentid=69"); // story=#1
-    await api.tree.get("storyof&commentid=40"); // story=#7
-
     // Same but voted (+14)
     // get-tree
     await api.tree.get("ascendantid=1&maxdepth=10&limit=60");
@@ -497,10 +500,6 @@ async function testtree() {
     // get-ancestry
     await api.tree.get("descendantid=100"); // story=#1, comments=#28,#41,#66,#81,#91,#100
     await api.tree.get("descendantid=97"); // story=#1, comments=#30,#50,#73,#88,#97
-
-    // get-storyof
-    await api.tree.get("storyof&commentid=69"); // story=#1
-    await api.tree.get("storyof&commentid=40"); // story=#7
 
     await api.tree.get("storyof&commentid=20"); // 404
     await api.tree.get("ascendantid=700"); // 404
@@ -621,3 +620,20 @@ async function testvote() {
     testfooter();
 }
 
+async function testimage() {
+    testheader();
+
+    console.log("EXPECTED: [OK] 4, [Deleted] 3");
+    console.log("EXPECTED: [200] 7");
+
+    await api.image.get("imageid=1");
+    await api.image.get("imageid=2");
+    await api.image.get("imageid=3");
+    await api.image.get("all");
+
+    await api.image.delete("imageid=1");
+    await api.image.delete("imageid=2");
+    await api.image.delete("imageid=3");
+
+    testfooter();
+}

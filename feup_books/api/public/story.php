@@ -10,9 +10,9 @@ $resource = 'story';
 $methods = ['GET', 'POST', 'PATCH', 'DELETE'];
 
 $actions = [
-    'create'                   => ['POST', ['channelid', 'authorid'], ['storyTitle', 'storyType', 'content']],
+    'create'                   => ['POST', ['channelid', 'authorid'], ['storyType', 'storyType', 'content', 'imageid']],
 
-    'edit'                     => ['PATCH', ['storyid'], ['content']],
+    'edit'                     => ['PATCH', ['storyid'], ['content', 'imageid']],
 
     'get-id-voted'             => ['GET', ['voterid', 'storyid']],
     'get-channel-author-voted' => ['GET', ['voterid', 'channelid', 'authorid'], [], ['order', 'since', 'limit', 'offset']],
@@ -59,6 +59,7 @@ if (API::gotargs('storyid')) {
     }
 
     $authorid = $story['authorid'];
+    $channelid = $story['channelid'];
 }
 // channelid
 if (API::gotargs('channelid')) {
@@ -102,12 +103,31 @@ if (API::gotargs('voterid')) {
 if ($action === 'create') {
     $auth = Auth::demandLevel('authid', $authorid);
 
-    $body = HTTPRequest::body('content', 'storyTitle', 'storyType');
+    $body = HTTPRequest::body('storyType', 'storyTitle');
+
     $title = $body['storyTitle'];
     $type = $body['storyType'];
-    $content = $body['content'];
 
-    $storyid = Story::create($channelid, $authorid, $title, $type, $content);
+    switch ($type) {
+    case 'text':
+        $content = HTTPRequest::body('content');
+        $storyid = Story::createText($channelid, $authorid, $title, $content);
+        break;
+    case 'image':
+        $body = HTTPRequest::body('content', 'imageid');
+        $content = $body['content'];
+        $imageid = $body['imageid'];
+        if (!Image::read($imageid)) {
+            HTTPResponse::notFound("Image with id $imageid");
+        }
+        $storyid = Story::createImage($channelid, $authorid, $title, $content, $imageid);
+        break;
+    case 'title':
+        $storyid = Story::createTitle($channelid, $authorid, $title);
+        break;
+    default:
+        HTTPResponse::invalid('Story type', $type, 'Type be text, image or title');
+    }
 
     if (!$storyid) {
         HTTPResponse::serverError();
@@ -127,10 +147,26 @@ if ($action === 'create') {
 if ($action === 'edit') {
     $auth = Auth::demandLevel('authid', $authorid);
 
-    $content = HTTPRequest::body('content');
+    $type = $story['storyType'];
 
-    $count = Story::update($storyid, $content);
-
+    switch ($type) {
+    case 'text':
+        $content = HTTPRequest::body('content');
+        $count = Story::updateContent($storyid, $content);
+        break;
+    case 'image':
+        $body = HTTPRequest::body('content', 'imageid');
+        $content = $body['content'];
+        $imageid = $body['imageid'];
+        if (!Image::read($imageid)) {
+            HTTPResponse::notFound("Image with id $imageid");
+        }
+        $count = Story::update($storyid, $content, $imageid);
+        break;
+    case 'title':
+        HTTPResponse::badRequest('Invalid update on title-type story');
+    }
+    
     $story = Story::read($storyid);
 
     $data = [

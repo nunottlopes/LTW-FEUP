@@ -2,6 +2,9 @@
 require_once __DIR__ . '/../api.php';
 
 class APIEntity {
+    /**
+     * Get $since from $more or use default value.
+     */
     protected static function since($more) {
         if (isset($more['since'])) {
             $since = $more['since'];
@@ -12,6 +15,9 @@ class APIEntity {
         return static::$defaultSince;
     }
 
+    /**
+     * Get $limit from $more or use default value.
+     */
     protected static function limit($more) {
         if (isset($more['limit'])) {
             $limit = $more['limit'];
@@ -22,6 +28,9 @@ class APIEntity {
         return static::$defaultLimit;
     }
 
+    /**
+     * Get $offset from $more or use default value.
+     */
     protected static function offset($more) {
         if (isset($more['offset'])) {
             $offset = $more['offset'];
@@ -32,6 +41,9 @@ class APIEntity {
         return static::$defaultOffset;
     }
 
+    /**
+     * Get $maxdepth from $more or use default value.
+     */
     protected static function maxdepth($more) {
         if (isset($more['maxdepth'])) {
             $maxdepth = $more['maxdepth'];
@@ -42,26 +54,42 @@ class APIEntity {
         return static::$defaultMaxDepth;
     }
 
-    protected static function fetch(PDOStatement &$stmt) {
+    /**
+     * Get $order from $more or use default value.
+     */
+    protected static function order($more) {
+        if (isset($more['order'])) {
+            $order = $more['order'];
+            if (is_string($order)) {
+                return $order;
+            }
+        }
+        return static::$defaultSort;
+    }
+
+    /**
+     * Wrapper around $stmt->fetch, handling null erasing and type conversion.
+     */
+    protected static function fetch(PDOStatement &$stmt, array $safe = []) {
         $fetch = $stmt->fetch();
         if ($fetch == null || $fetch === false) return $fetch;
 
-        return API::cast($fetch);
+        return API::cast(API::nonull($fetch, $safe));
     }
 
-    protected static function fetchAll(PDOStatement &$stmt) {
+    /**
+     * Idem for fetchAll.
+     */
+    protected static function fetchAll(PDOStatement &$stmt, array $safe = []) {
         $fetches = $stmt->fetchAll();
         if ($fetches == null || $fetches === false) return $fetches;
-
-        $object = [];
         
+        $new = [];
         foreach ($fetches as $fetch) {
-            $casted = API::cast($fetch);
-
-            array_push($object, $casted);
+            $new[] = API::cast(API::nonull($fetch, $safe));
         }
 
-        return $object;
+        return $new;
     }
 }
 ?>

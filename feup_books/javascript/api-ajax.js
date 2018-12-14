@@ -218,6 +218,9 @@ var api = {
         "put": function(query, data, expect) {
             return api.put('channel', query, data, expect);
         },
+        "patch": function(query, data, expect) {
+            return api.patch('channel', query, data, expect);
+        },
         "delete": function(query, expect) {
             return api.delete('channel', query, expect);
         }
@@ -292,6 +295,15 @@ var api = {
         },
         "downvote": function(query, expect) {
             return this.put(query, {vote: '-'}, expect);
+        }
+    },
+
+    "image": {
+        "get": function(query, expect) {
+            return api.get('image', query, expect);
+        },
+        "delete": function(query, expect) {
+            return api.delete('image', query, expect);
         }
     },
 

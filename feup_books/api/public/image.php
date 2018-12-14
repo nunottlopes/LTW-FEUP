@@ -7,12 +7,13 @@ require_once API::entity('image');
  */
 $resource = 'image';
 
-$methods = ['GET'];
+$methods = ['GET', 'DELETE'];
 
 $actions = [
     'get-id'     => ['GET', ['imageid']],
     'get-all'    => ['GET', ['all']],
-    'delete-id'  => ['GET', ['imageid']]
+
+    'delete-id'  => ['DELETE', ['imageid']]
     // no delete-all for images
 ];
 

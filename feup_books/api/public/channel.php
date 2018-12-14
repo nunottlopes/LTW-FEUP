@@ -7,15 +7,18 @@ require_once API::entity('channel');
  */
 $resource = 'channel';
 
-$methods = ['GET', 'PUT', 'DELETE'];
+$methods = ['GET', 'PUT', 'PATCH', 'DELETE'];
 
 $actions = [
     'create'      => ['PUT', ['creatorid'], ['channelname']],
 
+    'set-banner'  => ['PATCH', ['channelid'], ['imageid']],
+
     'get-id'      => ['GET', ['channelid']],
     'get-name'    => ['GET', ['channelname']],
-    'get-valid'   => ['GET', ['valid']],
+    'get-creator' => ['GET', ['creatorid']],
     'get-all'     => ['GET', ['all']],
+    'get-valid'   => ['GET', ['valid']],
 
     'delete-id'   => ['DELETE', ['channelid']],
     'delete-name' => ['DELETE', ['channelname']],
@@ -115,6 +118,29 @@ if ($action === 'create') {
     HTTPResponse::created("Created channel $channelid", $data);
 }
 
+if ($action === 'set-banner') {
+    $creatorid = $channel['creatorid'];
+
+    $auth = Auth::demandLevel('authid', $creatorid);
+
+    $imageid = HTTPRequest::body('imageid');
+
+    if (!Image::read($imageid)) {
+        HTTPResponse::notFound("Image with id $imageid");
+    }
+
+    $count = Channel::setBanner($channelid, $imageid);
+
+    $channel = Channel::read($channelid);
+
+    $data = [
+        'count' => $count,
+        'channel' => $channel
+    ];
+
+    HTTPResponse::updated("Set banner $imageid to channel $channelid", $data);
+}
+
 // ***** GET
 if ($action === 'get-id') {
     HTTPResponse::ok("Channel with id $channelid", $channel);
@@ -122,6 +148,12 @@ if ($action === 'get-id') {
 
 if ($action === 'get-name') {
     HTTPResponse::ok("Channel $channelname", $channel);
+}
+
+if ($action === 'get-creator') {
+    $channels = Channel::getCreator($creatorid);
+
+    HTTPResponse::ok("Channels with creator $creatorid", $channels);
 }
 
 if ($action === 'get-all') {

@@ -13,9 +13,7 @@ $actions = [
     'get-tree-voted'     => ['GET', ['voterid', 'ascendantid'], [], ['order', 'maxdepth', 'since', 'limit', 'offset']],
     'get-tree'           => ['GET', ['ascendantid'], [], ['order', 'maxdepth', 'since', 'limit', 'offset']],
     'get-ancestry-voted' => ['GET', ['voterid', 'descendantid']],
-    'get-ancestry'       => ['GET', ['descendantid']],
-    'get-storyof-voted'  => ['GET', ['voterid', 'commentid', 'storyof']],
-    'get-storyof'        => ['GET', ['commentid', 'storyof']]
+    'get-ancestry'       => ['GET', ['descendantid']]
 ];
 
 /**
@@ -31,7 +29,7 @@ $args = API::cast($_GET);
 
 /**
  * 2. GET: Check query parameter identifying resources
- * TREE: ascendantid, descendantid, voterid, storyof
+ * TREE: ascendantid, descendantid, voterid
  */
 // ascendantid
 if (API::gotargs('ascendantid')) {
@@ -51,16 +49,6 @@ if (API::gotargs('descendantid')) {
 
     if (!$child) {
         HTTPResponse::notFound("Descendant comment with id $descendantid");
-    }
-}
-// commentid
-if (API::gotargs('commentid')) {
-    $commentid = $args['commentid'];
-
-    $comment = Comment::read($commentid);
-
-    if (!$comment) {
-        HTTPResponse::notFound("Comment with id $commentid");
     }
 }
 // voterid
@@ -102,17 +90,5 @@ if ($action === 'get-ancestry') {
     $ancestry = Tree::getAncestry($descendantid);
 
     HTTPResponse::ok("Ancestry of $descendantid", $ancestry);
-}
-
-if ($action === 'get-storyof-voted') {
-    $story = Tree::getStoryOfVoted($commentid, $userid);
-
-    HTTPResponse::ok("Story of comment $commentid (voted by $userid)", $story);
-}
-
-if ($action === 'get-storyof') {
-    $story = Tree::getStoryOf($commentid);
-
-    HTTPResponse::ok("Story of comment $commentid", $story);
 }
 ?>

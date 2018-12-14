@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/apientity.php';
+require_once __DIR__ . '/image.php';
 
 class User extends APIEntity {
     private static $usernameRegex = '/^[a-zA-Z][a-zA-Z0-9_+-]{2,31}$/i';
@@ -155,7 +156,7 @@ class User extends APIEntity {
 
     public static function read(int $userid) {
         $query = '
-            SELECT * FROM UserClean WHERE userid = ?
+            SELECT * FROM UserProfile WHERE userid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -165,7 +166,7 @@ class User extends APIEntity {
 
     public static function readAll() {
         $query = '
-            SELECT * FROM UserClean
+            SELECT * FROM UserProfile
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -187,7 +188,7 @@ class User extends APIEntity {
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$userid]);
-        $row = static::fetch();
+        $row = static::fetch($stmt);
         return $row ? (bool)$row['admin'] : false;
     }
 
@@ -195,7 +196,7 @@ class User extends APIEntity {
         $user = static::getHash($name);
 
         if (!$user) {
-            $error = "User $name does not exist"; // no it doesn't
+            $error = "User $name does not exist";
             return false;
         }
 
@@ -208,19 +209,48 @@ class User extends APIEntity {
     }
 
     /**
-     * NO UPDATE FOR NOW
+     * UPDATE
      */
+    public static function setPicture(int $userid, int $imageid) {
+        $query = '
+            UPDATE User SET imageid = ? WHERE userid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$imageid, $userid]);
+        return $stmt->rowCount();
+    }
+
+    public static function clearPicture(int $userid) {
+        $query = '
+            UPDATE User SET imageid = NULL WHERE userid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$userid]);
+        return $stmt->rowCount();
+    }
     
     /**
      * DELETE
      */
-    public static function delete($userid) {
+    public static function delete(int $userid) {
         $query = '
             DELETE FROM User WHERE userid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
         $stmt->execute([$userid]);
+        return $stmt->rowCount();
+    }
+
+    public static function deleteAll() {
+        $query = '
+            DELETE FROM User
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute();
         return $stmt->rowCount();
     }
 }
