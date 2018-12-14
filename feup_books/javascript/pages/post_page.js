@@ -50,14 +50,14 @@ function getStory(user, story){
             break;
     }
 
-    let article3 = `<footer>
-            <button class="post_button" onclick="upvote(${story.entityid})"><i class='fas fa-arrow-up'></i> ${story.upvotes} Upvotes</button>
-            <button class="post_button" onclick="downvote(${story.entityid})"><i class='fas fa-arrow-down'></i> ${story.downvotes} Downvotes</button>
-            <button class="post_button"><i class="fa fa-comment"></i> ${story.count} Comments</button>
-            <button class="post_button" onclick="save(${story.entityid})"><i class="fa fa-bookmark"></i> Save</button>
-            <button class="post_button" onclick="share(${story.entityid})"><i class="fa fa-share-alt"></i> Share</button>
+    let article3 = `<footer id=post_button_${story.entityid}>
+    <button class="post_button" onclick="upvote(${story.entityid})"><i class='fas fa-arrow-up'></i> ${story.upvotes} Upvotes</button>
+    <button class="post_button" onclick="downvote(${story.entityid})"><i class='fas fa-arrow-down'></i> ${story.downvotes} Downvotes</button>
+    <button class="post_button"><i class="fa fa-comment"></i> ${story.count} Comments</button>
+    <button class="post_button" onclick="save(${story.entityid})"><i class="fa fa-bookmark"></i> Save</button>
+    <button class="post_button" onclick="share(${story.entityid})"><i class="fa fa-share-alt"></i> Share</button>
         </footer>
-    </article>`;
+        </article>`;
 
     article.innerHTML = article1 + article2 + article3;
 
@@ -72,6 +72,8 @@ function getStory(user, story){
     else{
         document.querySelector("#add_comment").innerHTML = `<h3><a onclick='loginpopup()'>Login</a> or <a onclick='signuppopup()'>Signup</a> to comment the post.</h3>`
     }
+
+    updateButtons(user.userid, story.entityid);
 }
 
 // Get All Comments
@@ -85,6 +87,8 @@ function getComments(user, data){
     getCommentsFromTree(user, data);
 
     comments.innerHTML = allComments;
+
+    updateButtonsComments(user, data);
 }
 
 function getCommentsFromTree(user, data){
@@ -94,7 +98,7 @@ function getCommentsFromTree(user, data){
         var article = `<article id=comment${currentComment.entityid} class="post_comment">
         <header>${currentComment.authorname}, ${timeDifference(currentComment.updatedat)}</header>
         <p>${currentComment.content}</p>
-        <footer>
+        <footer id=comment_button_${currentComment.entityid}>
             <button class="comment_button" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${currentComment.upvotes} Upvotes</button>
             <button class="comment_button" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${currentComment.downvotes} Downvotes</button>
             <button class="comment_button" onclick="reply(${currentComment.entityid})"><i class="fa fa-comment"></i> Reply</button>
@@ -110,7 +114,18 @@ function getCommentsFromTree(user, data){
     }
 }
 
-//tenho de passar entityid e userid para upvotes e afins
+function updateButtonsComments(user, data){
+    for(let comment in data){
+        
+        var currentComment = data[comment];
+        updateButtons(user.userid, currentComment.entityid);
+
+        if(currentComment.children.length > 0){
+            updateButtonsComments(user, currentComment.children);
+        }
+    }
+}
+
 var selected_sort_option = document.querySelector("#dropdown_selection");
 
 document.querySelector("#top_dropdown").addEventListener("click", function(){

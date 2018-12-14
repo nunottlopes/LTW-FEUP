@@ -6,15 +6,17 @@ let settings = {
     offset: 0
 }
 
-getContent();
+api.auth().then(response => {return response.json()}).then(json =>{
+    getContent(json.data);
+})
 
-function getContent() {
+function getContent(user) {
     api.story.get({all: 1, order: settings.sort, limit: settings.limit, offset: settings.offset}, [200])
     .then(response => response.json())
-    .then(json => getStories(json.data));
+    .then(json => getStories(user, json.data));
 }
 
-function getStories(data) {
+function getStories(user, data) {
     for(let story in data) {
 
         let a1 =
@@ -36,7 +38,7 @@ function getStories(data) {
         }
     
         let a3 = `</a>
-            <footer>
+            <footer id=post_button_${data[story].entityid}>
                 <button class="post_button" onclick="upvote(${data[story].entityid})"><i class='fas fa-arrow-up'></i> ${data[story].upvotes} Upvotes</button>
                 <button class="post_button" onclick="downvote(${data[story].entityid})"><i class='fas fa-arrow-down'></i> ${data[story].downvotes} Downvotes</button>
                 <a href="post.php?id=${data[story].entityid}"><button class="post_button"><i class="fa fa-comment"></i> ${data[story].count} Comments</button></a>
@@ -45,7 +47,13 @@ function getStories(data) {
             </footer>
         </article>`;
 
-        main_page_posts.innerHTML += a1 + a2 + a3;   
+        main_page_posts.innerHTML += a1 + a2 + a3;
+        
+    }
+    if(user != null){
+        for(let story in data){
+            updateButtons(user.userid, data[story].entityid);
+        }
     }
 }
 

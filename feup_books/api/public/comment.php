@@ -111,14 +111,16 @@ if ($action === 'create') {
         HTTPResponse::serverError();
     }
 
-    $comment = Comment::read($commentid);
+    header("Location:" . $_SERVER['HTTP_REFERER']);
 
-    $data = [
-        'commentid' => $commentid,
-        'comment' => $comment
-    ];
+    // $comment = Comment::read($commentid);
 
-    HTTPResponse::created("Created comment $commentid, child of $parentid", $data);
+    // $data = [
+    //     'commentid' => $commentid,
+    //     'comment' => $comment
+    // ];
+
+    // HTTPResponse::created("Created comment $commentid, child of $parentid", $data);
 }
 
 // PUT

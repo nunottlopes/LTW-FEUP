@@ -152,8 +152,15 @@ body > section#account > nav > ul > a{
     border-bottom: 1px solid rgb(235, 225, 225);
 }
 
-.profile_post h2{
+.profile_post h4{
+    margin-bottom: 0.5em;
+}
+
+
+.profile_post h5{
     margin: 0.5em auto;
+    font-weight: lighter;
+    color: rgb(121, 119, 119);
 }
 
 .profile_post h5{
