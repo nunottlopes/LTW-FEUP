@@ -27,8 +27,8 @@ function testfooter() {
 async function testchannel(all) {
     await testheader();
 
-    console.log("EXPECTED: [Created] 2, [Updated] 2, [OK] 6, [Deleted] 2, [404] 6");
-    console.log("EXPECTED: [200] 10, [201] 2, [404] 6");
+    console.log("EXPECTED: [Created] 2, [Updated] 2, [OK] 8, [Deleted] 2, [404] 6");
+    console.log("EXPECTED: [200] 12, [201] 2, [404] 6");
 
     // create
     await api.channel.put("creatorid=5", {channelname: "Amadeuses"});

@@ -287,6 +287,16 @@ class Comment extends APIEntity {
         return $stmt->execute([$entityid]);
     }
 
+    public static function free(int $entityid) {
+        $query = '
+            UPDATE Comment SET content = "", userid = NULL WHERE entityid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$entityid]);
+        return $stmt->execute([$entityid]);
+    }
+
     /**
      * DELETE
      */
