@@ -118,7 +118,7 @@ ORDER BY S.entityid ASC;
 
 CREATE VIEW StoryEntity AS
 SELECT *, 'story' type, E.upvotes - E.downvotes AS score,
-    (SELECT count(*) FROM Tree T WHERE T.ascendantid = SA.entityid) count
+    (SELECT count(*) FROM Tree T WHERE T.ascendantid = S.entityid) count
 FROM Story S
 NATURAL JOIN Entity E -- on entityid
 ORDER BY S.entityid ASC;

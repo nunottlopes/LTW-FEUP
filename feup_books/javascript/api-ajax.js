@@ -4,6 +4,18 @@
  * Useful for changing expect[] later, as well as the url links
  * to the resources.
  */
+function apiUnhandledDefaultHandler(response) {
+    console.warn("API.FETCH UNHANDLED --- " + response.statusText);
+    console.log(response); ++api.handlers.counter;
+    api.handlers.unhandled.push(response);
+
+    if (response.status < 500) {
+        response.json().then(json => console.log(json));
+    } else {
+        response.text().then(text => console.log(text));
+    }
+}
+
 var api = {
     "settings": {
         credentials: "same-origin",
@@ -17,89 +29,19 @@ var api = {
 
         unhandled: [],
 
-        200: function(response) {
-            console.warn("API.FETCH UNHANDLED --- 200 OK");
-            console.log(response); ++api.handlers.counter;
-            api.handlers.unhandled.push(response);
-            response.json().then(json => console.log(json));
-        },
-
-        201: function(response) {
-            console.warn("API.FETCH UNHANDLED --- 201 Created");
-            console.log(response); ++api.handlers.counter;
-            api.handlers.unhandled.push(response);
-            response.json().then(json => console.log(json));
-        },
-
-        202: function(response) {
-            console.warn("API.FETCH UNHANDLED --- 202 Accepted");
-            console.log(response); ++api.handlers.counter;
-            api.handlers.unhandled.push(response);
-            response.json().then(json => console.log(json));
-        },
-
-        300: function(response) {
-            console.warn("API.FETCH UNHANDLED --- 300 Multiple Choices");
-            console.log(response); ++api.handlers.counter;
-            api.handlers.unhandled.push(response);
-            response.json().then(json => console.log(json));
-        },
-
-        400: function(response) {
-            console.warn("API.FETCH UNHANDLED --- 400 Bad Request");
-            console.log(response); ++api.handlers.counter;
-            api.handlers.unhandled.push(response);
-            response.json().then(json => console.log(json));
-        },
-
-        401: function(response) {
-            console.warn("API.FETCH UNHANDLED --- 401 Unauthorized");
-            console.log(response); ++api.handlers.counter;
-            api.handlers.unhandled.push(response);
-            response.json().then(json => console.log(json));
-        },
-
-        403: function(response) {
-            console.warn("API.FETCH UNHANDLED --- 403 Forbidden");
-            console.log(response); ++api.handlers.counter;
-            api.handlers.unhandled.push(response);
-            response.json().then(json => console.log(json));
-        },
-
-        404: function(response) {
-            console.warn("API.FETCH UNHANDLED --- 404 Not Found");
-            console.log(response); ++api.handlers.counter;
-            api.handlers.unhandled.push(response);
-            response.json().then(json => console.log(json));
-        },
-
-        405: function(response) {
-            console.warn("API.FETCH UNHANDLED --- 405 Method Not Allowed");
-            console.log(response); ++api.handlers.counter;
-            api.handlers.unhandled.push(response);
-            response.json().then(json => console.log(json));
-        },
-
-        415: function(response) {
-            console.warn("API.FETCH UNHANDLED --- 415 Unsupported Media Type");
-            console.log(response); ++api.handlers.counter;
-            api.handlers.unhandled.push(response);
-            response.json().then(json => console.log(json));
-        },
-
-        500: function(response) {
-            console.warn("API.FETCH UNHANDLED --- 500 Server Error");
-            console.log(response); ++api.handlers.counter;
-            api.handlers.unhandled.push(response);
-            response.text().then(text => console.log(text));
-        },
-
-        503: function(response) {
-            console.warn("API.FETCH UNHANDLED --- 503 Service Unavailable");
-            console.log(response); ++api.handlers.counter;
-            api.handlers.unhandled.push(response);
-            response.text().then(text => console.log(text));
-        }
+        other: apiUnhandledDefaultHandler,
+        200: apiUnhandledDefaultHandler,
+        201: apiUnhandledDefaultHandler,
+        202: apiUnhandledDefaultHandler,
+        300: apiUnhandledDefaultHandler,
+        400: apiUnhandledDefaultHandler,
+        401: apiUnhandledDefaultHandler,
+        403: apiUnhandledDefaultHandler,
+        404: apiUnhandledDefaultHandler,
+        405: apiUnhandledDefaultHandler,
+        415: apiUnhandledDefaultHandler,
+        500: apiUnhandledDefaultHandler,
+        503: apiUnhandledDefaultHandler
     },
 
     "resource": function(resource, query) {
