@@ -121,7 +121,7 @@ if ($action === 'create') {
     }
 
     if (!User::validEmail($useremail)) {
-        HTTPResponse::invalid('email', $email, 'Valid email');
+        HTTPResponse::invalid('email', $useremail, 'Valid email');
     }
 
     if (!User::validPassword($password)) {

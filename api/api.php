@@ -101,6 +101,8 @@ class API {
      * Check if $args has all the listed keys.
      * A key of type string must be present.
      * A key of type array is an exclusive disjunction of string keys.
+     *
+     * So suppose
      */
     public static function got(array $args, array $keys) {
         foreach ($keys as $key) {
@@ -270,33 +272,6 @@ class Auth {
     }
 
     /**
-     * Authenticate a user and create a logged in session if successful.
-     *
-     * Returns an object holding the userid, username and email if successful.
-     * Returns null otherwise.
-     *
-     * Failed authentication does not change state nor call an HTTPResponse method.
-     *
-     * It is assumed that a session has already been started.
-     */
-    public static function login(string $name, string $password, &$error = null) {
-        if (User::authenticate($name, $password, $error)) {
-            $user = User::get($name);
-
-            $_SESSION['userid'] = $user['userid'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['useremail'] = $user['email'];
-            $_SESSION['admin'] = $user['admin'];
-            $_SESSION['login_timestamp'] = time();
-            newCSRF();
-
-            return $user;
-        }
-
-        return false;
-    }
-
-    /**
      * Attempt to authenticate a user using the HTTP header 'Authorization'.
      *
      * If the header is not present the authentication fails, returning null.
@@ -406,6 +381,7 @@ class Auth {
         switch ($level) {
         case 'free':
             $allow = true;
+            break;
         case 'auth':
             $allow = (bool)$auth;
             break;
@@ -413,7 +389,7 @@ class Auth {
             $allow = (bool)$auth && ($auth['admin'] || ($auth['userid'] === $userid));
             break;
         case 'admin':
-            $allow = (bool)$auth && ($auth['admin']);
+            $allow = (bool)$auth && $auth['admin'];
             break;
         default:
             $allow = false;
@@ -449,14 +425,41 @@ class Auth {
                 HTTPResponse::unauthorized();
             }
         case 'authid':
-            if ($AUTH_MODE === 'SESSION') {
+            if ($userid !== null && $AUTH_MODE === 'SESSION') {
                 HTTPResponse::forbidden("Unauthorized access");
-            } else {
+            } else if ($userid !== null) {
                 HTTPResponse::unauthorized($userid);
             }
         case 'admin':
             HTTPResponse::forbidden();
         }
+    }
+
+    /**
+     * Authenticate a user and create a logged in session if successful.
+     *
+     * Returns an object holding the userid, username and email if successful.
+     * Returns null otherwise.
+     *
+     * Failed authentication does not change state nor call an HTTPResponse method.
+     *
+     * It is assumed that a session has already been started.
+     */
+    public static function login(string $name, string $password, &$error = null) {
+        if (User::authenticate($name, $password, $error)) {
+            $user = User::get($name);
+
+            $_SESSION['userid'] = $user['userid'];
+            $_SESSION['username'] = $user['username'];
+            $_SESSION['useremail'] = $user['email'];
+            $_SESSION['admin'] = $user['admin'];
+            $_SESSION['login_timestamp'] = time();
+            newCSRF();
+
+            return $user;
+        }
+
+        return false;
     }
 
     /**

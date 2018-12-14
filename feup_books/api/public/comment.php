@@ -13,6 +13,8 @@ $actions = [
     'create'                  => ['POST', ['parentid', 'authorid'], ['content']],
 
     'edit'                    => ['PUT', ['commentid'], ['content']],
+    'clear'                   => ['PUT', ['commentid', 'clear']],
+    'free'                    => ['PUT', ['commentid', 'free']],
 
     'get-id-voted'            => ['GET', ['voterid', 'commentid']],
     'get-parent-author-voted' => ['GET', ['voterid', 'parentid', 'authorid'], [], ['order', 'since', 'limit', 'offset']],
@@ -111,16 +113,16 @@ if ($action === 'create') {
         HTTPResponse::serverError();
     }
 
-    header("Location:" . $_SERVER['HTTP_REFERER']);
+    //header("Location: " . $_SERVER['HTTP_REFERER']);
 
-    // $comment = Comment::read($commentid);
+    $comment = Comment::read($commentid);
 
-    // $data = [
-    //     'commentid' => $commentid,
-    //     'comment' => $comment
-    // ];
+    $data = [
+        'commentid' => $commentid,
+        'comment' => $comment
+    ];
 
-    // HTTPResponse::created("Created comment $commentid, child of $parentid", $data);
+    HTTPResponse::created("Created comment $commentid, child of $parentid", $data);
 }
 
 // PUT
@@ -139,6 +141,36 @@ if ($action === 'edit') {
     ];
 
     HTTPResponse::updated("Comment $commentid successfully edited", $data);
+}
+
+if ($action === 'clear') {
+    $auth = Auth::demandLevel('authid', $authorid);
+
+    $count = Comment::clear($commentid);
+
+    $comment = Comment::read($commentid);
+
+    $data = [
+        'count' => $count,
+        'comment' => $comment
+    ];
+
+    HTTPResponse::updated("Comment $commentid successfully cleared", $data);
+}
+
+if ($action === 'free') {
+    $auth = Auth::demandLevel('authid', $authorid);
+
+    $count = Comment::free($commentid);
+
+    $comment = Comment::read($commentid);
+
+    $data = [
+        'count' => $count,
+        'comment' => $comment
+    ];
+
+    HTTPResponse::updated("Comment $commentid successfully freed", $data);
 }
 
 //GET

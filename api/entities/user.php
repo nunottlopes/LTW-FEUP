@@ -10,8 +10,6 @@ class User extends APIEntity {
     public static $usernameRequires = "At least 3 characters starting with a letter";
     public static $passwordRequires = "At least 6 characters";
 
-    // https://stackoverflow.com/questions/19605150/regex-for-password-must-contain-at-least-eight-characters-at-least-one-number-a
-
     /**
      * VALIDATION
      *
