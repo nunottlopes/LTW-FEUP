@@ -52,6 +52,20 @@ LEFT JOIN Picture P ON U.imageid = P.pictureid
 ORDER BY U.userid ASC;
 
 /**
+ * Vote Views
+ */
+DROP VIEW IF EXISTS 'Voting';
+
+CREATE VIEW Voting AS -- complicated. Match every (userid, entityid) pair with a vote and a save flag.
+SELECT U.userid, E.entityid, V.vote,
+    CASE S.savedat NOTNULL WHEN 1 THEN 1 ELSE NULL END save
+FROM Entity E
+JOIN User U
+LEFT JOIN Vote V ON V.userid = U.userid AND V.entityid = E.entityid
+LEFT JOIN Save S ON S.userid = U.userid AND S.entityid = E.entityid
+ORDER BY U.userid ASC, E.entityid ASC;
+
+/**
  * Channel Views
  */
 DROP VIEW IF EXISTS 'ChannelView';
@@ -270,6 +284,130 @@ JOIN StoryAll SA ON T.ascendantid = SA.entityid
 ORDER BY T.descendantid ASC;
 
 /**
+ * Story Voted Views
+ */
+DROP VIEW IF EXISTS 'StoryVotingEntity';
+DROP VIEW IF EXISTS 'StoryVotingImage';
+DROP VIEW IF EXISTS 'StoryVotingAuthor';
+DROP VIEW IF EXISTS 'StoryVotingChannel';
+DROP VIEW IF EXISTS 'StoryVotingImageAuthor';
+DROP VIEW IF EXISTS 'StoryVotingImageChannel';
+DROP VIEW IF EXISTS 'StoryVotingAuthorChannel';
+DROP VIEW IF EXISTS 'StoryVotingImageAuthorChannel';
+DROP VIEW IF EXISTS 'StoryVotingAll';
+
+CREATE VIEW StoryVotingEntity AS
+SELECT S.*, V.userid, V.vote, V.save
+FROM StoryEntity S
+NATURAL JOIN Voting V -- on entityid
+ORDER BY S.entityid ASC;
+
+CREATE VIEW StoryVotingImage AS
+SELECT S.*, V.userid, V.vote, V.save
+FROM StoryImage S
+NATURAL JOIN Voting V -- on entityid
+ORDER BY S.entityid ASC;
+
+CREATE VIEW StoryVotingAuthor AS
+SELECT S.*, V.userid, V.vote, V.save
+FROM StoryAuthor S
+NATURAL JOIN Voting V -- on entityid
+ORDER BY S.entityid ASC;
+
+CREATE VIEW StoryVotingChannel AS
+SELECT S.*, V.userid, V.vote, V.save
+FROM StoryChannel S
+NATURAL JOIN Voting V -- on entityid
+ORDER BY S.entityid ASC;
+
+CREATE VIEW StoryVotingImageAuthor AS
+SELECT S.*, V.userid, V.vote, V.save
+FROM StoryImageAuthor S
+NATURAL JOIN Voting V -- on entityid
+ORDER BY S.entityid ASC;
+
+CREATE VIEW StoryVotingImageChannel AS
+SELECT S.*, V.userid, V.vote, V.save
+FROM StoryImageChannel S
+NATURAL JOIN Voting V -- on entityid
+ORDER BY S.entityid ASC;
+
+CREATE VIEW StoryVotingAuthorChannel AS
+SELECT S.*, V.userid, V.vote, V.save
+FROM StoryAuthorChannel S
+NATURAL JOIN Voting V -- on entityid
+ORDER BY S.entityid ASC;
+
+CREATE VIEW StoryVotingImageAuthorChannel AS
+SELECT S.*, V.userid, V.vote, V.save
+FROM StoryImageAuthorChannel S
+NATURAL JOIN Voting V -- on entityid
+ORDER BY S.entityid ASC;
+
+CREATE VIEW StoryVotingAll AS
+SELECT S.*, V.userid, V.vote, V.save
+FROM StoryAll S
+NATURAL JOIN Voting V -- on entityid
+ORDER BY S.entityid ASC;
+
+/**
+ * Comment Voted Views
+ */
+DROP VIEW IF EXISTS 'CommentVotingEntity';
+DROP VIEW IF EXISTS 'CommentVotingExtra';
+DROP VIEW IF EXISTS 'CommentVotingAuthor';
+DROP VIEW IF EXISTS 'CommentVotingAll';
+
+CREATE VIEW CommentVotingEntity AS
+SELECT C.*, V.userid, V.vote, V.save
+FROM CommentEntity C
+NATURAL JOIN Voting V -- on entityid
+ORDER BY C.entityid ASC;
+
+CREATE VIEW CommentVotingExtra AS
+SELECT C.*, V.userid, V.vote, V.save
+FROM CommentExtra C
+NATURAL JOIN Voting V -- on entityid
+ORDER BY C.entityid ASC;
+
+CREATE VIEW CommentVotingAuthor AS
+SELECT C.*, V.userid, V.vote, V.save
+FROM CommentAuthor C
+NATURAL JOIN Voting V -- on entityid
+ORDER BY C.entityid ASC;
+
+CREATE VIEW CommentVotingAll AS
+SELECT C.*, V.userid, V.vote, V.save
+FROM CommentAll C
+NATURAL JOIN Voting V -- on entityid
+ORDER BY C.entityid ASC;
+
+/**
+ * Tree Voted Views
+ */
+DROP VIEW IF EXISTS 'CommentAncestryVotingTree';
+DROP VIEW IF EXISTS 'CommentVotingTree';
+DROP VIEW IF EXISTS 'StoryVotingTree';
+
+CREATE VIEW CommentAncestryVotingTree AS
+SELECT T.*, V.userid, V.vote, V.save
+FROM CommentAncestryTree T
+NATURAL JOIN Voting V -- on entityid
+ORDER BY T.level ASC;
+
+CREATE VIEW CommentVotingTree AS
+SELECT T.*, V.userid, V.vote, V.save
+FROM CommentTree T
+NATURAL JOIN Voting V -- on entityid
+ORDER BY T.entityid ASC;
+
+CREATE VIEW StoryVotingTree AS
+SELECT T.*, V.userid, V.vote, V.save
+FROM StoryTree T
+NATURAL JOIN Voting V -- on entityid
+ORDER BY T.commentid ASC;
+
+/**
  * Save views
  */
 DROP VIEW IF EXISTS 'SaveStory';
@@ -351,19 +489,6 @@ SELECT SAA.*, V.vote
 FROM SaveAllAscendant SAA
 NATURAL LEFT JOIN Vote V -- on entityid of story & userid
 ORDER BY SAA.userid ASC;
-
-
-/**
- * Vote Views
- */
-DROP VIEW IF EXISTS 'UserVote';
-
-CREATE VIEW UserVote AS -- complicated
-SELECT U.userid, E.entityid, V.vote
-FROM Entity E
-JOIN UserClean U
-LEFT JOIN Vote V ON V.userid = U.userid AND V.entityid = E.entityid
-ORDER BY U.userid ASC, E.entityid ASC;
 
 /**
  * ~~~~~~~~~~~~~~~~~~~~~~~
@@ -526,3 +651,43 @@ CREATE VIEW CommentTreeSortAverage AS
 SELECT CT.*, CAST(upvotes + 1 AS float) / CAST(upvotes + downvotes + 1 AS float) AS rating
 FROM CommentTree CT
 ORDER BY rating DESC;
+
+-- Testing getAllDescendants on story #1
+WITH Choice(ascendantid) AS (
+    VALUES (?)
+), Best(entityid) AS (
+    SELECT entityid
+    FROM CommentTree
+    WHERE ascendantid IN Choice
+    AND depth <= ? AND createdat >= ?
+    ORDER BY $sort DESC
+    LIMIT ? OFFSET ?
+), BestAncestry(entityid) AS (
+    SELECT Tree.ascendantid FROM Tree
+    WHERE Tree.descendantid IN Best
+)
+SELECT *, $sort AS rating
+FROM CommentTree
+WHERE ascendantid IN Choice
+AND (entityid IN BestAncestry OR entityid IN Best)
+ORDER BY depth ASC, rating DESC, createdat DESC, entityid ASC;
+
+-- Testing getAllDescendantsVoted on story #1
+WITH Choice(ascendantid) AS (
+    VALUES (1)
+), Best(entityid) AS (
+    SELECT entityid
+    FROM CommentTree CT
+    WHERE CT.ascendantid IN Choice
+    AND depth <= ? AND createdat >= ?
+    ORDER BY $sort DESC
+    LIMIT ? OFFSET ?
+), BestAncestry(entityid) AS (
+    SELECT Tree.ascendantid FROM Tree
+    WHERE Tree.descendantid IN Best
+)
+SELECT *, $sort AS rating
+FROM CommentVotingTree
+WHERE ascendantid IN Choice AND userid = ?
+AND (entityid IN BestAncestry OR entityid IN Best)
+ORDER BY depth ASC, rating DESC, createdat DESC, entityid ASC;

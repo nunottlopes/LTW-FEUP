@@ -24,15 +24,19 @@ function testfooter() {
 
 
 
-async function testchannel() {
+async function testchannel(all) {
     await testheader();
 
-    console.log("EXPECTED: [Created] 2 [OK] 6, [Deleted] 3, [404] 4");
-    console.log("EXPECTED: [200] 9, [201] 2, [404] 4");
+    console.log("EXPECTED: [Created] 2, [Updated] 2, [OK] 6, [Deleted] 2/3, [404] 6");
+    console.log("EXPECTED: [200] 10/11, [201] 2, [404] 6");
 
-    // create 201
+    // create
     await api.channel.put("creatorid=5", {channelname: "Amadeuses"});
     await api.channel.put("creatorid=4", {channelname: "Nunopedia"});
+
+    // set-banner
+    await api.channel.patch("channelid=5", {imageid: 1});
+    await api.channel.patch("channelid=6", {imageid: 2});
 
     // get-id
     await api.channel.get("channelid=2");
@@ -52,13 +56,16 @@ async function testchannel() {
     // delete-name
     await api.channel.delete("channelname=jokes");
 
+    // 404s
     await api.channel.get("channelid=9"); // 404
     await api.channel.get("channelname=roses"); // 404
+    await api.channel.patch("channelid=10", {imageid: 7}); // 404
+    await api.channel.patch("channelid=1", {imageid: 700}); // 404
     await api.channel.delete("channelid=10"); // 404
     await api.channel.delete("channelname=ayylmao"); // 404
 
     // delete-all
-    await api.channel.delete("all");
+    if (all) await api.channel.delete("all");
 
     testfooter();
 }

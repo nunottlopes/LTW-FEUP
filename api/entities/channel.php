@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/apientity.php';
+require_once __DIR__ . '/image.php';
 
 class Channel extends APIEntity {
     private static $channelRegex = '/^[a-zA-Z][a-zA-Z0-9_+-]{2,31}$/i';

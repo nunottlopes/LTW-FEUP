@@ -18,15 +18,15 @@ DELETE FROM Subscribe;
  * 6  Amadeu     amadeu
  * 7  Nuno       nuno
  */
-INSERT INTO User(userid, username, email, hash, admin) VALUES
-    (0, 'admin', 'admin@feupnews.com', '$2y$10$p2It7atX5xmjgOCj1ueLLOO9ImNkg5jC/O84yu9yU/578RekCoY62', 1),
-    (1, 'Emanuel', 'emanuel@gmail.com', '$2y$10$xCpKMa8XygdBr3VOxsIOhOyl9HLzw8WgmxCdAs4rhEsjcQsMW87hO', 0),
-    (2, 'David', 'david.andrade@gmail.com', '$2y$10$xesrOHbPqklXV1I7FNfERuA37Indy1PJBIrxqqZ7tY7/qIJOxb5Ge', 0),
-    (3, 'Tiago', 'tiago@live.com.pt', '$2y$10$raS40nxOFgUViuNF61HRMOn6bDrJIobJM7TXsWyp0RXNuTtdEOTS.', 0),
-    (4, 'Sofia', 'sofia@hotmail.com', '$2y$10$ysl//9wSz70ld77ke0l2lOUd9H3lxzOH.ogY6gezjGl9y1xCK4pxO', 0),
-    (5, 'Bruno', 'bruno@gmail.com', '$2y$10$iDV2CXM5NbVVGphWIqQ73.Shl.xBrtO.QS2laFNPy7ojSMBKFfeUa', 0),
-    (6, 'Amadeu', 'amadeu@gmail.com', '$2y$10$CAEOQq547goKiJN3KzwSjus1kbdcchrGtSSW2g5v.zkll88Xbquse', 0),
-    (7, 'Nuno', 'nuno.lopes@gmail.com', '$2y$10$gPB0nQ76r4AzqKupnVGf3edvlgHBqB2EkAQQ5SrQ23yDl9D5CnaA6', 0);
+INSERT INTO User(userid, username, email, hash, admin, imageid) VALUES
+    (0, 'admin', 'admin@feupnews.com', '$2y$10$p2It7atX5xmjgOCj1ueLLOO9ImNkg5jC/O84yu9yU/578RekCoY62', 1, DEFAULT),
+    (1, 'Emanuel', 'emanuel@gmail.com', '$2y$10$xCpKMa8XygdBr3VOxsIOhOyl9HLzw8WgmxCdAs4rhEsjcQsMW87hO', 0, 3),
+    (2, 'David', 'david.andrade@gmail.com', '$2y$10$xesrOHbPqklXV1I7FNfERuA37Indy1PJBIrxqqZ7tY7/qIJOxb5Ge', 0, 2),
+    (3, 'Tiago', 'tiago@live.com.pt', '$2y$10$raS40nxOFgUViuNF61HRMOn6bDrJIobJM7TXsWyp0RXNuTtdEOTS.', 0, 1),
+    (4, 'Sofia', 'sofia@hotmail.com', '$2y$10$ysl//9wSz70ld77ke0l2lOUd9H3lxzOH.ogY6gezjGl9y1xCK4pxO', 0, DEFAULT),
+    (5, 'Bruno', 'bruno@gmail.com', '$2y$10$iDV2CXM5NbVVGphWIqQ73.Shl.xBrtO.QS2laFNPy7ojSMBKFfeUa', 0, DEFAULT),
+    (6, 'Amadeu', 'amadeu@gmail.com', '$2y$10$CAEOQq547goKiJN3KzwSjus1kbdcchrGtSSW2g5v.zkll88Xbquse', 0, 4),
+    (7, 'Nuno', 'nuno.lopes@gmail.com', '$2y$10$gPB0nQ76r4AzqKupnVGf3edvlgHBqB2EkAQQ5SrQ23yDl9D5CnaA6', 0, DEFAULT);
 
 /**
  * CHANNEL
@@ -36,9 +36,9 @@ INSERT INTO User(userid, username, email, hash, admin) VALUES
  * 3  jokes           Nuno
  * 4  askscience      Emanuel
  */
-INSERT INTO Channel(channelid, channelname, creatorid) VALUES
-    (1, 'showerthoughts', 6),
-    (2, 'philosophy', 4),
+INSERT INTO Channel(channelid, channelname, creatorid, imageid) VALUES
+    (1, 'showerthoughts', 6, 5),
+    (2, 'philosophy', 4, 6),
     (3, 'jokes', 7),
     (4, 'askscience', 1);
 

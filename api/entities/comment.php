@@ -180,9 +180,7 @@ class Comment extends APIEntity {
      */
     public static function readVoted(int $id, int $userid) {
         $query = '
-            SELECT CA.*, V.vote
-            FROM CommentAll CA NATURAL JOIN UserVote V
-            WHERE CA.entityid = ? AND V.userid = ?
+            SELECT * FROM CommentVotingAll WHERE entityid = ? AND userid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -194,11 +192,11 @@ class Comment extends APIEntity {
         $sort = static::sort($more);
 
         $query = "
-            SELECT R.*, V.vote, $sort AS rating
-            FROM CommentAuthor R NATURAL JOIN UserVote V
-            WHERE R.parentid = ? AND V.userid = ?
-            AND R.createdat >= ?
-            ORDER BY rating DESC, R.createdat DESC, R.entityid ASC
+            SELECT *, $sort AS rating
+            FROM CommentVotingAuthor
+            WHERE parentid = ? AND userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -213,11 +211,11 @@ class Comment extends APIEntity {
         $sort = static::sort($more);
 
         $query = "
-            SELECT R.*, V.vote, $sort AS rating
-            FROM CommentExtra R NATURAL JOIN UserVote V
-            WHERE R.authorid = ? AND V.userid = ?
-            AND R.createdat >= ?
-            ORDER BY rating DESC, R.createdat DESC, R.entityid ASC
+            SELECT *, $sort AS rating
+            FROM CommentVotingExtra
+            WHERE authorid = ? AND userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -233,11 +231,11 @@ class Comment extends APIEntity {
         $sort = static::sort($more);
 
         $query = "
-            SELECT R.*, V.vote, $sort AS rating
-            FROM CommentEntity R NATURAL JOIN UserVote V
-            WHERE R.parentid = ? AND R.authorid = ? AND V.userid = ?
-            AND R.createdat >= ?
-            ORDER BY rating DESC, R.createdat DESC, R.entityid ASC
+            SELECT *, $sort AS rating
+            FROM CommentVotingEntity
+            WHERE parentid = ? AND authorid = ? AND userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -252,11 +250,11 @@ class Comment extends APIEntity {
         $sort = static::sort($more);
 
         $query = "
-            SELECT R.*, V.vote, $sort AS rating
-            FROM CommentAll R NATURAL JOIN UserVote V
-            WHERE V.userid = ?
-            AND R.createdat >= ?
-            ORDER BY rating DESC, R.createdat DESC, R.entityid ASC
+            SELECT *, $sort AS rating
+            FROM CommentVotingAll
+            WHERE userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 

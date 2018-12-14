@@ -4,6 +4,7 @@ require_once __DIR__ . '/apientity.php';
 const THUMBNAIL_SIDE = 256;
 const SMALL_MAXWIDTH = 512;
 const MEDIUM_MAXWIDTH = 1024;
+const IMAGE_DELETE_UPLOAD = false;
 
 class Image extends APIEntity {
     /**
@@ -156,7 +157,7 @@ class Image extends APIEntity {
 
         if (!$image) return 0;
 
-        if (isset($image['imagefile'])) {
+        if (IMAGE_DELETE_UPLOAD && isset($image['imagefile'])) {
             static::unlink($image['imagefile']);
         }
 
@@ -170,7 +171,7 @@ class Image extends APIEntity {
     }
 
     public static function deleteAll() {
-        static::unlinkAll();
+        if (IMAGE_DELETE_UPLOAD) static::unlinkAll();
 
         $query = '
             DELETE FROM Image

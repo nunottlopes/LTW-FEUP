@@ -218,6 +218,9 @@ var api = {
         "put": function(query, data, expect) {
             return api.put('channel', query, data, expect);
         },
+        "patch": function(query, data, expect) {
+            return api.patch('channel', query, data, expect);
+        },
         "delete": function(query, expect) {
             return api.delete('channel', query, expect);
         }

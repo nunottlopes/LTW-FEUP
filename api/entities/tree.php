@@ -195,10 +195,9 @@ class Tree extends APIEntity {
         $storyid = $comment['storyid'];
 
         $query = '
-            SELECT T.*, V.vote
-            FROM CommentAncestryTree T NATURAL JOIN UserVote V
-            WHERE T.descendantid = ? AND V.userid = ?
-            ORDER BY T.level ASC;
+            SELECT * FROM CommentAncestryVotingTree
+            WHERE descendantid = ? AND userid = ?
+            ORDER BY level ASC;
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -206,9 +205,8 @@ class Tree extends APIEntity {
         $comments = static::fetchAll($stmt);
 
         $query = '
-            SELECT SA.*, V.vote
-            FROM StoryAll SA NATURAL JOIN UserVote V
-            WHERE SA.entityid = ? AND V.userid = ?
+            SELECT * FROM StoryVotingAll SA
+            WHERE entityid = ? AND userid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -241,11 +239,11 @@ class Tree extends APIEntity {
                 SELECT Tree.ascendantid FROM Tree
                 WHERE Tree.descendantid IN Best
             )
-            SELECT R.*, Vote.V, $sort AS rating
-            FROM CommentTree R NATURAL JOIN UserVote V
-            WHERE R.ascendantid IN Choice AND V.userid = ?
-            AND (R.entityid IN BestAncestry OR R.entityid IN Best)
-            ORDER BY R.depth ASC, rating DESC, R.createdat DESC, R.entityid ASC;
+            SELECT *, $sort AS rating
+            FROM CommentVotingTree
+            WHERE ascendantid IN Choice AND userid = ?
+            AND (entityid IN BestAncestry OR entityid IN Best)
+            ORDER BY depth ASC, rating DESC, createdat DESC, entityid ASC;
             ";
 
         $queryArguments = static::extend([$ascendantid], $more);

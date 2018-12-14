@@ -43,7 +43,7 @@ class API {
         }
 
         // Votes
-        if (preg_match('/^(?:\w*votes|score|rating)$/i', $key)) {
+        if (preg_match('/^(?:\w*votes|score)$/i', $key)) {
             return ($value !== null || $force) ? (int)$value : $value;
         }
 
@@ -73,7 +73,7 @@ class API {
         }
 
         // Booleans
-        if (preg_match('/^(?:admin|bool\w*)$/i', $key)) {
+        if (preg_match('/^(?:admin|bool\w*|save)$/i', $key)) {
             return ($value !== null || $force) ? (bool)(int)$value : $value;
         }
 

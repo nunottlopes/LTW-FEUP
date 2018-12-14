@@ -2,6 +2,7 @@
 require_once __DIR__ . '/apientity.php';
 require_once __DIR__ . '/entity.php';
 require_once __DIR__ . '/channel.php';
+require_once __DIR__ . '/image.php';
 
 class Story extends APIEntity {
     /**
@@ -196,9 +197,7 @@ class Story extends APIEntity {
      */
     public static function readVoted(int $entityid, int $userid) {
         $query = '
-            SELECT R.*, V.vote
-            FROM StoryAll R NATURAL JOIN UserVote V
-            WHERE entityid = ? AND V.userid = ?
+            SELECT * FROM StoryVotingAll WHERE entityid = ? AND userid = ?
             ';
 
         $stmt = DB::get()->prepare($query);
@@ -210,11 +209,11 @@ class Story extends APIEntity {
         $sort = static::sort($more);
 
         $query = "
-            SELECT R.*, V.vote, $sort AS rating
-            FROM StoryImageAuthor R NATURAL JOIN UserVote V
-            WHERE R.channelid = ? AND V.userid = ?
-            AND R.createdat >= ?
-            ORDER BY rating DESC, R.createdat DESC, R.entityid ASC
+            SELECT *, $sort AS rating
+            FROM StoryVotingImageAuthor
+            WHERE channelid = ? AND userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -229,11 +228,11 @@ class Story extends APIEntity {
         $sort = static::sort($more);
 
         $query = "
-            SELECT R.*, V.vote, $sort AS rating
-            FROM StoryImageChannel R NATURAL JOIN UserVote V
-            WHERE R.authorid = ? AND V.userid = ?
-            AND R.createdat >= ?
-            ORDER BY rating DESC, R.createdat DESC, R.entityid ASC
+            SELECT *, $sort AS rating
+            FROM StoryVotingImageChannel
+            WHERE authorid = ? AND userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -249,11 +248,11 @@ class Story extends APIEntity {
         $sort = static::sort($more);
 
         $query = "
-            SELECT R.*, V.vote, $sort AS rating
-            FROM StoryImage R NATURAL JOIN UserVote V
-            WHERE R.channelid = ? AND R.authorid = ? AND V.userid = ?
-            AND R.createdat >= ?
-            ORDER BY rating DESC, R.createdat DESC, R.entityid ASC
+            SELECT *, $sort AS rating
+            FROM StoryVotingImage
+            WHERE channelid = ? AND authorid = ? AND userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 
@@ -268,11 +267,11 @@ class Story extends APIEntity {
         $sort = static::sort($more);
 
         $query = "
-            SELECT R.*, V.vote, $sort AS rating
-            FROM StoryAll R NATURAL JOIN UserVote V
-            WHERE V.userid = ?
-            AND R.createdat >= ?
-            ORDER BY rating DESC, R.createdat DESC, R.entityid ASC
+            SELECT *, $sort AS rating
+            FROM StoryVotingAll
+            WHERE userid = ?
+            AND createdat >= ?
+            ORDER BY rating DESC, createdat DESC, entityid ASC
             LIMIT ? OFFSET ?
             ";
 

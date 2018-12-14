@@ -7,12 +7,12 @@ require_once API::entity('channel');
  */
 $resource = 'channel';
 
-$methods = ['GET', 'PUT', 'DELETE'];
+$methods = ['GET', 'PUT', 'PATCH', 'DELETE'];
 
 $actions = [
     'create'      => ['PUT', ['creatorid'], ['channelname']],
 
-    'set-banner'  => ['PUT', ['channelid'], ['imageid']],
+    'set-banner'  => ['PATCH', ['channelid'], ['imageid']],
 
     'get-id'      => ['GET', ['channelid']],
     'get-name'    => ['GET', ['channelname']],
