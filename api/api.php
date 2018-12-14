@@ -61,7 +61,7 @@ class API {
         }
 
         // Counts
-        if (preg_match('/^(?:count|level)$/i', $key)) {
+        if (preg_match('/^(?:count|level|stories|comments|entities)$/i', $key)) {
             return ($value !== null || $force) ? (int)$value : $value;
         }
 

@@ -74,24 +74,24 @@ DROP VIEW IF EXISTS 'ChannelCreator';
 DROP VIEW IF EXISTS 'ChannelAll';
 
 CREATE VIEW ChannelView AS
-SELECT C.*, (SELECT count(*) FROM Story S WHERE S.channelid = CA.channelid) stories
+SELECT C.*, (SELECT count(*) FROM Story S WHERE S.channelid = C.channelid) stories
 FROM Channel C
 ORDER BY C.channelid ASC;
 
 CREATE VIEW ChannelBanner AS
-SELECT C.channelid, C.channelname, B.*, C.creatorid
+SELECT C.channelid, C.channelname, C.stories, B.*, C.creatorid
 FROM ChannelView C
 LEFT JOIN Banner B ON C.imageid = B.bannerid
 ORDER BY C.channelid ASC;
 
 CREATE VIEW ChannelCreator AS
-SELECT C.channelid, C.channelname, Cr.*
+SELECT C.channelid, C.channelname, C.stories, Cr.*
 FROM ChannelView C
 NATURAL LEFT JOIN Creator Cr -- on creatorid
 ORDER BY C.channelid ASC;
 
 CREATE VIEW ChannelAll AS
-SELECT C.channelid, C.channelname, B.*, Cr.*
+SELECT C.channelid, C.channelname, C.stories, B.*, Cr.*
 FROM ChannelView C
 LEFT JOIN Banner B ON C.imageid = B.bannerid
 NATURAL LEFT JOIN Creator Cr -- on creatorid
