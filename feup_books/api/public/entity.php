@@ -17,8 +17,6 @@ $actions = [
 /**
  * 1.2. LOAD request description variables
  */
-$auth = Auth::demandLevel('free');
-
 $method = HTTPRequest::method($methods);
 
 $action = HTTPRequest::action($resource, $actions);

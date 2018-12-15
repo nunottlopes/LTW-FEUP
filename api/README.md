@@ -4,6 +4,12 @@ A quick rundown of what is implemented in the API, plus a quick reference to spe
 
 # Quick Lookup
 
+    Testing the API
+        go to page feup_books/api/public/test.php and use the javascript object "api"
+        see also:
+        api/test.js
+        feup_books/javascript/api-ajax.js
+
     Database schema:
         folder api/sql/
 
@@ -180,7 +186,7 @@ With time, more auxiliary functions were added.
 
 ## Authentication: api/api.php class Auth
 
-The API supports two authentication schemes: **sessions** and **basic authorization**. For the website only **sessions** is used. To toggle authentication scheme, change $AUTH_MODE at the top of *api.php*.
+The API supports two authentication schemes: **sessions** and **basic authorization**. For the website only **sessions** is used. To toggle authentication scheme, change AUTH_MODE at the top of *api.php*.
 
 The authentication pipeline for **API resources** is
 

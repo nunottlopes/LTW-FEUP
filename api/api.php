@@ -8,7 +8,8 @@ require_once __DIR__ . '/db.php';
  * Note: Authorization mode is nice to test the API. However, the API interaction
  * with the public website on Authorization mode has not and will not be tested.
  */
-$AUTH_MODE = 'SESSION';
+const AUTH_MODE = 'SESSION';
+const ENFORCE_CSRF = true;
 
 
 /**
@@ -255,6 +256,17 @@ require_once API::entity('user');
 class Auth {
     private static $authRegex = '/^Basic ((?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?)$/';
 
+    public static function checkCSRF(bool $answerFail = false) {
+        $sess = $_SESSION['CSRFTOKEN'];
+
+        $csrf = HTTPRequest::csrftoken();
+
+        if ($csrf !== null && $csrf === $sess) return true;
+
+        if ($answerFail) HTTPResponse::forbidden("Invalid CSRF token\n$sess\n$csrf");
+        return false;
+    }
+
     /**
      * Authenticate a user without creating a logged in session.
      *
@@ -334,26 +346,17 @@ class Auth {
     public static function session() {
         // If $_SESSION has the field 'userid' set, then this is the login.
         $set = isset($_SESSION['userid']);
-
         if (!$set) return null;
 
         $userid = $_SESSION['userid'];
-
-        return [
-            'userid' => $_SESSION['userid'],
-            'username' => $_SESSION['username'],
-            'email' => $_SESSION['useremail'],
-            'admin' => $_SESSION['admin']
-        ];
+        return User::read($userid);
     }
 
     /**
      * Forward to session or authorization.
      */
     public static function authenticate() {
-        global $AUTH_MODE;
-
-        if ($AUTH_MODE === 'SESSION') {
+        if (AUTH_MODE === 'SESSION') {
             return static::session();
         } else {
             return static::authorization();
@@ -375,13 +378,12 @@ class Auth {
      *     false      if authentication is not achieved and is required.
      *     user array if authentication is achieved and required.
      */
-    public static function level(string $level, int $userid = null) {
+    private static function level(string $level, int $userid = null) {
         $auth = static::authenticate();
 
+        if ($level === 'free') return $auth;
+
         switch ($level) {
-        case 'free':
-            $allow = true;
-            break;
         case 'auth':
             $allow = (bool)$auth;
             break;
@@ -389,10 +391,8 @@ class Auth {
             $allow = (bool)$auth && ($auth['admin'] || ($auth['userid'] === $userid));
             break;
         case 'admin':
-            $allow = (bool)$auth && $auth['admin'];
-            break;
         default:
-            $allow = false;
+            $allow = (bool)$auth && $auth['admin'];
             break;
         }
 
@@ -413,19 +413,24 @@ class Auth {
     public static function demandLevel(string $level, int $userid = null) {
         $auth = static::level($level, $userid);
 
-        if ($auth !== false) return $auth;
+        if ($level === 'free') return $auth;
 
-        global $AUTH_MODE;
+        if (is_array($auth)) {
+            if (HTTPRequest::method() !== 'GET' && AUTH_MODE === 'SESSION') {
+                static::checkCSRF(true);
+            }
+            return $auth;
+        }
 
         switch ($level) {
         case 'auth':
-            if ($AUTH_MODE === 'SESSION') {
+            if (AUTH_MODE === 'SESSION') {
                 HTTPResponse::forbidden("Unauthorized request: requires login");
             } else {
                 HTTPResponse::unauthorized();
             }
         case 'authid':
-            if ($userid !== null && $AUTH_MODE === 'SESSION') {
+            if ($userid !== null && AUTH_MODE === 'SESSION') {
                 HTTPResponse::forbidden("Unauthorized access");
             } else if ($userid !== null) {
                 HTTPResponse::unauthorized($userid);
@@ -449,12 +454,12 @@ class Auth {
         if (User::authenticate($name, $password, $error)) {
             $user = User::get($name);
 
+            restart_user_session();
             $_SESSION['userid'] = $user['userid'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['useremail'] = $user['email'];
             $_SESSION['admin'] = $user['admin'];
-            $_SESSION['login_timestamp'] = time();
-            newCSRF();
+            $_SESSION['LOGIN_TIMESTAMP'] = time();
 
             return $user;
         }
@@ -467,20 +472,12 @@ class Auth {
      * Idempotent, does not fail if there is no login.
      */
     public static function logout() {
-        session_destroy();
-        session_start();
-
-        if (isset($_SESSION['userid'])) unset($_SESSION['userid']);
-        if (isset($_SESSION['username'])) unset($_SESSION['username']);
-        if (isset($_SESSION['useremail'])) unset($_SESSION['useremail']);
-        if (isset($_SESSION['login_timestamp'])) unset($_SESSION['login_timestamp']);
-        if (isset($_SESSION['authkey'])) unset($_SESSION['authkey']);
-        if (isset($_SESSION['authkey_timestamp'])) unset($_SESSION['authkey_timestamp']);
-        newCSRF();
-
+        restart_user_session();
         return true;
     }
 }
+
+$auth = Auth::authenticate();
 
 /**
  * Utilities for parsing the client's HTTP request.
@@ -527,6 +524,17 @@ class HTTPRequest {
     }
 
     /**
+     * Extract the CSRF token
+     */
+    public static function csrftoken() {
+        $body = static::body();
+
+        if (!isset($body['CSRFTOKEN'])) return null;
+
+        return $body['CSRFTOKEN'];
+    }
+
+    /**
      * Parse
      */
     public static function body(string ...$keys) {
@@ -543,11 +551,13 @@ class HTTPRequest {
                 HTTPResponse::malformedJSON();
             }
 
-            if (!API::got($obj, $keys)) {
+            $casted = API::cast($obj);
+
+            if (count($keys) === 0) return $casted;
+
+            if (!API::got($casted, $keys)) {
                 HTTPResponse::missingBodyParameters($keys);
             }
-
-            $casted = API::cast($obj);
 
             if (count($keys) === 1) return $casted[$keys[0]];
             else return $casted;
@@ -558,11 +568,13 @@ class HTTPRequest {
         // Parse body using $_POST
         if ((strpos($contentType, 'application/x-www-form-urlencoded') !== false) ||
             (strpos($contentType, 'multipart/form-data') !== false)) {
-            if (!API::got($_POST, $keys)) {
+            $casted = API::cast($_POST);
+
+            if (count($keys) === 0) return $casted;
+
+            if (!API::got($casted, $keys)) {
                 HTTPResponse::missingBodyParameters($keys);
             }
-
-            $casted = API::cast($_POST);
 
             if (count($keys) === 1) return $casted[$keys[0]];
             else return $casted;
@@ -577,7 +589,7 @@ class HTTPRequest {
 
             $body = static::bodyString();
 
-            // Gladly assume appropriate key!
+            // assume appropriate key
             $casted = API::single($keys[0], $body);
 
             return $casted;
@@ -587,10 +599,11 @@ class HTTPRequest {
     }
 
     /**
-     * Get the request method
+     * Get the request method. Map HEAD to GET.
      */
     public static function method(array $supported = null) {
         $method = $_SERVER['REQUEST_METHOD'];
+        if ($method === 'HEAD') $method = 'GET';
 
         // Just querying the actual method
         if ($supported === null) {
@@ -639,7 +652,7 @@ class HTTPResponse {
     private static function json(array $json) {
         header("Content-Type: application/json");
 
-        if (HTTPRequest::method() !== 'HEAD') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'HEAD') {
             echo json_encode($json);
         }
 
@@ -652,8 +665,8 @@ class HTTPResponse {
     private static function plain(array $json) {
         header("Content-Type: text/plain");
 
-        if (HTTPRequest::method() !== 'HEAD') {
-            echo json_encode($json, JSON_PRETTY_PRINT);
+        if ($_SERVER['REQUEST_METHOD'] !== 'HEAD') {
+            echo json_encode($json);
         }
 
         exit(0);
@@ -961,8 +974,7 @@ class HTTPResponse {
      * Wrong credentials
      */
     public static function wrongCredentials(string $reason = null) {
-        global $AUTH_MODE;
-        if ($AUTH_MODE === 'SESSION') {
+        if (AUTH_MODE === 'SESSION') {
             http_response_code(400);
         } else {
             http_response_code(401);
@@ -983,9 +995,8 @@ class HTTPResponse {
      * Required header WWW-Authenticate is present if 401.
      */
     public static function unauthorized(int $userid = null) {
-        global $AUTH_MODE;
-        if ($AUTH_MODE === 'SESSION') {
-            http_response_code(403);
+        if (AUTH_MODE === 'SESSION') {
+            http_response_code(400);
         } else {
             http_response_code(401);
             $realm = static::$authenticationRealm;

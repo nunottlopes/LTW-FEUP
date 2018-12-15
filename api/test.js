@@ -11,9 +11,9 @@ function print(N) {
 }
 
 async function testheader() {
+    await api.user.get("all");
+    
     api.test.clear();
-
-    await api.login("admin", "admin");
 }
 
 function testfooter() {

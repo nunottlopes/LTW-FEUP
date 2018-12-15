@@ -28,7 +28,7 @@ INSERT INTO Image(imageid, imagefile, width, height, filesize, format) VALUES
  * 6  Bruno      bruno
  * 7  Amadeu     amadeu
  * 8  Nuno       nuno
- * 9  Jaime      jaime       ADMIN
+ * 9  Jaime                  ADMIN
  */
 INSERT INTO User(userid, username, email, hash, admin, imageid) VALUES
     (1, 'admin', 'admin@feupnews.com', '$2y$10$p2It7atX5xmjgOCj1ueLLOO9ImNkg5jC/O84yu9yU/578RekCoY62', 1, 1),

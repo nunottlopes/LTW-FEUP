@@ -1,9 +1,3 @@
-/**
- * Although a lot of code, this is just a very thin layer
- * around fetch() used for testing and minimum abstraction.
- * Useful for changing expect[] later, as well as the url links
- * to the resources.
- */
 function apiUnhandledDefaultHandler(response) {
     console.warn("API.FETCH UNHANDLED --- " + response.statusText);
     console.log(response); ++api.handlers.counter;
@@ -21,7 +15,8 @@ var api = {
         credentials: "same-origin",
         redirect: "follow",
         expect: [200, 201, 202],
-        origin: window.location.origin
+        origin: window.location.origin,
+        sendcsrf: true
     },
 
     "handlers": {
@@ -30,18 +25,18 @@ var api = {
         unhandled: [],
 
         other: apiUnhandledDefaultHandler,
-        200: apiUnhandledDefaultHandler,
-        201: apiUnhandledDefaultHandler,
-        202: apiUnhandledDefaultHandler,
-        300: apiUnhandledDefaultHandler,
-        400: apiUnhandledDefaultHandler,
-        401: apiUnhandledDefaultHandler,
-        403: apiUnhandledDefaultHandler,
-        404: apiUnhandledDefaultHandler,
-        405: apiUnhandledDefaultHandler,
-        415: apiUnhandledDefaultHandler,
-        500: apiUnhandledDefaultHandler,
-        503: apiUnhandledDefaultHandler
+        200:   apiUnhandledDefaultHandler,
+        201:   apiUnhandledDefaultHandler,
+        202:   apiUnhandledDefaultHandler,
+        300:   apiUnhandledDefaultHandler,
+        400:   apiUnhandledDefaultHandler,
+        401:   apiUnhandledDefaultHandler,
+        403:   apiUnhandledDefaultHandler,
+        404:   apiUnhandledDefaultHandler,
+        405:   apiUnhandledDefaultHandler,
+        415:   apiUnhandledDefaultHandler,
+        500:   apiUnhandledDefaultHandler,
+        503:   apiUnhandledDefaultHandler
     },
 
     "resource": function(resource, query) {
@@ -51,8 +46,8 @@ var api = {
     },
 
     "ajax": function(resource, query, userInit, userExpect) {
-        const url = this.resource(resource, query);
-        const expect = new Set(userExpect || this.settings.expect);
+        const url = api.resource(resource, query);
+        const expect = new Set(userExpect || api.settings.expect);
         const init = Object.assign({
             method: 'GET',
             mode: 'same-origin',
@@ -89,15 +84,16 @@ var api = {
      * Fetch Shortcut methods
      */
     "get": function(resource, query, userExpect) {
-        userExpect = userExpect || [200, 404];
+        userExpect = userExpect || [200];
         return this.fetch(resource, query, {
             method: 'GET'
         }, userExpect);
     },
 
     "post": function(resource, query, data, userExpect) {
-        userExpect = userExpect || [201, 404];
+        userExpect = userExpect || [201];
         if (typeof data !== 'object') throw "Invalid data in post()";
+        if (this.settings.sendcsrf) data.CSRFTOKEN = window.FEUPNEWS_CSRF_TOKEN;
         return this.fetch(resource, query, {
             method: 'POST',
             headers: {
@@ -108,8 +104,9 @@ var api = {
     },
 
     "put": function(resource, query, data, userExpect) {
-        userExpect = userExpect || [200, 201, 404];
+        userExpect = userExpect || [200, 201];
         if (typeof data !== 'object') throw "Invalid data in put()";
+        if (this.settings.sendcsrf) data.CSRFTOKEN = window.FEUPNEWS_CSRF_TOKEN;
         return this.fetch(resource, query, {
             method: 'PUT',
             headers: {
@@ -120,8 +117,9 @@ var api = {
     },
 
     "patch": function(resource, query, data, userExpect) {
-        userExpect = userExpect || [200, 404];
+        userExpect = userExpect || [200];
         if (typeof data !== 'object') throw "Invalid data in patch()";
+        if (this.settings.sendcsrf) data.CSRFTOKEN = window.FEUPNEWS_CSRF_TOKEN;
         return this.fetch(resource, query, {
             method: 'PATCH',
             headers: {
@@ -132,9 +130,15 @@ var api = {
     },
 
     "delete": function(resource, query, userExpect) {
-        userExpect = userExpect || [200, 404];
+        userExpect = userExpect || [200];
+        data = {};
+        if (this.settings.sendcsrf) data.CSRFTOKEN = window.FEUPNEWS_CSRF_TOKEN;
         return this.fetch(resource, query, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json; charset=utf8'
+            },
+            body: JSON.stringify(data)
         }, userExpect);
     },
 
@@ -264,6 +268,9 @@ var api = {
         return api.get("login", "auth", [200]);
     },
 
+    /**
+     * For tests in api/public/test.php
+     */
     "test": {
         ajax: function(resource, query, userInit, userExpect) {
             const url = api.resource(resource, query);

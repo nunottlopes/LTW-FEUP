@@ -1,8 +1,16 @@
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/api.php';
+$auth = Auth::authenticate();
+?>
 <!DOCTYPE html>
 <html>
     <head>
-        <script src="/feup_books/javascript/api-ajax.js"></script>
-        <script src="/api/test.js"></script>
+        <script type="text/javascript" src="/feup_books/javascript/api-ajax.js"></script>
+        <script type="text/javascript" src="/api/test.js"></script>
+        <script type="text/javascript">
+            window.FEUPNEWS_CSRF_TOKEN = "<?= $_SESSION['CSRFTOKEN'] ?>";
+            var auth = <?= json_encode($auth) ?>;
+        </script>
     </head>
     <body>
     </body>
