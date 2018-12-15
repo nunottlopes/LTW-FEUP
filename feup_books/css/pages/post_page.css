@@ -8,6 +8,11 @@
     background-color: white;
 }
 
+#post_page_post img {
+    max-width: 40em;
+    height: auto;
+}
+
 #channel_info {
     color: white;
     text-shadow: 1px 1px 0 black;
