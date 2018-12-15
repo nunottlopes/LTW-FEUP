@@ -1,6 +1,14 @@
 let post_page_post = document.querySelector("#post_page_post");
 let storyid = post_page_post.getAttribute("story-id");
+let comments = document.querySelector("#post_comments");
 let user;
+
+let settings = {
+    sort: document.querySelector("#dropdown_selection").getAttribute("selectionid"),
+    limit: 5,
+    offset: 0,
+    maxdepth: 5
+}
 
 api.auth().then(response => response.json()).then(json =>{
     user = json.data;
@@ -26,9 +34,7 @@ function getPageContent(){
     });
 
     // Get Comments
-    api.tree.get({ascendantid:storyid}, [200])
-    .then(response => response.json())
-    .then(json => getComments(json.data));
+    getComments();
 }
 
 function getStory(story){
@@ -77,21 +83,35 @@ function getStory(story){
     updateButtons(user.userid, story.entityid);
 }
 
-// Get All Comments
-let allComments = "";
+// // Get All Comments
+var allComments;
 
-function getComments(data){
+function getComments(){
     allComments = "";
-    // Comments
-    let comments = document.querySelector("#post_comments");
 
-    getCommentsFromTree(data);
+    if(user != null){
+        // api.tree.get({ascendantid:storyid, voterid:user.userid, order: settings.sort, limit: settings.limit, offset: settings.offset, maxdepth: settings.maxdepth}, [200])
+        api.tree.get({ascendantid:storyid, voterid:user.userid, order: settings.sort}, [200])
+        .then(response => response.json())
+        .then(json => {
+            getCommentsFromTree(json.data);
 
-    comments.innerHTML = allComments;
+            comments.innerHTML = allComments;
 
-    if(data.length > 0){
-        api.tree.get({ascendantid: data[0].ascendantid, voterid:user.userid}).then(response => {return response.json()}).then(json => {
             updateButtonsComments(json.data);
+            
+            // if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10)) {
+            //     settings.offset += settings.limit;
+            //     getComments();
+            // }
+        })
+    }
+    else{
+        api.tree.get({ascendantid:storyid, order: settings.sort}, [200])
+        //api.tree.get({ascendantid:storyid, order: settings.sort, limit: settings.limit, offset: settings.offset, maxdepth: settings.maxdepth}, [200])
+        .then(response => response.json())
+        .then(json => {
+            getCommentsFromTree(json.data);
         })
     }
 }
@@ -104,10 +124,10 @@ function getCommentsFromTree(data){
         <header>${currentComment.authorname}, ${timeDifference(currentComment.updatedat)}</header>
         <p>${currentComment.content}</p>
         <footer id=comment_button_${currentComment.entityid}>
-            <button class="comment_button" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${currentComment.upvotes} Upvotes</button>
-            <button class="comment_button" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${currentComment.downvotes} Downvotes</button>
+            <button id="upvote${currentComment.entityid}" class="comment_button" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${currentComment.upvotes} Upvotes</button>
+            <button id="downvote${currentComment.entityid}" class="comment_button" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${currentComment.downvotes} Downvotes</button>
             <button class="comment_button" onclick="reply(${currentComment.entityid})"><i class="fa fa-comment"></i> Reply</button>
-            <button class="comment_button" id="save${currentComment.entityid}" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>
+            <button id="save${currentComment.entityid}" class="comment_button" id="save${currentComment.entityid}" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>
         </footer>`;
 
         allComments += article;
@@ -162,10 +182,10 @@ function updateButtonsComments(data){
 
 document.querySelectorAll("#dropdown_options > *").forEach(element => {
     element.addEventListener('click', () => {
-        let order = element.getAttribute('id');
-        api.tree.get({ascendantid:storyid, order: order}, [200])
-        .then(response => response.json())
-        .then(json => getComments(json.data));
+        comments.innerHTML = "";
+        settings.offset = 0;
+        settings.sort = element.getAttribute("id");
+        getComments();
     });
 })
 
@@ -179,3 +199,10 @@ function updateAside(data) {
     document.querySelector("#channel_info").style.backgroundImage = 
         `url('images/upload/small/${data.bannerfile}')`;
 }
+
+// window.onscroll = () => {
+//     if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10)) {
+//         settings.offset += settings.limit;
+//         getComments();
+//     }
+// }

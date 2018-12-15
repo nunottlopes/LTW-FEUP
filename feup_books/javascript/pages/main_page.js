@@ -1,4 +1,5 @@
 let main_page_posts = document.querySelector('#main_page_posts');
+let noMoreStories = false;
 let user;
 
 let settings = {
@@ -75,6 +76,9 @@ function getStories(data) {
         settings.offset += settings.limit;
         getStoriesContent();
     }
+
+    if(data.length == 0)
+        noMoreStories = true;
 }
 
 function favouritePosts(data){
@@ -120,7 +124,7 @@ document.querySelectorAll("#dropdown_options > *").forEach(element => {
 })
 
 window.onscroll = () => {
-    if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10)) {
+    if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10) && (noMoreStories == false)) {
         settings.offset += settings.limit;
         getStoriesContent();
     }

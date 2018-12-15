@@ -158,7 +158,7 @@ function loadPage(user){
         for(let saved in json.data){
           if(json.data[saved].type == "comment"){
             content += `<div class="profile_post" id="profile_post_${json.data[saved].comment.entityid}" onmouseover="showEditDeleteButton(${json.data[saved].comment.entityid})" onmouseout="hideEditDeleteButton(${json.data[saved].comment.entityid})">`;
-            content += `<a href="post.php?id=${json.data[saved].story.storyid}#comment${json.data[saved].comment.parentid}"><h3> ${json.data[saved].story.storyTitle} </h3></a>
+            content += `<a href="post.php?id=${json.data[saved].story.entityid}#comment${json.data[saved].comment.parentid}"><h3> ${json.data[saved].story.storyTitle} </h3></a>
               <h4> ${json.data[saved].comment.content} </h4>
               <div id="edit_delete_object_${json.data[saved].comment.entityid}">	
                 <a onclick="deleteSave(${userid}, ${json.data[saved].comment.entityid})"><i class="fa fa-trash-o"></i></a>
@@ -168,7 +168,7 @@ function loadPage(user){
           }
           else{
             content += `<div class="profile_post" id="profile_post_${json.data[saved].story.entityid}" onmouseover="showEditDeleteButton(${json.data[saved].story.entityid})" onmouseout="hideEditDeleteButton(${json.data[saved].story.entityid})">`;
-            content += `<a href="post.php?id=${json.data[saved].story.storyid}"><h2>${json.data[saved].story.storyTitle}</h2></a>
+            content += `<a href="post.php?id=${json.data[saved].story.entityid}"><h2>${json.data[saved].story.storyTitle}</h2></a>
               <div id="edit_delete_object_${json.data[saved].story.entityid}">	
                 <a onclick="deleteSave(${userid}, ${json.data[saved].story.entityid})"><i class="fa fa-trash-o"></i></a>
               </div>
