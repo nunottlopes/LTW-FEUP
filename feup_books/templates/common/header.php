@@ -1,7 +1,6 @@
 <?php
-  require_once("../api/session.php");
+require_once __DIR__ . '/../../../api/api.php';
 ?>
-
 <!DOCTYPE html>
 <html>
 
@@ -26,6 +25,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="javascript/api-ajax.js" type="text/javascript"></script>
     <script src="javascript/date.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var FEUPBOOK_CSRF_TOKEN = "<?= $_SESSION['CSRFTOKEN'] ?>";
+      var auth = <?= json_encode($auth) ?>;
+    </script>
   </head>
 
   <body>
@@ -37,13 +40,12 @@
 
     <?php 
       require_once("../api/api.php");
-      $user = Auth::authenticate();
-      if($user) {?>
+      if($auth) {?>
 
         <div class="dropdown">
           <div id="profile_button">
             <img id="client_image" src="images/users/user.png" alt="User profile picture">
-            <p id="client_name"><?= $user['username'] ?></p>
+            <p id="client_name"><?= $auth['username'] ?></p>
           </div>
         <?php include('templates/user/dropdown.php'); ?>
         </div>

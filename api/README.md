@@ -188,12 +188,9 @@ With time, more auxiliary functions were added.
 
 The API supports two authentication schemes: **sessions** and **basic authorization**. For the website only **sessions** is used. To toggle authentication scheme, change AUTH_MODE at the top of *api.php*.
 
-The authentication pipeline for **API resources** is
+The **authentication** function is *Auth::authenticate()*, and is always called.
 
-    demandLevel() --> level() --> authenticate() --> session()
-                                              OR --> authorization() --> autho()
-
-There are four permission levels:
+To allow access to requests requiring authentication, there are four permission levels:
 
     free
         Anyone can access this resource.
@@ -205,14 +202,21 @@ There are four permission levels:
     admin
         Must be authenticated as an admin user.
 
+The pipeline is:
+
+    Auth::demandLevel() --> (re)authenticate() --> authorization() --> autho()
+                        OR
+                        --> (re)authenticate() --> session()
+                        +-> CSRF protection for non-GETs
+
 The authentication pipeline is entered with:
 
     $auth = Auth::demandLevel(PERMISSION_LEVEL[, $userid]);
 
-For the **API resources** this handles the entire authentication stack.
-If the permission level is not satisfied, this function will terminate the script. Otherwise it will return to $auth an identification of the logged in user.
+This handles the entire **permission** stack.
+If the permission level is not satisfied, this function will terminate the script. Otherwise it will return to $auth the logged in user.
 
-*Auth::login()* and *Auth::logout()* are used to login and logout a user respectively (only meaningful for the API if in session mode, but useful for the rest of the website regardless).
+*Auth::login()* and *Auth::logout()* are used to login and logout a user respectively.
 
 ## HTTP Request: api/api.php class HTTPRequest
 

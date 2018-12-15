@@ -93,7 +93,7 @@ var api = {
     "post": function(resource, query, data, userExpect) {
         userExpect = userExpect || [201];
         if (typeof data !== 'object') throw "Invalid data in post()";
-        if (this.settings.sendcsrf) data.CSRFTOKEN = window.FEUPNEWS_CSRF_TOKEN;
+        if (this.settings.sendcsrf) data.CSRFTOKEN = FEUPBOOK_CSRF_TOKEN;
         return this.fetch(resource, query, {
             method: 'POST',
             headers: {
@@ -106,7 +106,7 @@ var api = {
     "put": function(resource, query, data, userExpect) {
         userExpect = userExpect || [200, 201];
         if (typeof data !== 'object') throw "Invalid data in put()";
-        if (this.settings.sendcsrf) data.CSRFTOKEN = window.FEUPNEWS_CSRF_TOKEN;
+        if (this.settings.sendcsrf) data.CSRFTOKEN = FEUPBOOK_CSRF_TOKEN;
         return this.fetch(resource, query, {
             method: 'PUT',
             headers: {
@@ -119,7 +119,7 @@ var api = {
     "patch": function(resource, query, data, userExpect) {
         userExpect = userExpect || [200];
         if (typeof data !== 'object') throw "Invalid data in patch()";
-        if (this.settings.sendcsrf) data.CSRFTOKEN = window.FEUPNEWS_CSRF_TOKEN;
+        if (this.settings.sendcsrf) data.CSRFTOKEN = FEUPBOOK_CSRF_TOKEN;
         return this.fetch(resource, query, {
             method: 'PATCH',
             headers: {
@@ -132,7 +132,7 @@ var api = {
     "delete": function(resource, query, userExpect) {
         userExpect = userExpect || [200];
         data = {};
-        if (this.settings.sendcsrf) data.CSRFTOKEN = window.FEUPNEWS_CSRF_TOKEN;
+        if (this.settings.sendcsrf) data.CSRFTOKEN = FEUPBOOK_CSRF_TOKEN;
         return this.fetch(resource, query, {
             method: 'DELETE',
             headers: {
