@@ -1,11 +1,13 @@
 .aside_div {
-    width: 270px;
+    /* width: 270px; */
+    width: 90%;
     background-color: white;
     margin-right: 1em;
     margin-top: 1em;
     margin-bottom: 1em;
     border: 2px solid rgb(156, 162, 168);
     border-radius: 2px;
+    background-size: 100% 100%;
 }
 
 #aside_footer {

@@ -85,7 +85,7 @@ imagecopyresized($medium, $original, 0, 0, 0, 0, $mediumwidth, $mediumheight, $w
 
 $imageid = Image::create();
 
-echo "IMAGEID = $imageid";
+// echo "IMAGEID = $imageid";
 
 
 // Output filenames
@@ -124,16 +124,13 @@ $info = [
 
 Image::setInfo($imageid, $imagefile, $info);
 
-echo '<pre style="font-size:150%">';
+// echo '<pre style="font-size:150%">';
 echo json_encode([
+    'id'   => $imageid,
     'info' => $info,
     'rect' => $rect,
     'userfilename' => $userfilename
 ], JSON_PRETTY_PRINT);
-echo '</pre>';
+// echo '</pre>';
 end:
 ?>
-<form action="/feup_books/api/upload.php" method="post" enctype="multipart/form-data">
-    <input type="file" name="upload-file" id="upload-file"/>
-    <input type="submit" value="Upload Image" name="submit"/>
-</form>

@@ -85,8 +85,36 @@ form_post.addEventListener('submit', event => {
 // });
 
 let form_img = document.querySelector('#new_post_image');
-form_img.addEventListener('submit', callback =>{
-    console.log(callback);
+form_img.addEventListener('submit', event =>{
+    event.preventDefault();
+    let title = form_img.querySelector('input[name="post_title"]').value;
+    let img = form_img.querySelector('input[name="upload-file"]').files[0];
+    let channelid = dropdown_selection.getAttribute('selectionid');
+       
+    if(title == "" && img == undefined && channelid == null) alert("Please fill the form.");
+    else if(title == "") alert("Please add a title.");
+    else if(img == undefined) alert("Please upload an image");
+    else if(channelid == null) alert("Please select a Channel");
+    else {
+        const formData = new FormData(event.target);
+        fetch('/feup_books/api/upload.php', {
+            method: 'POST',
+            body: formData,
+            contentType: false,
+            processData: false,
+        }).then(r => r.json())
+        .then( r =>    
+            api.story.post({
+                channelid: channelid,
+                authorid: auth.userid
+            }, {
+                storyTitle: title,
+                storyType: 'image',
+                content: r.info.imagefile,
+                imageid: r.id
+            }).then(() => window.location.replace('index.php'))
+        );
+    }
 });
 
 let form_title = document.querySelector('#new_post_title');

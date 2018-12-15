@@ -30,9 +30,10 @@
                 <input type="file" name="post_image" accept="image/*"/>
                 <input type="submit" name="post_submission" value="Post"/>
             </form> -->
-            <form action="/feup_books/api/upload.php" method="post" enctype="multipart/form-data">
-                <input type="file" name="upload-file" id="upload-file"/>
-                <input type="submit" value="Upload Image" name="submit"/>
+            <form>
+                <input type="text" name="post_title" placeholder="Title"/>
+                <input type="file" name="upload-file" accept="image/*"/>
+                <input type="submit" name="post_submission" value="Post"/>
             </form>
         </div>
 
