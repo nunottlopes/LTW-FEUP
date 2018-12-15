@@ -1,4 +1,5 @@
 let channel_id = document.querySelector("#channel_page").getAttribute("channel_id");
+let noMoreStories = false;
 let user;
 
 let settings = {
@@ -76,6 +77,9 @@ function getStories(data) {
         settings.offset += settings.limit;
         getContent();
     }
+
+    if(data.length == 0)
+        noMoreStories = true;
 }
 
 function updateAside(data) {
@@ -99,7 +103,7 @@ document.querySelectorAll("#dropdown_options > *").forEach(element => {
 })
 
 window.onscroll = () => {
-    if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10)) {
+    if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10) && (noMoreStories == false)) {
         settings.offset += settings.limit;
         getContent();
     }
