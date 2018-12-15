@@ -50,38 +50,43 @@ form_post.addEventListener('submit', event => {
     }
 });
 
+// let form_img = document.querySelector('#new_post_image');
+// form_img.addEventListener('submit', event => {
+//     event.preventDefault();
+//     let title = form_img.querySelector('input[name="post_title"]').value;
+//     // let img = form_img.querySelector('input[name="post_image"]').value;
+//     const img = form_img.querySelector('input[name="post_image"]').files[0];
+//     let imgid = 1;
+//     let channelid = dropdown_selection.getAttribute('selectionid');
+//     if(title != "" && img != undefined && channelid != null) {
+//         //TODO
+//         api.story.post({
+//             channelid: channelid,
+//             authorid: auth.userid
+//         }, {
+//             storyTitle: title,
+//             storyType: 'image',
+//             content: imgid,
+//             imageid: imgid
+//         }).then(() => window.location.replace('index.php'));
+//     }
+//     else if(title == "" && img == undefined && channelid == null){
+//         alert("Please fill the form.");
+//     }
+//     else if(channelid == null){
+//         alert("Please select a Channel.");
+//     }
+//     else if(title == ""){
+//         alert("Please add a title.");
+//     }
+//     else if(img == undefined){
+//         alert("Please upload an image.");
+//     }
+// });
+
 let form_img = document.querySelector('#new_post_image');
-form_img.addEventListener('submit', event => {
-    event.preventDefault();
-    let title = form_img.querySelector('input[name="post_title"]').value;
-    // let img = form_img.querySelector('input[name="post_image"]').value;
-    const img = form_img.querySelector('input[name="post_image"]').files[0];
-    let imgid = "img1.jpeg";
-    let channelid = dropdown_selection.getAttribute('selectionid');
-    if(title != "" && img != undefined && channelid != null) {
-        //TODO
-        api.story.post({
-            channelid: channelid,
-            authorid: auth.userid
-        }, {
-            storyTitle: title,
-            storyType: 'image',
-            content: imgid,
-            imageid: imgid
-        }).then(() => window.location.replace('index.php'));
-    }
-    else if(title == "" && img == undefined && channelid == null){
-        alert("Please fill the form.");
-    }
-    else if(channelid == null){
-        alert("Please select a Channel.");
-    }
-    else if(title == ""){
-        alert("Please add a title.");
-    }
-    else if(img == undefined){
-        alert("Please upload an image.");
-    }
+form_img.addEventListener('submit', callback =>{
+    console.log(callback);
 });
 
 let form_title = document.querySelector('#new_post_title');

@@ -39,9 +39,10 @@ function getStory(story){
         <h1>${story.storyTitle}</h1>`;
 
     let article2 = "";
+    console.log(story);
     switch(story.storyType) {
         case "image":
-            article2 = `<src src="${story.content}" alt="post image">`;
+            article2 = `<img src="images/upload/original/${story.imagefile}" alt="post image">`;
             break;
         case "text":
             article2 = `<p>${story.content}</p>`;

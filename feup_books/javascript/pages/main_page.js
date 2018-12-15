@@ -42,7 +42,7 @@ function getStories(data) {
         let a2 = "";
         switch(data[story].storyType) {
             case "image":
-                a2 = `<src src="${data[story].content}" alt="post image">`;
+                a2 = `<img src="images/upload/medium/${data[story].imagefile}" alt="post image">`;
                 break;
             case "text":
                 a2 = `<p>${data[story].content}</p>`;
@@ -71,7 +71,7 @@ function getStories(data) {
         }
     }
 
-    if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10)) {
+    if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10) && (data.length != 0)) {
         settings.offset += settings.limit;
         getStoriesContent();
     }
