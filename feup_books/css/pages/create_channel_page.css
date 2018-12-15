@@ -15,18 +15,16 @@
     border-bottom: 2px solid black;
 }
 
-#new_channel_post form > input, .tabcontent form > textarea{
+#new_channel_post form {
+    padding: 1em;
+}
+
+#new_channel_post form > input{
     box-sizing: border-box;
-    margin: 0.5em auto;
+    /* margin: 0.5em 1em; */
     padding: 0.5em;
     font-size: 1em;
     width: 100%;
-}
-
-#new_channel_post form > textarea{
-    border-color: rgb(201, 209, 216);
-    resize: vertical;
-    height: 10em;
 }
 
 #new_channel_post form > input[type="submit"] {

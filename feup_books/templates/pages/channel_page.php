@@ -5,11 +5,10 @@
     <div id="channel_page_posts"></div>
     
     <div id="channel_page_aside">
-        <div id="channel_subscription" class="aside_div">
+        <div id="channel_info" class="aside_div">
             <h1></h1>
             <h2></h2>
             <p></p>
-            <a href="#"><button type="button">Subscribe</button></a>
         </div>
 
         <div id="aside_footer" class="aside_div">

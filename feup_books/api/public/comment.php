@@ -111,8 +111,6 @@ if ($action === 'create') {
         HTTPResponse::serverError();
     }
 
-    //header("Location: " . $_SERVER['HTTP_REFERER']);
-
     $comment = Comment::read($commentid);
 
     $data = [

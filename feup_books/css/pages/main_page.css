@@ -15,7 +15,8 @@
 #aside_create_post button{
     padding: 0.3em 1.2em;
     display: block;
-    margin: 0 auto 0.2em auto;
+    /* margin: 0 auto 0.2em auto; */
+    margin: 1em auto 1em auto;
     border-radius: 5px;
     font-family:'Roboto',sans-serif;
     font-weight:500;

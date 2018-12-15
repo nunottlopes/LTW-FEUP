@@ -124,9 +124,6 @@ $info = [
 
 Image::setInfo($imageid, $imagefile, $info);
 
-
-
-
 echo '<pre style="font-size:150%">';
 echo json_encode([
     'info' => $info,

@@ -5,7 +5,7 @@
         <div id="new_channel_post">
             <form>
                 <input type="text" name="channel_title" placeholder="Title"/>
-                <textarea name="channel_description" placeholder="Description"></textarea>
+                <input type="file" name="post_image" accept="image/*"/>
                 <input type="submit" name="channel_submission" value="Create"/>
             </form>
         </div>
@@ -18,7 +18,7 @@
             <h1>Creating Channel Rules</h1>
             <ul>
                 <li>You can not change the name of your channel after creating it</li>
-                <li>You can not delete your subreddit after creating it</li>
+                <li>You can not delete your channel after creating it</li>
             </ul>
         </div>
 

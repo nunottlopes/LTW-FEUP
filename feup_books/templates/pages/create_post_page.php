@@ -25,11 +25,14 @@
         </div>
 
         <div id="new_post_image" class="tabcontent">
-            <form enctype="multipart/form-data">
+            <!-- <form enctype="multipart/form-data">
                 <input type="text" name="post_title" placeholder="Title"/>
-                <!-- <input type="text" name="post_image" placeholder="Image URL"> -->
                 <input type="file" name="post_image" accept="image/*"/>
                 <input type="submit" name="post_submission" value="Post"/>
+            </form> -->
+            <form action="/feup_books/api/upload.php" method="post" enctype="multipart/form-data">
+                <input type="file" name="upload-file" id="upload-file"/>
+                <input type="submit" value="Upload Image" name="submit"/>
             </form>
         </div>
 

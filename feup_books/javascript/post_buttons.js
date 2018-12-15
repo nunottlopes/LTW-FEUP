@@ -52,10 +52,25 @@ function save(entityid) {
         return;
     }
 
-    //TODO: CHECK IF A POST OR COMMENT IS ALREADY SAVED
+    var save_button = document.querySelector("#save"+entityid);
 
-    api.save.put({userid:auth.userid, entityid:entityid});
-    updateButtons(auth.userid, entityid);
+    //To check if it's a post or comment button
+    var footer = document.querySelector("#post_button_" + entityid);
+
+    if(save_button.classList.length == 1){
+        api.save.put({userid:auth.userid, entityid:entityid});
+        if(footer != null)
+            save_button.classList.add("post_button_selected");
+        else
+            save_button.classList.add("comment_button_selected");
+    }
+    else{
+        api.save.delete({userid:auth.userid, entityid:entityid});
+        if(footer != null)
+            save_button.classList.remove("post_button_selected");
+        else
+            save_button.classList.remove("comment_button_selected");
+    }
 }
 
 function reply(commentid) {
@@ -68,7 +83,7 @@ function reply(commentid) {
     var add_comment_element = document.createElement("div");
     add_comment_element.setAttribute("id", "add_comment");
     add_comment_element.innerHTML = `<img src="images/users/user.png">
-         <form action="api/public/comment.php?parentid=${commentid}&authorid=${auth.userid}" method="post">
+         <form action="handlers/add_comment_handler.php?parentid=${commentid}&authorid=${auth.userid}" method="post">
              <textarea name="content" placeholder="Add your comment here..."></textarea>
              <input type="submit" value="Add comment" class="submit_comment_button">
          </form>`;

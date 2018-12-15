@@ -13,13 +13,13 @@ document.querySelector(".createpost_user_dropdown").addEventListener("click", fu
     window.location.replace("create_post.php");
 });
 
+document.querySelector(".createchannel_user_dropdown").addEventListener("click", function(){
+    window.location.replace("create_channel.php");
+});
+
 document.querySelector(".viewprofile_user_dropdown").addEventListener("click", function(){
     window.location.replace("profile.php");
 });
-
-// document.querySelector(".settings_user_dropdown").addEventListener("click", function(){
-//     window.location.replace("profile.php");
-// });
 
 document.querySelector(".logout_user_dropdown").addEventListener("click", function(){
     api.logout();

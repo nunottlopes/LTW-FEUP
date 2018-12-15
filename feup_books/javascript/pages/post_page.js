@@ -1,11 +1,13 @@
-var post_page_post = document.querySelector("#post_page_post");
-var storyid = post_page_post.getAttribute("story-id");
+let post_page_post = document.querySelector("#post_page_post");
+let storyid = post_page_post.getAttribute("story-id");
+let user;
 
-api.auth().then(response => {return response.json()}).then(json =>{
-    getPageContent(json.data);
+api.auth().then(response => response.json()).then(json =>{
+    user = json.data;
+    getPageContent();
 })
 
-function getPageContent(user){
+function getPageContent(){
     // Get Post 
     api.story.get({storyid:storyid}).then(response => {
         if(response.ok){
@@ -16,32 +18,31 @@ function getPageContent(user){
             throw response;
         }
     })
-    .then(json => getStory(user, json.data));
+    .then(json => {
+        api.channel.get({channelid: json.data.channelid}, [200])
+        .then(response => response.json())
+        .then( r => updateAside(r.data))
+        getStory(json.data);
+    });
 
     // Get Comments
-    api.tree.get({ascendantid:storyid}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(user, json.data));
+    api.tree.get({ascendantid:storyid}, [200])
+    .then(response => response.json())
+    .then(json => getComments(json.data));
 }
 
-function getStory(user, story){
+function getStory(story){
     // Article
-    var article = document.querySelector(".post_complete");
+    let article = document.querySelector(".post_complete");
     let article1 = `<article class="post_complete">
     <header>Posted by ${story.authorname} ${timeDifference(story.createdat)}</header>
         <h1>${story.storyTitle}</h1>`;
 
     let article2 = "";
+    console.log(story);
     switch(story.storyType) {
         case "image":
-            article2 = `<src src="${story.content}" alt="post image">`;
+            article2 = `<img src="images/upload/original/${story.imagefile}" alt="post image">`;
             break;
         case "text":
             article2 = `<p>${story.content}</p>`;
@@ -54,7 +55,7 @@ function getStory(user, story){
     <button class="post_button" onclick="upvote(${story.entityid})"><i class='fas fa-arrow-up'></i> ${story.upvotes} Upvotes</button>
     <button class="post_button" onclick="downvote(${story.entityid})"><i class='fas fa-arrow-down'></i> ${story.downvotes} Downvotes</button>
     <button class="post_button"><i class="fa fa-comment"></i> ${story.count} Comments</button>
-    <button class="post_button" onclick="save(${story.entityid})"><i class="fa fa-bookmark"></i> Save</button>
+    <button class="post_button" id="save${story.entityid}" onclick="save(${story.entityid})"><i class="fa fa-bookmark"></i> Save</button>
     <button class="post_button" onclick="share(${story.entityid})"><i class="fa fa-share-alt"></i> Share</button>
         </footer>
         </article>`;
@@ -64,7 +65,7 @@ function getStory(user, story){
     //Comment Form
     if(user != null){
         document.querySelector("#add_comment").innerHTML = `<img src="images/users/user.png">
-        <form action="api/public/comment.php?parentid=${story.entityid}&authorid=${user.userid}" method="post">
+        <form action="handlers/add_comment_handler.php?parentid=${story.entityid}&authorid=${user.userid}" method="post">
             <textarea name="content" placeholder="Add your comment here..."></textarea>
             <input type="submit" value="Add comment" class="submit_comment_button">
         </form>`;
@@ -77,165 +78,104 @@ function getStory(user, story){
 }
 
 // Get All Comments
-var allComments = "";
+let allComments = "";
 
-function getComments(user, data){
+function getComments(data){
     allComments = "";
     // Comments
-    var comments = document.querySelector("#post_comments");
+    let comments = document.querySelector("#post_comments");
 
-    getCommentsFromTree(user, data);
+    getCommentsFromTree(data);
 
     comments.innerHTML = allComments;
 
-    updateButtonsComments(user, data);
+    if(data.length > 0){
+        api.tree.get({ascendantid: data[0].ascendantid, voterid:user.userid}).then(response => {return response.json()}).then(json => {
+            updateButtonsComments(json.data);
+        })
+    }
 }
 
-function getCommentsFromTree(user, data){
+function getCommentsFromTree(data){
     for(let comment in data){
-        var currentComment = data[comment];
+        let currentComment = data[comment];
 
-        var article = `<article id=comment${currentComment.entityid} class="post_comment">
+        let article = `<article id=comment${currentComment.entityid} class="post_comment">
         <header>${currentComment.authorname}, ${timeDifference(currentComment.updatedat)}</header>
         <p>${currentComment.content}</p>
         <footer id=comment_button_${currentComment.entityid}>
             <button class="comment_button" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${currentComment.upvotes} Upvotes</button>
             <button class="comment_button" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${currentComment.downvotes} Downvotes</button>
             <button class="comment_button" onclick="reply(${currentComment.entityid})"><i class="fa fa-comment"></i> Reply</button>
-            <button class="comment_button" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>
+            <button class="comment_button" id="save${currentComment.entityid}" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>
         </footer>`;
 
         allComments += article;
-
+        
         if(currentComment.children.length > 0){
-            getCommentsFromTree(user, currentComment.children);
+            getCommentsFromTree(currentComment.children);
         }
         allComments += '</article>';
     }
 }
 
-function updateButtonsComments(user, data){
+function updateButtonsComments(data){
+    let footer;
     for(let comment in data){
         
-        var currentComment = data[comment];
-        updateButtons(user.userid, currentComment.entityid);
+        let currentComment = data[comment];
+        footer = document.querySelector("#comment_button_" + currentComment.entityid);
+
+        footer.innerHTML = "";
+        let upvotes = currentComment.upvotes;
+        let downvotes = currentComment.downvotes;
+        
+        if(currentComment.vote){
+            if(currentComment.vote == "+"){
+                footer.innerHTML += `<button id="upvote${currentComment.entityid}" class="comment_button comment_button_selected" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
+                footer.innerHTML += `<button id="downvote${currentComment.entityid}" class="comment_button" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
+            }
+            else{
+                footer.innerHTML += `<button id="upvote${currentComment.entityid}" class="comment_button" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
+                footer.innerHTML += `<button id="downvote${currentComment.entityid}" class="comment_button comment_button_selected" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
+            }
+        }
+        else{
+            footer.innerHTML += `<button id="upvote${currentComment.entityid}" class="comment_button" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
+            footer.innerHTML += `<button id="downvote${currentComment.entityid}" class="comment_button" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
+        }
+
+        footer.innerHTML += `<button class="comment_button" onclick="reply(${currentComment.entityid})"><i class="fa fa-comment"></i> Reply</button>`;
+
+        if(currentComment.save){
+            footer.innerHTML += `<button id="save${currentComment.entityid}" class="comment_button comment_button_selected" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>`;
+        }
+        else{
+            footer.innerHTML += `<button id="save${currentComment.entityid}" class="comment_button" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>`;
+        }
 
         if(currentComment.children.length > 0){
-            updateButtonsComments(user, currentComment.children);
+            updateButtonsComments(currentComment.children);
         }
     }
 }
 
-var selected_sort_option = document.querySelector("#dropdown_selection");
+document.querySelectorAll("#dropdown_options > *").forEach(element => {
+    element.addEventListener('click', () => {
+        let order = element.getAttribute('id');
+        api.tree.get({ascendantid:storyid, order: order}, [200])
+        .then(response => response.json())
+        .then(json => getComments(json.data));
+    });
+})
 
-document.querySelector("#top_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "TOP";
-    api.tree.get({ascendantid:storyid, order:"top"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
-
-document.querySelector("#bot_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "BOT";
-    api.tree.get({ascendantid:storyid, order:"bot"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
-
-document.querySelector("#new_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "NEW";
-    api.tree.get({ascendantid:storyid, order:"new"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
-
-document.querySelector("#old_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "OLD";
-    api.tree.get({ascendantid:storyid, order:"old"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
-
-document.querySelector("#best_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "BEST";
-    api.tree.get({ascendantid:storyid, order:"best"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
-
-document.querySelector("#controversial_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "CONTROVERSIAL";
-    api.tree.get({ascendantid:storyid, order:"controversial"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
-
-document.querySelector("#average_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "AVERAGE";
-    api.tree.get({ascendantid:storyid, order:"average"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
-
-document.querySelector("#hot_dropdown").addEventListener("click", function(){
-    selected_sort_option.content = "HOT";
-    api.tree.get({ascendantid:storyid, order:"hot"}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => getComments(json.data));
-});
+function updateAside(data) {
+    document.querySelector("#channel_info h1").textContent =
+        data.channelname;
+    document.querySelector("#channel_info h2").textContent =
+        data.stories + ((data.stories == 1) ? " Post" : " Posts");
+    document.querySelector("#channel_info p").textContent =
+        "by " + data.creatorname;
+    document.querySelector("#channel_info").style.backgroundImage = 
+        `url('images/upload/small/${data.bannerfile}')`;
+}

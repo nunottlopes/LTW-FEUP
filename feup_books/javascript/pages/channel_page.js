@@ -1,4 +1,5 @@
 let channel_id = document.querySelector("#channel_page").getAttribute("channel_id");
+let user;
 
 let settings = {
     sort: document.querySelector("#dropdown_selection").getAttribute("selectionid"),
@@ -6,7 +7,9 @@ let settings = {
     offset: 0
 }
 
-api.channel.get({channelid: channel_id})
+api.auth().then(response => {return response.json()}).then(json =>{
+    user = json.data;
+    api.channel.get({channelid: channel_id})
     .then(response => {
         if(response.ok) {
             return response.json();
@@ -18,6 +21,7 @@ api.channel.get({channelid: channel_id})
         updateAside(r.data);
         getContent();
     })
+})
 
 function getContent() {
     api.story.get({channelid: channel_id, order: settings.sort, limit: settings.limit, offset: settings.offset})
@@ -40,7 +44,7 @@ function getStories(data) {
         let a2 = "";
         switch(data[story].storyType) {
             case "image":
-                a2 = `<src src="${data[story].content}" alt="post image">`;
+                a2 = `<img src="images/upload/medium/${data[story].imagefile}" alt="post image">`;
                 break;
             case "text":
                 a2 = `<p>${data[story].content}</p>`;
@@ -50,27 +54,39 @@ function getStories(data) {
         }
         
         let a3 = `</a>
-            <footer>
-                <button class="post_button" onclick="upvote()"><i class='fas fa-arrow-up'></i> ${data[story].upvotes} Upvotes</button>
-                <button class="post_button" onclick="downvote()"><i class='fas fa-arrow-down'></i> ${data[story].downvotes} Downvotes</button>
-                <button class="post_button" onclick="comments()"><i class="fa fa-comment"></i> Comments</button>
-                <button class="post_button" onclick="save()"><i class="fa fa-bookmark"></i> Save</button>
-                <button class="post_button" onclick="share()"><i class="fa fa-share-alt"></i> Share</button>
+            <footer id=post_button_${data[story].entityid}>
+                <button class="post_button" onclick="upvote(${data[story].entityid})"><i class='fas fa-arrow-up'></i> ${data[story].upvotes} Upvotes</button>
+                <button class="post_button" onclick="downvote(${data[story].entityid})"><i class='fas fa-arrow-down'></i> ${data[story].downvotes} Downvotes</button>
+                <a href="post.php?id=${data[story].entityid}"><button class="post_button"><i class="fa fa-comment"></i> ${data[story].count} Comments</button></a>
+                <button class="post_button" id="save${data[story].entityid}" onclick="save(${data[story].entityid})"><i class="fa fa-bookmark"></i> Save</button>
+                <button class="post_button" onclick="share(${data[story].entityid})"><i class="fa fa-share-alt"></i> Share</button>
             </footer>
         </article>`;
 
         channel_page_posts.innerHTML += a1 + a2 + a3;
-        
+    }
+
+    if(user != null){
+        for(let story in data){
+            updateButtons(user.userid, data[story].entityid);
+        }
+    }
+
+    if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10) && (data.length != 0)) {
+        settings.offset += settings.limit;
+        getContent();
     }
 }
 
 function updateAside(data) {
-    document.querySelector("#channel_subscription h1").textContent =
+    document.querySelector("#channel_info h1").textContent =
         data.channelname;
-    document.querySelector("#channel_subscription h2").textContent =
-        data.count + ((data.count == 1) ? " Post" : " Posts");
-    document.querySelector("#channel_subscription p").textContent =
+    document.querySelector("#channel_info h2").textContent =
+        data.stories + ((data.stories == 1) ? " Post" : " Posts");
+    document.querySelector("#channel_info p").textContent =
         "by " + data.creatorname;
+    document.querySelector("#channel_info").style.backgroundImage = 
+    `url('images/upload/small/${data.bannerfile}')`;
 }
 
 document.querySelectorAll("#dropdown_options > *").forEach(element => {
@@ -83,7 +99,7 @@ document.querySelectorAll("#dropdown_options > *").forEach(element => {
 })
 
 window.onscroll = () => {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+    if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10)) {
         settings.offset += settings.limit;
         getContent();
     }

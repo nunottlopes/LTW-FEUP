@@ -6,7 +6,6 @@
     
     <div id="main_page_aside">
         <div id="aside_create_post" class="aside_div">
-            <h1>Create Post</h1>
             <a href="create_post.php"><button type="button">CREATE POST</button></a>
             <a href="create_channel.php"><button type="button">CREATE CHANNEL</button></a>
         </div>
@@ -17,11 +16,8 @@
         </div>
 
         <div id="aside_favorite_post" class="aside_div">
-            <header>FAVORITE POSTS AND COMMENTS</header>
-            <ul>
-            <a href="#"><p>primeirolink blalbalbalba lbbabalbalba lbbbalbalba lbblbalbalba lbbabalbalba lbbbalbalbalba lbbabalbalba lbbbalbalbalba lbbabalbalba lbbba</p></a>
-            <a href="#"><p>primeirolink blalbalbalba lbbabalbalba lbbbalbalba lbblbalbalba lbbabalbalba lbbbalbalbalba lbbabalbalba lbbbalbalbalba lbbabalbalba lbbba</p></a>
-            <ul>
+            <header>FAVORITE POSTS</header>
+            <ul><ul>
         </div>
 
         <div id="aside_footer" class="aside_div">
