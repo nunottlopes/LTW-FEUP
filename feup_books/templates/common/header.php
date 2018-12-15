@@ -39,7 +39,6 @@ require_once __DIR__ . '/../../../api/api.php';
     <section id="user-header">
 
     <?php 
-      require_once("../api/api.php");
       if($auth) {?>
 
         <div class="dropdown">

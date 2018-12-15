@@ -7,10 +7,13 @@ require_once API::entity('user');
  */
 $resource = 'user';
 
-$methods = ['GET', 'POST', 'DELETE'];
+$methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
 $actions = [
     'create'          => ['POST', [], ['username', 'email', 'password']],
+
+    'clear'           => ['PUT', ['userid', 'clear']],
+    'edit'            => ['PATCH', ['userid'], ['imageid', 'password']],
 
     'get-id'          => ['GET', ['userid']],
     'get-username'    => ['GET', ['username']],
@@ -106,7 +109,7 @@ if (API::gotargs('valid-email')) {
 /**
  * 3. ANSWER: HTTPResponse
  */
-// PUT
+// POST
 if ($action === 'create') {
     $body = HTTPRequest::body('username', 'email', 'password');
 
@@ -148,6 +151,60 @@ if ($action === 'create') {
     ];
 
     HTTPResponse::created("Successfully created user account $userid", $data);
+}
+
+// PUT
+if ($action === 'clear') {
+    $auth = Auth::demandLevel('authid', $userid);
+
+    $count = User::clearPicture($userid);
+
+    $user = User::self($userid);
+
+    $data = [
+        'userid' => $userid,
+        'user' => $user
+    ];
+
+    HTTPResponse::updated("Removed user $userid picture", $data);
+}
+
+// PATCH
+if ($action === 'edit') {
+    $auth = Auth::demandLevel('authid', $userid);
+
+    $body = HTTPRequest::body();
+
+    if (isset($body['imageid'])) {
+        $imageid = $body['imageid'];
+
+        $image = Image::read($imageid);
+
+        if (!$image) {
+            HTTPResponse::notFound("Image with id $imageid");
+        }
+
+        $count = User::setPicture($userid, $imageid);
+    }
+
+    if (isset($body['password'])) {
+        $password = $body['password'];
+
+        if (!User::validPassword($password)) {
+            HTTPResponse::invalid('password', null, User::$passwordRequires);
+        }
+
+        $count = User::setPassword($userid, $password);
+    }
+
+    $user = User::self($userid);
+
+    $data = [
+        'userid' => $userid,
+        'user' => $user
+    ];
+
+    HTTPResponse::updated("Successfully updated user $userid data", $data);
 }
 
 // GET

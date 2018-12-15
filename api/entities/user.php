@@ -209,6 +209,18 @@ class User extends APIEntity {
     /**
      * UPDATE
      */
+    public static function setPassword(int $userid, string $password) {
+        $hash = password_hash($password, PASSWORD_DEFAULT, static::$hashOpt);
+        
+        $query = '
+            UPDATE User SET password = ? WHERE userid = ?
+            ';
+
+        $stmt = DB::get()->prepare($query);
+        $stmt->execute([$hash, $userid]);
+        return $stmt->rowCount();
+    }
+
     public static function setPicture(int $userid, int $imageid) {
         $query = '
             UPDATE User SET imageid = ? WHERE userid = ?

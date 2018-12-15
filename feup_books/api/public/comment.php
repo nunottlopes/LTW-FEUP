@@ -12,9 +12,9 @@ $methods = ['GET', 'POST', 'PUT', 'DELETE'];
 $actions = [
     'create'                  => ['POST', ['parentid', 'authorid'], ['content']],
 
-    'edit'                    => ['PUT', ['commentid'], ['content']],
     'clear'                   => ['PUT', ['commentid', 'clear']],
     'free'                    => ['PUT', ['commentid', 'free']],
+    'edit'                    => ['PUT', ['commentid'], ['content']],
 
     'get-id-voted'            => ['GET', ['voterid', 'commentid']],
     'get-parent-author-voted' => ['GET', ['voterid', 'parentid', 'authorid'], [], ['order', 'since', 'limit', 'offset']],
@@ -103,7 +103,7 @@ if (API::gotargs('voterid')) {
 if ($action === 'create') {
     $auth = Auth::demandLevel('authid', $authorid);
 
-    $content = HTTPRequest::body('content');
+    $content = htmlspecialchars(HTTPRequest::body('content'));
 
     $commentid = Comment::create($parentid, $authorid, $content);
 
@@ -125,7 +125,7 @@ if ($action === 'create') {
 if ($action === 'edit') {
     $auth = Auth::demandLevel('authid', $authorid);
 
-    $content = HTTPRequest::body('content');
+    $content = htmlspecialchars(HTTPRequest::body('content'));
 
     $count = Comment::update($commentid, $content);
 

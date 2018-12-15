@@ -108,12 +108,12 @@ if ($action === 'create') {
 
     switch ($type) {
     case 'text':
-        $content = HTTPRequest::body('content');
+        $content = htmlspecialchars(HTTPRequest::body('content'));
         $storyid = Story::createText($channelid, $authorid, $title, $content);
         break;
     case 'image':
         $body = HTTPRequest::body('content', 'imageid');
-        $content = $body['content'];
+        $content = htmlspecialchars($body['content']);
         $imageid = $body['imageid'];
         if (!Image::read($imageid)) {
             HTTPResponse::notFound("Image with id $imageid");
@@ -149,12 +149,12 @@ if ($action === 'edit') {
 
     switch ($type) {
     case 'text':
-        $content = HTTPRequest::body('content');
+        $content = htmlspecialchars(HTTPRequest::body('content'));
         $count = Story::updateContent($storyid, $content);
         break;
     case 'image':
         $body = HTTPRequest::body('content', 'imageid');
-        $content = $body['content'];
+        $content = htmlspecialchars($body['content']);
         $imageid = $body['imageid'];
         if (!Image::read($imageid)) {
             HTTPResponse::notFound("Image with id $imageid");
