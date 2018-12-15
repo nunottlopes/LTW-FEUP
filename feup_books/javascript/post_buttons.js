@@ -52,10 +52,25 @@ function save(entityid) {
         return;
     }
 
-    //TODO: CHECK IF A POST OR COMMENT IS ALREADY SAVED
+    var save_button = document.querySelector("#save"+entityid);
 
-    api.save.put({userid:auth.userid, entityid:entityid});
-    updateButtons(auth.userid, entityid);
+    //To check if it's a post or comment button
+    var footer = document.querySelector("#post_button_" + entityid);
+
+    if(save_button.classList.length == 1){
+        api.save.put({userid:auth.userid, entityid:entityid});
+        if(footer != null)
+            save_button.classList.add("post_button_selected");
+        else
+            save_button.classList.add("comment_button_selected");
+    }
+    else{
+        api.save.delete({userid:auth.userid, entityid:entityid});
+        if(footer != null)
+            save_button.classList.remove("post_button_selected");
+        else
+            save_button.classList.remove("comment_button_selected");
+    }
 }
 
 function reply(commentid) {

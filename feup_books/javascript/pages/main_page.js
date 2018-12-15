@@ -44,7 +44,7 @@ function getStories(data) {
                 <button class="post_button" onclick="upvote(${data[story].entityid})"><i class='fas fa-arrow-up'></i> ${data[story].upvotes} Upvotes</button>
                 <button class="post_button" onclick="downvote(${data[story].entityid})"><i class='fas fa-arrow-down'></i> ${data[story].downvotes} Downvotes</button>
                 <a href="post.php?id=${data[story].entityid}"><button class="post_button"><i class="fa fa-comment"></i> ${data[story].count} Comments</button></a>
-                <button class="post_button" onclick="save(${data[story].entityid})"><i class="fa fa-bookmark"></i> Save</button>
+                <button class="post_button" id="save${data[story].entityid}" onclick="save(${data[story].entityid})"><i class="fa fa-bookmark"></i> Save</button>
                 <button class="post_button" onclick="share(${data[story].entityid})"><i class="fa fa-share-alt"></i> Share</button>
             </footer>
         </article>`;
@@ -52,10 +52,16 @@ function getStories(data) {
         main_page_posts.innerHTML += a1 + a2 + a3;
         
     }
+
     if(user != null){
         for(let story in data){
             updateButtons(user.userid, data[story].entityid);
         }
+    }
+
+    if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10)) {
+        settings.offset += settings.limit;
+        getContent();
     }
 }
 
@@ -87,7 +93,7 @@ document.querySelectorAll("#dropdown_options > *").forEach(element => {
 })
 
 window.onscroll = () => {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+    if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10)) {
         settings.offset += settings.limit;
         getContent();
     }

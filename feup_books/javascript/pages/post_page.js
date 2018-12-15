@@ -54,7 +54,7 @@ function getStory(story){
     <button class="post_button" onclick="upvote(${story.entityid})"><i class='fas fa-arrow-up'></i> ${story.upvotes} Upvotes</button>
     <button class="post_button" onclick="downvote(${story.entityid})"><i class='fas fa-arrow-down'></i> ${story.downvotes} Downvotes</button>
     <button class="post_button"><i class="fa fa-comment"></i> ${story.count} Comments</button>
-    <button class="post_button" onclick="save(${story.entityid})"><i class="fa fa-bookmark"></i> Save</button>
+    <button class="post_button" id="save${story.entityid}" onclick="save(${story.entityid})"><i class="fa fa-bookmark"></i> Save</button>
     <button class="post_button" onclick="share(${story.entityid})"><i class="fa fa-share-alt"></i> Share</button>
         </footer>
         </article>`;
@@ -88,7 +88,11 @@ function getComments(data){
 
     comments.innerHTML = allComments;
 
-    updateButtonsComments(data);
+    if(data.length > 0){
+        api.tree.get({ascendantid: data[0].ascendantid, voterid:user.userid}).then(response => {return response.json()}).then(json => {
+            updateButtonsComments(json.data);
+        })
+    }
 }
 
 function getCommentsFromTree(data){
@@ -102,7 +106,7 @@ function getCommentsFromTree(data){
             <button class="comment_button" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${currentComment.upvotes} Upvotes</button>
             <button class="comment_button" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${currentComment.downvotes} Downvotes</button>
             <button class="comment_button" onclick="reply(${currentComment.entityid})"><i class="fa fa-comment"></i> Reply</button>
-            <button class="comment_button" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>
+            <button class="comment_button" id="save${currentComment.entityid}" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>
         </footer>`;
 
         allComments += article;
@@ -115,74 +119,45 @@ function getCommentsFromTree(data){
 }
 
 function updateButtonsComments(data){
+    var footer;
     for(let comment in data){
         
         let currentComment = data[comment];
-        updateButtons(user.userid, currentComment.entityid);
+        footer = document.querySelector("#comment_button_" + currentComment.entityid);
+
+        footer.innerHTML = "";
+        var upvotes = currentComment.upvotes;
+        var downvotes = currentComment.downvotes;
+        
+        if(currentComment.vote){
+            if(currentComment.vote == "+"){
+                footer.innerHTML += `<button id="upvote${currentComment.entityid}" class="comment_button comment_button_selected" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
+                footer.innerHTML += `<button id="downvote${currentComment.entityid}" class="comment_button" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
+            }
+            else{
+                footer.innerHTML += `<button id="upvote${currentComment.entityid}" class="comment_button" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
+                footer.innerHTML += `<button id="downvote${currentComment.entityid}" class="comment_button comment_button_selected" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
+            }
+        }
+        else{
+            footer.innerHTML += `<button id="upvote${currentComment.entityid}" class="comment_button" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
+            footer.innerHTML += `<button id="downvote${currentComment.entityid}" class="comment_button" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
+        }
+
+        footer.innerHTML += `<button class="comment_button" onclick="reply(${currentComment.entityid})"><i class="fa fa-comment"></i> Reply</button>`;
+
+        if(currentComment.save){
+            footer.innerHTML += `<button id="save${currentComment.entityid}" class="comment_button comment_button_selected" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>`;
+        }
+        else{
+            footer.innerHTML += `<button id="save${currentComment.entityid}" class="comment_button" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>`;
+        }
 
         if(currentComment.children.length > 0){
             updateButtonsComments(currentComment.children);
         }
     }
 }
-
-// let selected_sort_option = document.querySelector("#dropdown_selection");
-
-// document.querySelector("#top_dropdown").addEventListener("click", function(){
-//     selected_sort_option.content = "TOP";
-//     api.tree.get({ascendantid:storyid, order:"top"}, [200])
-//     .then(response => response.json())
-//     .then(json => getComments(json.data));
-// });
-
-// document.querySelector("#bot_dropdown").addEventListener("click", function(){
-//     selected_sort_option.content = "BOT";
-//     api.tree.get({ascendantid:storyid, order:"bot"}, [200])
-//     .then(response => response.json())
-//     .then(json => getComments(json.data));
-// });
-
-// document.querySelector("#new_dropdown").addEventListener("click", function(){
-//     selected_sort_option.content = "NEW";
-//     api.tree.get({ascendantid:storyid, order:"new"}, [200])
-//     .then(response => response.json())
-//     .then(json => getComments(json.data));
-// });
-
-// document.querySelector("#old_dropdown").addEventListener("click", function(){
-//     selected_sort_option.content = "OLD";
-//     api.tree.get({ascendantid:storyid, order:"old"}, [200])
-//     .then(response => response.json())
-//     .then(json => getComments(json.data));
-// });
-
-// document.querySelector("#best_dropdown").addEventListener("click", function(){
-//     selected_sort_option.content = "BEST";
-//     api.tree.get({ascendantid:storyid, order:"best"}, [200])
-//     .then(response => response.json())
-//     .then(json => getComments(json.data));
-// });
-
-// document.querySelector("#controversial_dropdown").addEventListener("click", function(){
-//     selected_sort_option.content = "CONTROVERSIAL";
-//     api.tree.get({ascendantid:storyid, order:"controversial"}, [200])
-//     .then(response => response.json())
-//     .then(json => getComments(json.data));
-// });
-
-// document.querySelector("#average_dropdown").addEventListener("click", function(){
-//     selected_sort_option.content = "AVERAGE";
-//     api.tree.get({ascendantid:storyid, order:"average"}, [200])
-//     .then(response => response.json())
-//     .then(json => getComments(json.data));
-// });
-
-// document.querySelector("#hot_dropdown").addEventListener("click", function(){
-//     selected_sort_option.content = "HOT";
-//     api.tree.get({ascendantid:storyid, order:"hot"}, [200])
-//     .then(response => response.json())
-//     .then(json => getComments(json.data));
-// });
 
 document.querySelectorAll("#dropdown_options > *").forEach(element => {
     element.addEventListener('click', () => {
