@@ -2,7 +2,7 @@ let post_page_post = document.querySelector("#post_page_post");
 let storyid = post_page_post.getAttribute("story-id");
 let user;
 
-api.auth().then(response => {return response.json()}).then(json =>{
+api.auth().then(response => response.json()).then(json =>{
     user = json.data;
     getPageContent();
 })
@@ -64,7 +64,7 @@ function getStory(story){
     //Comment Form
     if(user != null){
         document.querySelector("#add_comment").innerHTML = `<img src="images/users/user.png">
-        <form action="api/public/comment.php?parentid=${story.entityid}&authorid=${user.userid}" method="post">
+        <form action="handlers/add_comment_handler.php?parentid=${story.entityid}&authorid=${user.userid}" method="post">
             <textarea name="content" placeholder="Add your comment here..."></textarea>
             <input type="submit" value="Add comment" class="submit_comment_button">
         </form>`;
@@ -119,15 +119,15 @@ function getCommentsFromTree(data){
 }
 
 function updateButtonsComments(data){
-    var footer;
+    let footer;
     for(let comment in data){
         
         let currentComment = data[comment];
         footer = document.querySelector("#comment_button_" + currentComment.entityid);
 
         footer.innerHTML = "";
-        var upvotes = currentComment.upvotes;
-        var downvotes = currentComment.downvotes;
+        let upvotes = currentComment.upvotes;
+        let downvotes = currentComment.downvotes;
         
         if(currentComment.vote){
             if(currentComment.vote == "+"){

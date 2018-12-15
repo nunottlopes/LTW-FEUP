@@ -13,9 +13,21 @@ api.auth().then(response => {return response.json()}).then(json =>{
 })
 
 function getContent() {
+    getStoriesContent();
+    getFavouritePostsContent();
+}
+
+function getStoriesContent(){
     api.story.get({all: 1, order: settings.sort, limit: settings.limit, offset: settings.offset}, [200])
     .then(response => response.json())
     .then(json => getStories(json.data));
+}
+
+function getFavouritePostsContent(){
+    api.save.get("userid=6&stories&limit=5")
+    api.save.get({userid:user.userid, limit:5, stories:""})
+    .then(response => response.json())
+    .then(json => favouritePosts(json.data)); 
 }
 
 function getStories(data) {
@@ -61,7 +73,21 @@ function getStories(data) {
 
     if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10)) {
         settings.offset += settings.limit;
-        getContent();
+        getStoriesContent();
+    }
+}
+
+function favouritePosts(data){
+    let aside_div = document.querySelector('#aside_favorite_post ul');
+
+    for(let post in data){
+        let posttitle = data[post].storyTitle;
+        let postid= data[post].entityid;
+        let a = document.createElement('a');
+        a.textContent = posttitle;
+        a.setAttribute('href', `post.php?id=${postid}`);
+
+        aside_div.appendChild(a);
     }
 }
 
@@ -83,18 +109,19 @@ function getChannels(data) {
     }
 }
 
+
 document.querySelectorAll("#dropdown_options > *").forEach(element => {
     element.addEventListener('click', () => {
         main_page_posts.innerHTML = "";
         settings.offset = 0;
         settings.sort = element.getAttribute("id");
-        getContent();
+        getStoriesContent();
     });
 })
 
 window.onscroll = () => {
     if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10)) {
         settings.offset += settings.limit;
-        getContent();
+        getStoriesContent();
     }
 }

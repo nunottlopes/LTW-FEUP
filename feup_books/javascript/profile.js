@@ -10,8 +10,8 @@ api.auth().then(response => {return response.json()}).then(json =>{
 })
 
 function loadPage(user){
-  var userid = user.userid;
-  var divs = document.querySelectorAll("#account ul>*");
+  let userid = user.userid;
+  let divs = document.querySelectorAll("#account ul>*");
 
   for(let i = 0; i < divs.length; i++){
       divs[i].addEventListener("click", function(){
@@ -44,7 +44,7 @@ function loadPage(user){
       }
     })
     .then(json => {
-        var content = "";
+        let content = "";
         content += `<h1>My Posts</h1>
         <div class="profile_content_inside">`;
   
@@ -84,7 +84,7 @@ function loadPage(user){
       }
     })
     .then(json => {
-        var content = "";
+        let content = "";
         content += `<h1>My Comments</h1>
         <div class="profile_content_inside">`;
   
@@ -93,7 +93,7 @@ function loadPage(user){
         }
   
         for(let comment in json.data){
-          var storyid = json.data[comment].storyid;
+          let storyid = json.data[comment].storyid;
           content += `<div class="profile_post" id="profile_post_${json.data[comment].entityid}" onmouseover="showEditDeleteButton(${json.data[comment].entityid})" onmouseout="hideEditDeleteButton(${json.data[comment].entityid})">
             <a href="post.php?id=${storyid}#comment${json.data[comment].parentid}"><h4> ${json.data[comment].content} </h4></a>
             <div id="edit_delete_object_${json.data[comment].entityid}">	
@@ -111,7 +111,7 @@ function loadPage(user){
 
   /////////////// MY CHANNELS ///////////////
   api.channel.get({creatorid:userid}).then(response => {return response.json()}).then(json => {
-    var content = "";
+    let content = "";
     content += `<h1>My Channels</h1>
     <div class="profile_content_inside">`;
 
@@ -147,7 +147,7 @@ function loadPage(user){
       }
     })
     .then(json => {
-        var content = "";
+        let content = "";
         content += `<h1>My Saved Posts</h1>
         <div class="profile_content_inside">`;
   
@@ -225,8 +225,7 @@ function deletePost(entityid){
 }
 
 function editPost(entityid){
-  console.log("Edit post: ");
-  console.log(entityid);
+  window.location.replace('edit_post.php?id='+entityid);
 }
 
 function deleteComment(entityid){
@@ -235,8 +234,24 @@ function deleteComment(entityid){
 }
 
 function editComment(entityid){
-  console.log("Edit comment: ");
-  console.log(entityid);
+  let div = document.querySelector(".profile_content_inside");
+  let child = document.querySelector("#profile_post_"+entityid);
+  let content = child.querySelector("a > h4").textContent;
+
+  let form = document.querySelector("#form_update_comment_" + entityid);
+  if(form){
+    div.removeChild(form);
+  }
+  else{
+    let newform = document.createElement('form');
+    newform.setAttribute('id', "form_update_comment_" + entityid);
+    newform.setAttribute('action', "handlers/update_comment_handler.php?commentid="+entityid);
+    newform.setAttribute('method', 'post');
+    newform.innerHTML = `<textarea name="content">${content}</textarea>
+      <input type="submit" value="Update comment" class="submit_comment_button">`;
+  
+    div.insertBefore(newform, child.nextSibling);
+  }
 }
 
 function deleteSave(userid, entityid){

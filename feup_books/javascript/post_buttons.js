@@ -83,7 +83,7 @@ function reply(commentid) {
     var add_comment_element = document.createElement("div");
     add_comment_element.setAttribute("id", "add_comment");
     add_comment_element.innerHTML = `<img src="images/users/user.png">
-         <form action="api/public/comment.php?parentid=${commentid}&authorid=${auth.userid}" method="post">
+         <form action="handlers/add_comment_handler.php?parentid=${commentid}&authorid=${auth.userid}" method="post">
              <textarea name="content" placeholder="Add your comment here..."></textarea>
              <input type="submit" value="Add comment" class="submit_comment_button">
          </form>`;
