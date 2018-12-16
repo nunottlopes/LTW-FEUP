@@ -2,7 +2,7 @@ document.querySelector('body').style.height = '100%';
 let user;
 
 api.auth().then(response => {return response.json()}).then(json =>{
-  if(json.data == null){
+  if(json.data == null || json.data == false){
     window.location.replace("index.php");
   }
   else{
@@ -202,6 +202,7 @@ function loadPage(){
           <div id="button_profile">
             <input type="submit" value="Save changes">
           </div>
+          <button class="delete_profile">Delete Profile</button>
         </div>
       </form>
       </div>`;
@@ -240,6 +241,11 @@ function loadPage(){
           //editar password e imagem
 
         }
+      })
+
+      document.querySelector(".delete_profile").addEventListener('click', () =>{
+        api.user.delete({userid: user.userid});
+        window.location.replace("index.php");
       })
   });
 

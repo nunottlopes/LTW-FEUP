@@ -51,3 +51,7 @@
     background-color: #A5483E;
     outline: none;
 }
+
+.tabcontent form > input[type="submit"]:hover {
+    cursor: pointer;
+}

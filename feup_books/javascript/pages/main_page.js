@@ -9,7 +9,10 @@ let settings = {
 }
 
 api.auth().then(response => {return response.json()}).then(json =>{
-    user = json.data;
+    if(json.data == false)
+        user = null;
+    else
+        user = json.data;
     getContent();
 })
 

@@ -30,6 +30,13 @@ function getStories(data) {
     nposts = data.length;
 
     let channel_page_posts = document.querySelector('#channel_page_posts');
+
+    if(nposts == 0){
+        channel_page_posts.innerHTML = `<article class="post_preview">
+        <h1>No posts available for this channel.</h1>
+        </article>`;
+    }
+
     for(let story in data) {
 
         let a1 =
