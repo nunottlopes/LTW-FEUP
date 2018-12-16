@@ -63,7 +63,7 @@ class Save extends APIEntity {
     /**
      * CREATE
      */
-    public static function create(int $entityid, int $userid) {
+    public static function create($entityid, $userid) {
         $query = '
             INSERT INTO Save(entityid, userid) VALUES (?, ?)
             ';
@@ -76,7 +76,7 @@ class Save extends APIEntity {
     /**
      * READ
      */
-    public static function getComment(int $commentid, array $more = []) {
+    public static function getComment($commentid, array $more = null) {
         $query = '
             SELECT * FROM SaveUser
             WHERE entityid = ? AND entityid IN (SELECT entityid FROM Comment)
@@ -91,7 +91,7 @@ class Save extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getStory(int $storyid, array $more = []) {
+    public static function getStory($storyid, array $more = null) {
         $query = '
             SELECT * FROM SaveUser
             WHERE entityid = ? AND entityid IN (SELECT entityid FROM Story)
@@ -106,7 +106,7 @@ class Save extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getEntity(int $entityid, array $more = []) {
+    public static function getEntity($entityid, array $more = null) {
         $query = '
             SELECT * FROM SaveUser
             WHERE entityid = ?
@@ -121,7 +121,7 @@ class Save extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getCommentVoted(int $commentid, int $userid) {
+    public static function getCommentVoted($commentid, $userid) {
         $query = '
             SELECT * FROM SaveUserComment
             WHERE entityid = ? AND userid = ?
@@ -144,7 +144,7 @@ class Save extends APIEntity {
         return $merge;
     }
 
-    public static function getStoryVoted(int $storyid, int $userid) {
+    public static function getStoryVoted($storyid, $userid) {
         $query = '
             SELECT * FROM SaveUserStory
             WHERE entityid = ? AND userid = ?
@@ -157,7 +157,7 @@ class Save extends APIEntity {
         return static::fetch($stmt);
     }
 
-    public static function getUserComments(int $userid, array $more = []) {
+    public static function getUserComments($userid, array $more = null) {
         $queryArguments = static::extend([$userid], $more);
 
         $query = '
@@ -186,7 +186,7 @@ class Save extends APIEntity {
         return $merge;
     }
 
-    public static function getUserStories(int $userid, array $more = []) {
+    public static function getUserStories($userid, array $more = null) {
         $query = '
             SELECT * FROM SaveUserStory
             WHERE userid = ?
@@ -201,7 +201,7 @@ class Save extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getUserAll(int $userid, array $more = []) {
+    public static function getUserAll($userid, array $more = null) {
         $queryArguments = static::extend([$userid], $more);
 
         $query = '
@@ -231,7 +231,7 @@ class Save extends APIEntity {
         return $mix;
     }
 
-    public static function readAllComments(array $more = []) {
+    public static function readAllComments(array $more = null) {
         $query = '
             SELECT * FROM SaveComment
             ORDER BY savedat
@@ -245,7 +245,7 @@ class Save extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function readAllStories(array $more = []) {
+    public static function readAllStories(array $more = null) {
         $query = '
             SELECT * FROM SaveStory
             ORDER BY savedat
@@ -259,7 +259,7 @@ class Save extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function readAll(array $more = []) {
+    public static function readAll(array $more = null) {
         $query = '
             SELECT * FROM SaveAll
             ORDER BY savedat
@@ -281,7 +281,7 @@ class Save extends APIEntity {
     /**
      * DELETE
      */
-    public static function delete(int $entityid, int $userid) {
+    public static function delete($entityid, $userid) {
         $query = '
             DELETE FROM Save WHERE entityid = ? AND userid = ?
             ';
@@ -291,7 +291,7 @@ class Save extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function deleteUser(int $userid) {
+    public static function deleteUser($userid) {
         $query = '
             DELETE FROM Save WHERE userid = ?
             ';
@@ -301,7 +301,7 @@ class Save extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function deleteEntity(int $entityid) {
+    public static function deleteEntity($entityid) {
         $query = '
             DELETE FROM Save WHERE entityid = ?
             ';

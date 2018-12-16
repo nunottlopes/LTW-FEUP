@@ -10,12 +10,12 @@ class Image extends APIEntity {
     /**
      * CONVENTION
      */
-    public static function filename(string $imageid, string $extension) {
+    public static function filename($imageid, $extension) {
         return "img$imageid.$extension";
     }
 
-    public static function files(string $imagefile) {
-        $UPLOAD_DIR = $_SERVER['DOCUMENT_ROOT'] . '/feup_books/images/upload';
+    public static function files($imagefile) {
+        $UPLOAD_DIR = __DIR__ . '/../../feup_books/images/upload';
 
         return [
             'original'  => "$UPLOAD_DIR/original/$imagefile",
@@ -26,7 +26,7 @@ class Image extends APIEntity {
     }
 
     public static function glob() {
-        $UPLOAD_DIR = $_SERVER['DOCUMENT_ROOT'] . '/feup_books/images/upload';
+        $UPLOAD_DIR = _DIR__ . '/../../feup_books/images/upload';
 
         return [
             'original'  => "$UPLOAD_DIR/original/*",
@@ -61,7 +61,7 @@ class Image extends APIEntity {
     /**
      * READ
      */
-    public static function read(int $imageid) {
+    public static function read($imageid) {
         $query = '
             SELECT * FROM Image WHERE imageid = ?
             ';
@@ -84,7 +84,7 @@ class Image extends APIEntity {
     /**
      * UPDATE
      */
-    public static function setInfo(int $imageid, string $imagefile, array $info) {
+    public static function setInfo($imageid, $imagefile, array $info) {
         $width = $info['original']['width'];
         $height = $info['original']['height'];
         $filesize = $info['filesize'];
@@ -105,7 +105,7 @@ class Image extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function eraseInfo(int $imageid) {
+    public static function eraseInfo($imageid) {
         $query = '
             UPDATE Image
             SET imagefile = NULL,
@@ -124,7 +124,7 @@ class Image extends APIEntity {
     /**
      * DELETE
      */
-    public static function unlink(string $imagefile) {
+    public static function unlink($imagefile) {
         $files = static::files($imagefile);
 
         $count = 0;
@@ -152,7 +152,7 @@ class Image extends APIEntity {
         }
     }
 
-    public static function delete(int $imageid) {
+    public static function delete($imageid) {
         $image = static::read($imageid);
 
         if (!$image) return 0;

@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/api/api.php';
+require_once __DIR__ . '/../../../api/api.php';
 $auth = Auth::authenticate();
 ?>
 <!DOCTYPE html>

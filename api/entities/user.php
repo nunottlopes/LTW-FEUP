@@ -19,19 +19,19 @@ class User extends APIEntity {
      * valid -> true or false
      * check -> void or throw
      */
-    public static function validUsername(string $username) {
+    public static function validUsername($username) {
         return preg_match(static::$usernameRegex, $username) === 1;
     }
 
-    public static function validEmail(string $email) {
+    public static function validEmail($email) {
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
-    public static function validPassword(string $password) {
+    public static function validPassword($password) {
         return preg_match(static::$passwordRegex, $password) === 1;
     }
 
-    public static function valid(string $username, string $email, &$error = null) {
+    public static function valid($username, $email, &$error = null) {
         if (!static::validUsername($username)) {
             $error = 'Invalid username';
             return false;
@@ -45,25 +45,25 @@ class User extends APIEntity {
         return true;
     }
 
-    public static function checkUsername(string $username) {
+    public static function checkUsername($username) {
         if (!static::validUsername($username)) {
             throw new Error('Invalid username');
         }
     }
 
-    public static function checkEmail(string $email) {
+    public static function checkEmail($email) {
         if (!static::validEmail($email)) {
             throw new Error('Invalid email');
         }
     }
 
-    public static function checkPassword(string $password) {
+    public static function checkPassword($password) {
         if (!static::validPassword($username)) {
             throw new Error('Invalid password');
         }
     }
 
-    public static function check(string $username, string $email) {
+    public static function check($username, $email) {
         if (!static::valid($username, $email, $error)) {
             throw new Error($error);
         }
@@ -72,7 +72,7 @@ class User extends APIEntity {
     /**
      * CREATE
      */
-    public static function create(string $username, string $email, string $password) {
+    public static function create($username, $email, $password) {
         static::check($username, $email);
 
         $hash = password_hash($password, PASSWORD_DEFAULT, static::$hashOpt);
@@ -99,7 +99,7 @@ class User extends APIEntity {
     /**
      * READ WITH HASH
      */
-    private static function getByUsernameHash(string $username) {
+    private static function getByUsernameHash($username) {
         $query = '
             SELECT * FROM User WHERE username = ?
             ';
@@ -109,7 +109,7 @@ class User extends APIEntity {
         return static::fetch($stmt);
     }
 
-    private static function getByEmailHash(string $email) {
+    private static function getByEmailHash($email) {
         $query = '
             SELECT * FROM User WHERE email = ?
             ';
@@ -119,7 +119,7 @@ class User extends APIEntity {
         return static::fetch($stmt);
     }
 
-    private static function getHash(string $name) {
+    private static function getHash($name) {
         if (static::validUsername($name)) {
             return static::getByUsernameHash($name);
         }
@@ -134,25 +134,25 @@ class User extends APIEntity {
     /**
      * READ
      */
-    public static function getByUsername(string $username) {
+    public static function getByUsername($username) {
         $user = static::getByUsernameHash($username);
         unset($user['hash']);
         return $user;
     }
 
-    public static function getByEmail(string $email) {
+    public static function getByEmail($email) {
         $user = static::getByEmailHash($email);
         unset($user['hash']);
         return $user;
     }
 
-    public static function get(string $name) {
+    public static function get($name) {
         $user = static::getHash($name);
         unset($user['hash']);
         return $user;
     }
 
-    public static function read(int $userid) {
+    public static function read($userid) {
         $query = '
             SELECT * FROM UserProfile WHERE userid = ?
             ';
@@ -172,14 +172,14 @@ class User extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function self(int $userid) {
+    public static function self($userid) {
         return static::read($userid);
     }
 
     /**
      * AUTHENTICATE
      */
-    public static function isAdmin(int $userid) {
+    public static function isAdmin($userid) {
         $query = '
             SELECT admin FROM User WHERE userid = ?
             ';
@@ -190,7 +190,7 @@ class User extends APIEntity {
         return $row ? (bool)$row['admin'] : false;
     }
 
-    public static function authenticate(string $name, string $password, &$error = null) {
+    public static function authenticate($name, $password, &$error = null) {
         $user = static::getHash($name);
 
         if (!$user) {
@@ -209,7 +209,7 @@ class User extends APIEntity {
     /**
      * UPDATE
      */
-    public static function setPassword(int $userid, string $password) {
+    public static function setPassword($userid, $password) {
         $hash = password_hash($password, PASSWORD_DEFAULT, static::$hashOpt);
         
         $query = '
@@ -221,7 +221,7 @@ class User extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function setPicture(int $userid, int $imageid) {
+    public static function setPicture($userid, $imageid) {
         $query = '
             UPDATE User SET imageid = ? WHERE userid = ?
             ';
@@ -231,7 +231,7 @@ class User extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function clearPicture(int $userid) {
+    public static function clearPicture($userid) {
         $query = '
             UPDATE User SET imageid = NULL WHERE userid = ?
             ';
@@ -244,7 +244,7 @@ class User extends APIEntity {
     /**
      * DELETE
      */
-    public static function delete(int $userid) {
+    public static function delete($userid) {
         $query = '
             DELETE FROM User WHERE userid = ?
             ';

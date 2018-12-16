@@ -15,7 +15,6 @@ var api = {
         credentials: "same-origin",
         redirect: "follow",
         expect: [200, 201, 202],
-        origin: window.location.origin,
         sendcsrf: true
     },
 
@@ -39,8 +38,13 @@ var api = {
         503:   apiUnhandledDefaultHandler
     },
 
+    "base": function() {
+        const s = location.pathname.split('/');
+        return new URL(s.slice(0, s.indexOf('feup_books')).join('/') + '/', location.origin);
+    },
+
     "resource": function(resource, query) {
-        const url = new URL('feup_books/api/public/' + resource + '.php', api.settings.origin);
+        const url = new URL('feup_books/api/public/' + resource + '.php', this.base());
         url.search = new URLSearchParams(query);
         return url;
     },

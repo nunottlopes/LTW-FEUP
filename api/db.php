@@ -6,7 +6,7 @@
  */
 class DB {
     private static $db;
-    private static $apipath = '/api/api.db';
+    private static $apipath = '/api.db';
 
     /**
      * Get the PDO object.
@@ -20,7 +20,7 @@ class DB {
      * Open the database connection. Assumes $db is uninstantiated.
      */
     private static function open() {
-        $path = $_SERVER['DOCUMENT_ROOT'] . static::$apipath;
+        $path = __DIR__ . static::$apipath;
 
         static::$db = new PDO('sqlite:' . $path, 
             '', '', [PDO::ATTR_PERSISTENT => true]);

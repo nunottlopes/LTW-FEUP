@@ -44,7 +44,7 @@ class Tree extends APIEntity {
     /**
      * Fix SQL's sort of a comment tree.
      */
-    private static function fixTree(array &$all, int $parentid, int $depth) {
+    private static function fixTree(array &$all, $parentid, $depth) {
         $tree = [];
 
         foreach ($all as $entityid => $comment) {
@@ -101,7 +101,7 @@ class Tree extends APIEntity {
     /**
      * READ
      */
-    public static function getAncestry(int $descendantid) {
+    public static function getAncestry($descendantid) {
         $query = '
             SELECT storyid FROM CommentExtra WHERE entityid = ?
             ';
@@ -139,7 +139,7 @@ class Tree extends APIEntity {
         return $merge;
     }
 
-    private static function getAllDescendants(int $ascendantid, array $more) {
+    private static function getAllDescendants($ascendantid, array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -170,7 +170,7 @@ class Tree extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getTree(int $ascendantid, array $more) {
+    public static function getTree($ascendantid, array $more = null) {
         $descendants = static::getAllDescendants($ascendantid, $more);
 
         $keyed = API::keyfy($descendants, 'entityid');
@@ -181,7 +181,7 @@ class Tree extends APIEntity {
     /**
      * VOTED READ
      */
-    public static function getAncestryVoted(int $descendantid, int $userid) {
+    public static function getAncestryVoted($descendantid, $userid) {
         $query = '
             SELECT storyid FROM CommentExtra WHERE entityid = ?
             ';
@@ -221,8 +221,8 @@ class Tree extends APIEntity {
         return $merge;
     }
 
-    private static function getAllDescendantsVoted(int $ascendantid,
-            int $userid, array $more) {
+    private static function getAllDescendantsVoted($ascendantid, $userid,
+            array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -254,7 +254,7 @@ class Tree extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getTreeVoted(int $ascendantid, int $userid, array $more) {
+    public static function getTreeVoted($ascendantid, $userid, array $more = null) {
         $descendants = static::getAllDescendantsVoted($ascendantid, $userid, $more);
 
         $keyed = API::keyfy($descendants, 'entityid');

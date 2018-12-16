@@ -8,11 +8,11 @@ class Channel extends APIEntity {
     /**
      * VALIDATION
      */
-    public static function valid(string $channelname) {
+    public static function valid($channelname) {
         return preg_match(static::$channelRegex, $channelname) === 1;
     }
 
-    public static function check(string $channelname) {
+    public static function check($channelname) {
         if (!static::valid($channelname)) {
             throw new Error("Invalid channelname");
         }
@@ -21,7 +21,7 @@ class Channel extends APIEntity {
     /**
      * CREATE
      */
-    public static function create(string $channelname, int $creatorid) {
+    public static function create($channelname, $creatorid) {
         static::check($channelname);
 
         $query = '
@@ -46,7 +46,7 @@ class Channel extends APIEntity {
     /**
      * READ
      */
-    public static function get(string $channelname) {
+    public static function get($channelname) {
         $query = '
             SELECT * FROM ChannelAll WHERE channelname = ?
             ';
@@ -56,7 +56,7 @@ class Channel extends APIEntity {
         return static::fetch($stmt);
     }
 
-    public static function getCreator(int $creatorid) {
+    public static function getCreator($creatorid) {
         $query = '
             SELECT * FROM ChannelBanner WHERE creatorid = ?
             ';
@@ -66,7 +66,7 @@ class Channel extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function read(int $channelid) {
+    public static function read($channelid) {
         $query = '
             SELECT * FROM ChannelAll WHERE channelid = ?
             ';
@@ -89,7 +89,7 @@ class Channel extends APIEntity {
     /**
      * UPDATE
      */
-    public static function setBanner(int $channelid, int $imageid) {
+    public static function setBanner($channelid, $imageid) {
         $query = '
             UPDATE Channel SET imageid = ? WHERE channelid = ?
             ';
@@ -99,7 +99,7 @@ class Channel extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function clearBanner(int $channelid) {
+    public static function clearBanner($channelid) {
         $query = '
             UPDATE Channel SET imageid = NULL WHERE channelid = ?
             ';
@@ -112,7 +112,7 @@ class Channel extends APIEntity {
     /**
      * DELETE
      */
-    public static function delete(int $channelid) {
+    public static function delete($channelid) {
         $query = '
             DELETE FROM Channel WHERE channelid = ?
             ';
