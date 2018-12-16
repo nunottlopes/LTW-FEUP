@@ -1,6 +1,5 @@
 let channel_id = document.querySelector("#channel_page").getAttribute("channel_id");
 let noMoreStories = false;
-let user;
 
 let settings = {
     sort: document.querySelector("#dropdown_selection").getAttribute("selectionid"),
@@ -8,9 +7,7 @@ let settings = {
     offset: 0
 }
 
-api.auth().then(response => {return response.json()}).then(json =>{
-    user = json.data;
-    api.channel.get({channelid: channel_id})
+api.channel.get({channelid: channel_id})
     .then(response => {
         if(response.ok) {
             return response.json();
@@ -21,8 +18,7 @@ api.auth().then(response => {return response.json()}).then(json =>{
     }).then( r => {
         updateAside(r.data);
         getContent();
-    })
-})
+});
 
 function getContent() {
     api.story.get({channelid: channel_id, order: settings.sort, limit: settings.limit, offset: settings.offset})
@@ -34,6 +30,13 @@ function getStories(data) {
     nposts = data.length;
 
     let channel_page_posts = document.querySelector('#channel_page_posts');
+
+    if(nposts == 0){
+        channel_page_posts.innerHTML = `<article class="post_preview">
+        <h1>No posts available for this channel.</h1>
+        </article>`;
+    }
+
     for(let story in data) {
 
         let a1 =
@@ -67,9 +70,9 @@ function getStories(data) {
         channel_page_posts.innerHTML += a1 + a2 + a3;
     }
 
-    if(user != null){
+    if(auth != null){
         for(let story in data){
-            updateButtons(user.userid, data[story].entityid);
+            updateButtons(auth.userid, data[story].entityid);
         }
     }
 

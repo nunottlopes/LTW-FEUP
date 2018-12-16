@@ -11,6 +11,8 @@
         <input type="password" name="password2" placeholder="Retype password" />
         <input type="submit" name="signup_submit" value="Sign me up" />
       </form>
+
+      <p>Already have an account? <a onclick="closeSignUp(); openLogIn()">Log in</a> now.</p>
     </div>
   </div>
 </div>

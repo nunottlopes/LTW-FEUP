@@ -11,7 +11,10 @@ let settings = {
 }
 
 api.auth().then(response => response.json()).then(json =>{
-    user = json.data;
+    if(json.data == false)
+        user = null;
+    else
+        user = json.data;
     getPageContent();
 })
 
@@ -41,11 +44,10 @@ function getStory(story){
     // Article
     let article = document.querySelector(".post_complete");
     let article1 = `<article class="post_complete">
-    <header>Posted by ${story.authorname} ${timeDifference(story.createdat)}</header>
+    <header>Posted by ${story.authorname} ${timeDifference(story.updatedat)}</header>
         <h1>${story.storyTitle}</h1>`;
 
     let article2 = "";
-    console.log(story);
     switch(story.storyType) {
         case "image":
             article2 = `<img src="images/upload/original/${story.imagefile}" alt="post image">`;
@@ -69,18 +71,24 @@ function getStory(story){
     article.innerHTML = article1 + article2 + article3;
 
     //Comment Form
+    let add_comment_form = document.querySelector("#add_comment");
     if(user != null){
-        document.querySelector("#add_comment").innerHTML = `<img src="images/users/user.png">
-        <form action="handlers/add_comment_handler.php?parentid=${story.entityid}&authorid=${user.userid}" method="post">
+        if(user.picturefile)
+            add_comment_form.innerHTML += `<img src="images/upload/thumbnail/${user.picturefile}">`;
+        else
+            add_comment_form.innerHTML += `<img src="images/users/user.png">`;
+
+        add_comment_form.innerHTML += `<form action="handlers/add_comment_handler.php?parentid=${story.entityid}&authorid=${user.userid}" method="post">
             <textarea name="content" placeholder="Add your comment here..."></textarea>
             <input type="submit" value="Add comment" class="submit_comment_button">
         </form>`;
     }
     else{
-        document.querySelector("#add_comment").innerHTML = `<h3><a onclick='loginpopup()'>Login</a> or <a onclick='signuppopup()'>Signup</a> to comment the post.</h3>`
+        add_comment_form.innerHTML = `<h3><a onclick='loginpopup()'>Login</a> or <a onclick='signuppopup()'>Signup</a> to comment the post.</h3>`
     }
 
-    updateButtons(user.userid, story.entityid);
+    if(user != null)
+        updateButtons(user.userid, story.entityid);
 }
 
 // // Get All Comments
@@ -98,7 +106,8 @@ function getComments(){
 
             comments.innerHTML = allComments;
 
-            updateButtonsComments(json.data);
+            if(user != null)
+                updateButtonsComments(json.data);
             
             // if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10)) {
             //     settings.offset += settings.limit;
@@ -112,6 +121,7 @@ function getComments(){
         .then(response => response.json())
         .then(json => {
             getCommentsFromTree(json.data);
+            comments.innerHTML = allComments;
         })
     }
 }
@@ -190,8 +200,12 @@ document.querySelectorAll("#dropdown_options > *").forEach(element => {
 })
 
 function updateAside(data) {
-    document.querySelector("#channel_info h1").textContent =
-        data.channelname;
+    let h1 = document.querySelector("#channel_info h1");
+    h1.textContent = data.channelname;
+    h1.style.cursor = "pointer";
+    h1.addEventListener('click', () =>{
+        window.location.replace("channel.php?id="+data.channelid);
+    })
     document.querySelector("#channel_info h2").textContent =
         data.stories + ((data.stories == 1) ? " Post" : " Posts");
     document.querySelector("#channel_info p").textContent =

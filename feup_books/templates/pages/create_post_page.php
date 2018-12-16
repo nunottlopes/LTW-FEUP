@@ -25,11 +25,6 @@
         </div>
 
         <div id="new_post_image" class="tabcontent">
-            <!-- <form enctype="multipart/form-data">
-                <input type="text" name="post_title" placeholder="Title"/>
-                <input type="file" name="post_image" accept="image/*"/>
-                <input type="submit" name="post_submission" value="Post"/>
-            </form> -->
             <form>
                 <input type="text" name="post_title" placeholder="Title"/>
                 <input type="file" name="upload-file" accept="image/*"/>
@@ -50,7 +45,7 @@
     <script src="javascript/dropdown.js" defer></script>
 
     <div id="post_page_aside">
-        <div id="post_page_rules" class="aside_div">
+        <div id="rules" class="aside_div">
             <h1>Posting rules</h1>
             <ul>
                 <li>Regras</li>

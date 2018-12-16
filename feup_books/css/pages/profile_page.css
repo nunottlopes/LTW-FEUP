@@ -119,7 +119,7 @@ body > section#account > nav > ul > a{
 .profile_content_inside > form > div#profile_button > div#button_profile{
     display: grid;
     margin: auto;
-    padding-top: 5em;
+    padding-top: 3em;
 }
 
 .profile_content_inside > form > div#profile_button > div#button_profile input[type=submit]{
@@ -190,4 +190,29 @@ body > section#account > nav > ul > a{
 
 .profile_post > div > a > i:hover{
     cursor: pointer;
+}
+
+.delete_profile{
+    border: none;
+    background-color: #800000;
+    color: white;
+    max-width: 15em;
+    text-align: center;
+    text-decoration: none;
+    font-size: 20px;
+    padding: 0.5em 1em; 
+    border-radius: 2px;
+    display:block;
+    cursor: pointer;
+    -webkit-transition: color 0.2s ease-out;
+    -moz-transition: color 0.2s ease-out;
+    -o-transition: color 0.2s ease-out;
+    -ms-transition: color 0.2s ease-out;
+    transition: color 0.2s ease-out;
+    margin-top: 5em;
+}
+
+.delete_profile:hover{
+    background-color: #bb3030;
+    color: white;
 }

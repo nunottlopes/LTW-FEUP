@@ -9,6 +9,8 @@
           <input type="password" name="password" placeholder="Password" />
           <input type="submit" name="login_submit" value="Log me in" />
         </form>
+
+        <p>Don't have an account? <a onclick="closeLogIn(); openSignUp()">Sign up</a> now.</p>
       </div>
   </div>
 </div>

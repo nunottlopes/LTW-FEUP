@@ -9,7 +9,10 @@ let settings = {
 }
 
 api.auth().then(response => {return response.json()}).then(json =>{
-    user = json.data;
+    if(json.data == false)
+        user = null;
+    else
+        user = json.data;
     getContent();
 })
 
@@ -25,10 +28,15 @@ function getStoriesContent(){
 }
 
 function getFavouritePostsContent(){
-    api.save.get("userid=6&stories&limit=5")
-    api.save.get({userid:user.userid, limit:5, stories:""})
-    .then(response => response.json())
-    .then(json => favouritePosts(json.data)); 
+    if(user != null){
+        api.save.get({userid:user.userid, limit:5, stories:""})
+        .then(response => response.json())
+        .then(json => favouritePosts(json.data)); 
+    }
+    else{
+        let aside_div = document.querySelector('#aside_favorite_post ul');
+        aside_div.innerHTML = '<p>Log in to see your favourite posts.</p>';
+    }
 }
 
 function getStories(data) {
@@ -84,6 +92,9 @@ function getStories(data) {
 function favouritePosts(data){
     let aside_div = document.querySelector('#aside_favorite_post ul');
 
+    if(data.length == 0)
+        aside_div.innerHTML = '<p>No favourite posts.</p>';
+
     for(let post in data){
         let posttitle = data[post].storyTitle;
         let postid= data[post].entityid;
@@ -129,3 +140,29 @@ window.onscroll = () => {
         getStoriesContent();
     }
 }
+
+function createPostButton(){
+    if(user != null)
+        window.location.replace("create_post.php");
+    else{
+        openLogIn();
+    }
+}
+
+function createChannelButton(){
+    if(user != null)
+        window.location.replace("create_channel.php");
+    else{
+        openLogIn();
+    }
+}
+
+// function openLogIn(){
+//     document.querySelector("#login-popup").style.visibility = "visible";
+//     document.querySelector("#login-popup").style.opacity = 1;
+// }
+
+// function openSignUp(){
+//     document.querySelector("#register-popup").style.visibility = "visible";
+//     document.querySelector("#register-popup").style.opacity = 1;
+// }

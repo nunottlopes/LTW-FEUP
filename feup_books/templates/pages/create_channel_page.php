@@ -1,11 +1,11 @@
 <div id="create_channel" class="page">
 
-    <div class="main_page_posts">
+    <div class="new_channel_page">
         <h1>Create a Channel</h1>
-        <div id="new_channel_post">
+        <div id="new_channel">
             <form>
-                <input type="text" name="channel_title" placeholder="Title"/>
-                <input type="file" name="post_image" accept="image/*"/>
+                <input type="text" name="channel_name" placeholder="Channel Name"/>
+                <input type="file" name="upload-file" accept="image/*"/>
                 <input type="submit" name="channel_submission" value="Create"/>
             </form>
         </div>
@@ -14,7 +14,7 @@
     <script src="javascript/pages/create_channel.js"></script>
 
     <div id="post_page_aside">
-        <div id="post_page_rules" class="aside_div">
+        <div id="rules" class="aside_div">
             <h1>Creating Channel Rules</h1>
             <ul>
                 <li>You can not change the name of your channel after creating it</li>

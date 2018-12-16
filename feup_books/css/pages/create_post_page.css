@@ -52,18 +52,6 @@
     outline: none;
 }
 
-#post_page_rules h1 {
-    text-align: center;
-}
-
-#post_page_rules ul {
-    margin-bottom: 0;
-    padding: 0;
-    list-style-type: none;
-    text-align: center;
-}
-
-#post_page_rules li {
-    padding: 1em 0.2em;
-    border-top: 1px solid rgb(201, 209, 216);
+.tabcontent form > input[type="submit"]:hover {
+    cursor: pointer;
 }
