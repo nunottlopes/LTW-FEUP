@@ -142,3 +142,66 @@
     padding-top: 0.5em;
     margin-left: 1em;
 }
+
+/**
+ * Lol
+ */
+article.story {
+    display: grid;
+    grid-template-areas: "channel channel"
+                         "score   author"
+                         "score   post"
+                         "footer  footer";
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto 1fr auto;
+}
+
+article.story div.story-channel {
+    grid-area: channel;
+}
+
+article.story div.story-score {
+    grid-area: score;
+}
+
+article.story div.story-author {
+    grid-area: author;
+}
+
+article.story div.story-post {
+    grid-area: post;
+}
+
+article.story div.story-comments {
+    grid-area: footer;
+}
+
+article.story div.story-save {
+    grid-area: footer;
+}
+
+article.story img.channel-banner {
+    width: 2.5em;
+    height: 2.5em;
+    vertical-align: middle;
+    border-radius: 10%;
+}
+
+article.story img.author-picture {
+    width: 2.5em;
+    height: 2.5em;
+    vertical-align: middle;
+    border-radius: 50%;
+}
+
+div.score-info[data-vote="+"] span.score:before {
+    content: attr(data-score-up);
+}
+
+div.score-info[data-vote=""] span.score:before {
+    content: attr(data-score);
+}
+
+div.score-info[data-vote="-"] span.score:before {
+    content: attr(data-score-down);
+}
