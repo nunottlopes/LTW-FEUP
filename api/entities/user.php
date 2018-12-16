@@ -213,7 +213,7 @@ class User extends APIEntity {
         $hash = password_hash($password, PASSWORD_DEFAULT, static::$hashOpt);
         
         $query = '
-            UPDATE User SET password = ? WHERE userid = ?
+            UPDATE User SET hash = ? WHERE userid = ?
             ';
 
         $stmt = DB::get()->prepare($query);

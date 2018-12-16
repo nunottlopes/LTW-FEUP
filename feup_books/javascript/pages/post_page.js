@@ -127,7 +127,7 @@ function getCommentsFromTree(data){
             <button id="upvote${currentComment.entityid}" class="comment_button" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${currentComment.upvotes} Upvotes</button>
             <button id="downvote${currentComment.entityid}" class="comment_button" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${currentComment.downvotes} Downvotes</button>
             <button class="comment_button" onclick="reply(${currentComment.entityid})"><i class="fa fa-comment"></i> Reply</button>
-            <button id="save${currentComment.entityid}" class="comment_button" id="save${currentComment.entityid}" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>
+            <button id="save${currentComment.entityid}" class="comment_button" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>
         </footer>`;
 
         allComments += article;

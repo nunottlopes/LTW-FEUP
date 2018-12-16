@@ -1,0 +1,76 @@
+<!-- Story on the main page -->
+<article class="post_preview">
+    <header>Posted by {Author} {5 minutes ago}</header>
+    <a href="post.php?id={entityid}">
+        <h1>{Story Title}</h1>
+        <p>{Story content}</p>
+        <img src="images/upload/medium/{imagefile}" alt="post image"/>
+    </a>
+    <footer id="post_button_{entityid}">
+        <button class="post_button" onclick="upvote({entityid})">
+            <i class="fas fa-arrow-up"></i>{Upvotes} upvotes
+        </button>
+        <button class="post_button" onclick="downvote({entityid})">
+            <i class="fas fa-arrow-down"></i>{Downvotes} downvotes
+        </button>
+        <a href="post.php?id={entityid}">
+            <button class="post_button">
+                <i class="fa fa-comment"></i>{Number of children} Comments
+            </button>
+        </a>
+        <button class="post_button" id="save{entityid}" onclick="save({entityid})">
+            <i class="fa fa-bookmark"></i> Save
+        </button>
+    </footer>
+</article>
+
+<!-- Story in story page -->
+<article class="post_complete">
+    <header>Posted by {Author} {5 minutos ago}</header>
+    <h1>{Story Title}</h1>
+    <p>{Story content}</p>
+    <img src="images/upload/original/{imagefile}" alt="post image"/>
+    <footer id="post_button_{entityid}">
+        <button class="post_button" onclick="upvote({entityid})">
+            <i class="fas fa-arrow-up"></i>{Upvotes} upvotes
+        </button>
+        <button class="post_button" onclick="downvote({entityid})">
+            <i class="fas fa-arrow-down"></i>{Downvotes} downvotes
+        </button>
+        <button class="post_button">
+            <i class="fa fa-comment"></i>{Number of children} Comments
+        </button>
+        <button class="post_button" id="save{entityid}" onclick="save({entityid})">
+            <i class="fa fa-bookmark"></i> Save
+        </button>
+    </footer>
+</article>
+
+<!-- Comment -->
+<article id="comment{entityid}" class="post_comment">
+    <header>{Author}, {5 minutes ago}</header>
+    <p>{Content}</p>
+    <footer id="comment_button_{entityid}">
+        <button id="upvote{entityid}" class="comment_button" onclick="upvote({entityid})">
+            <i class="fas fa-arrow-down"></i> {Upvotes} upvotes
+        </button>
+        <button id="downvote{entityid}" class="comment_button" onclick="downvote({entityid})">
+            <i class="fas fa-arrow-down"></i> {Downvotes} downvotes
+        </button>
+        <button class="comment_button" onclick="reply({entityid})">
+            <i class="fa fa-comment"></i> Reply
+        </button>
+        <button id="save{entityid}" class="comment_button" onclick="save({entityid})">
+            <i class="fa fa-bookmark"></i> Save
+        </button>
+    </footer>
+    <!-- Children 1 -->
+    <!-- Children 2 -->
+    <!-- Children 3 -->
+</article>
+
+<!-- New Comment -->
+<article id="comment{entityid}" class="post_comment" data-entityid="{entityid}">
+    <header>{Author}, {5 minutes ago}</header>
+    <footer>
+</article>
