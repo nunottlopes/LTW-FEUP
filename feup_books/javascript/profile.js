@@ -1,15 +1,17 @@
 document.querySelector('body').style.height = '100%';
+let user;
 
 api.auth().then(response => {return response.json()}).then(json =>{
   if(json.data == null){
     window.location.replace("index.php");
   }
   else{
-    loadPage(json.data);
+    user = json.data;
+    loadPage();
   }
 })
 
-function loadPage(user){
+function loadPage(){
   let userid = user.userid;
   let divs = document.querySelectorAll("#account ul>*");
 
@@ -24,9 +26,10 @@ function loadPage(user){
       });
   }
 
-  //TODO: FALTA ALTERAR A IMAGEM TBM
-  console.log(user);
-  document.querySelector("#account_menu_username").textContent = user.username;
+  if(user.picturefile)
+    document.querySelector("#account_menu_image").setAttribute('src', 'images/upload/thumbnail/'+user.picturefile);
+  
+    document.querySelector("#account_menu_username").textContent = user.username;
 
   var arrayContentDiv = [];
   var contentDiv = document.querySelector("#profile_content");
@@ -187,11 +190,11 @@ function loadPage(user){
   document.querySelector("#edit_profile").addEventListener("click", function(){
     contentDiv.innerHTML = `<h1>Edit Profile</h1>
       <div class="profile_content_inside">
-      <form action="handlers/updateProfile_handler.php" method="post">
+      <form>
         <div id="profile_button">
           <div id="profile_info">
-            Username <input type="text" name="username" value="${user.username}">
-            Email <input type="email" name="email" value="${user.email}">
+            Username <input type="text" name="username" value="${user.username}" disabled="disabled">
+            Email <input type="email" name="email" value="${user.email}" disabled="disabled">
             New Password <input type="password" name="password">
             Retype Password <input type="password" name="repeat_password">
             Update Profile Picture <input type="file" name="fileToUpload">
@@ -202,7 +205,44 @@ function loadPage(user){
         </div>
       </form>
       </div>`;
+
+      let edit_profile_form = document.querySelector(".profile_content_inside");
+      edit_profile_form.addEventListener('submit', event => {
+        event.preventDefault();
+        let pass = edit_profile_form.querySelector('#profile_info > input[name="password"]').value;
+        let r_pass = edit_profile_form.querySelector('#profile_info > input[name="repeat_password"]').value;
+        let img = edit_profile_form.querySelector('#profile_info > input[name="fileToUpload"]').files[0];
+        
+        if(pass == "" && r_pass != "") alert('Please type new password.');
+        else if(pass != "" && r_pass == "") alert('Please retype new password.');
+        else if(pass != r_pass) alert("New password and retyped password don't match.")
+        else if(pass != "" && r_pass != "" && img == undefined){
+          
+          // editar só password
+          let formData = new FormData();
+          formData.append("password", pass);
+          fetch('/feup_books/api/public/user.php?userid='+user.userid, {
+              method: 'PATCH',
+              body: formData,
+              contentType: false,
+              processData: false,
+          }).then(r => r.json())
+          .then( r =>
+              //TODO
+              console.log(r)
+          );
+        }
+        else if(pass == "" && r_pass == "" && img != undefined){
+          //editar só imagem
+          
+        }
+        else{
+          //editar password e imagem
+
+        }
+      })
   });
+
 
   /////////////// LOG OUT ///////////////
   document.querySelector("#logout").addEventListener("click", function(){

@@ -1,9 +1,5 @@
-var auth;
-
-api.auth().then(response => {return response.json()}).then(json =>{
-    if(json.data == null) {window.location.replace("index.php");}
-    else{auth = json.data;}
-})
+if(auth == null)
+    window.location.replace("index.php");
 
 let form_img = document.querySelector('#new_channel');
 form_img.addEventListener('submit', event =>{

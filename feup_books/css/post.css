@@ -1,5 +1,5 @@
 .post_preview{
-    min-width: 50em;
+    width: 50em;
     margin: 1em auto;
     background-color: white;
     border: 2px solid rgb(156, 162, 168);
@@ -41,6 +41,8 @@
 .post_preview p, .post_complete p{
     padding: 1em;
     margin: 0;
+    word-wrap: break-word;
+    overflow: hidden;
 }
   
 .post_preview img , .post_complete img{

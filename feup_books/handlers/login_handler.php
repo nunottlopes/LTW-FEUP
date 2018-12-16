@@ -10,6 +10,6 @@
     if($ret) {
         header("Location:" . $_SERVER['HTTP_REFERER']);
     } else {
-        echo "mal";
+        echo $error;
     }
 ?>

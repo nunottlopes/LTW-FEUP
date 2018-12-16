@@ -1,7 +1,7 @@
 <section id="account" class="page">
   <nav id="account_menu">
     <div id="image_name">
-      <img src="images/users/user.png" alt="">
+      <img id="account_menu_image" src="images/users/user.png" alt="">
       <h1 id="account_menu_username"></h1>
     </div>
     <ul>

@@ -1,6 +1,9 @@
 let user_dropdown = document.querySelector("#user-dropdown");
 
-document.querySelector("#profile_button").addEventListener('click', () => {
+if(auth.picturefile)
+    document.querySelector("#client_image").setAttribute('src', 'images/upload/thumbnail/'+auth.picturefile);
+
+    document.querySelector("#profile_button").addEventListener('click', () => {
     if(user_dropdown.style.display == "block") {
         user_dropdown.style.display = "none";
     }

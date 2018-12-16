@@ -6,8 +6,8 @@
     
     <div id="main_page_aside">
         <div id="aside_create_post" class="aside_div">
-            <a href="create_post.php"><button type="button">CREATE POST</button></a>
-            <a href="create_channel.php"><button type="button">CREATE CHANNEL</button></a>
+            <a onclick="createPostButton()"><button type="button">CREATE POST</button></a>
+            <a onclick="createChannelButton()"><button type="button">CREATE CHANNEL</button></a>
         </div>
 
         <div id="aside_channels" class="aside_div">
