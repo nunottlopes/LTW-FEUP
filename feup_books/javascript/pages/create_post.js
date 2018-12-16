@@ -112,7 +112,7 @@ form_img.addEventListener('submit', event =>{
                 storyType: 'image',
                 content: r.info.imagefile,
                 imageid: r.id
-            }).then(() => window.location.replace('index.php'))
+            }, [200]).then(() => window.location.replace('index.php'))
         );
     }
 });

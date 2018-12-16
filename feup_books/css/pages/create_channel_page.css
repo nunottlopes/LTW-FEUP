@@ -3,23 +3,23 @@
     grid-template-columns: 3fr 1fr;
 }
 
-.main_page_posts{
+.new_channel_page{
     background-color: white;
     margin: 1em;
 }
 
-.main_page_posts > h1{
+.new_channel_page > h1{
     margin: 0;
     padding: 1em 0 0.2em 0.3em;
     background-color: rgb(201, 209, 216);
     border-bottom: 2px solid black;
 }
 
-#new_channel_post form {
+#new_channel form {
     padding: 1em;
 }
 
-#new_channel_post form > input{
+#new_channel form > input{
     box-sizing: border-box;
     /* margin: 0.5em 1em; */
     padding: 0.5em;
@@ -27,7 +27,7 @@
     width: 100%;
 }
 
-#new_channel_post form > input[type="submit"] {
+#new_channel form > input[type="submit"] {
     float: right;
     width: 20%;
     padding: 0.3em 1.2em;
