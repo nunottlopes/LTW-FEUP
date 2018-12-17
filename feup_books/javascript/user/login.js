@@ -1,14 +1,12 @@
 function loginHandler(form, event) {
     event.preventDefault();
 
-    const errordiv = form.nextSibling;
+    const errordiv = form.nextElementSibling;
 
     const username = form.querySelector('[name=username]').value;
     const password = form.querySelector('[name=password]').value;
 
-    api.login(username, password)
-    .then(response => response.json())
-    .then(function(json) {
+    api.login(username, password).then(response => response.json()).then(function(json) {
         if (json.status === 202) {
             return window.location.reload(true);
         }

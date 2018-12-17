@@ -153,7 +153,7 @@ var api = {
      */
     "user": {
         "get": function(query, expect) {
-            return api.get('user', query, expect);
+            return api.get('user', query, expect || [201, 400]);
         },
         "post": function(data, expect) {
             return api.post('user', {}, data, expect);

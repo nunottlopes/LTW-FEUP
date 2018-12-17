@@ -25,8 +25,9 @@ document.querySelector(".viewprofile_user_dropdown").addEventListener("click", f
 });
 
 document.querySelector(".logout_user_dropdown").addEventListener("click", function(){
-    api.logout();
-    window.location.reload();
+    api.logout().then(function(response) {
+        window.location.reload(true);
+    });
 });
 
 window.onclick = function(event) {

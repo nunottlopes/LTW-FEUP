@@ -1,6 +1,6 @@
 <div class="default_dropdown page_dropdown">
     <header>Sort by</header>
-    <div id="dropdown_selection" selectionid="best">BEST</div>
+    <div id="dropdown_selection" selectionid="hot">HOT</div>
     <div class="triangle_down"></div>
     <div id="dropdown_options" class="default-dropdown-content">
         <div id="top">TOP</div>
