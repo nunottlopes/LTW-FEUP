@@ -209,7 +209,7 @@ function htmlStory(story) {
                     <span class="story-count" data-count="${count}">${count} Comments</span>
                 </button>
             </a>
-            <button id="save" class="post_button story-save" onclick="save(this, ${entityid})" data-save="${save}">
+            <button class="post_button story-save save" onclick="save(this, ${entityid})" data-save="${save}">
                 <i class="fa fa-bookmark"></i>
                 <span class="story-save">Save</span>
             </button>
@@ -276,12 +276,12 @@ function htmlComment(comment) {
             </header>
         </a>
         <p class="comment-content">${content}</p>
-        <div class="score-info comment-score" data-vote="${vote}" data-score="${score}">
-            <i class="fas fa-arrow-up" onclick="upvote(this, ${entityid})"></i>
-            <span class="score" data-score="${score}" data-score-up="${score+1}" data-score-down="${score-1}"></span>
-            <i class="fas fa-arrow-down" onclick="downvote(this, ${entityid})"></i>
-        </div>
         <div class="comment-buttons">
+            <div class="score-info comment-score" data-vote="${vote}" data-score="${score}">
+                <i class="fas fa-arrow-up comment_button" onclick="upvote(this, ${entityid})"></i>
+                <span class="score" data-score="${score}" data-score-up="${score+1}" data-score-down="${score-1}"></span>
+                <i class="fas fa-arrow-down comment_button" onclick="downvote(this, ${entityid})"></i>
+            </div>
             <button class="comment_button" onclick="reply(this, ${entityid})" data-authimg="${picturesrc}">
                 <i class="fa fa-comment"></i>
                 <span class="comment-reply">Reply</span>

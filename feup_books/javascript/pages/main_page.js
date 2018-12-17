@@ -225,7 +225,7 @@ function htmlStoryMainPage(story) {
                     <span class="story-count" data-count="${count}">${count} Comments</span>
                 </button>
             </a>
-            <button id="save" class="post_button story-save" onclick="save(this, ${entityid})" data-save="${save}">
+            <button class="post_button story-save save" onclick="save(this, ${entityid})" data-save="${save}">
                 <i class="fa fa-bookmark"></i>
                 <span class="story-save">Save</span>
             </button>

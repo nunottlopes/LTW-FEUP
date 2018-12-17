@@ -11,23 +11,9 @@
     border-color: rgb(64, 66, 68);
 }
 
-
-/* .post_preview header, .post_complete header{
-    margin: 1em;
-    font-weight: lighter;
-    color: rgb(134, 131, 131);
-    font-size: 15px;
-} */
-
-/* .post_preview footer, .post_complete footer{
-    padding: 0.6em 1em;
-    background-color: rgb(201, 209, 216);
-} */
-
 .post_preview h1, .post_complete h1{
     margin: 0;
     padding: 1em;
-    /* padding: 0em 0px 0.5em 1em; */
     border-bottom: 2px solid;
     border-color: inherit;
     font-size: 25px;
@@ -120,33 +106,34 @@
     border: 1px solid rgb(156, 162, 168);
 }
 
-#post_comments {
-    padding: 1em;
-}
-
 .post_comment {
+    margin: 1em;
     padding-bottom: 1em;
     padding-left: 1em;
     border-left: 1px solid rgb(124, 123, 123);
 }
 
-.post_comment > header{
+.post_comment .comment-buttons{
+    display: flex;
+}
+
+.post_comment .comment-buttons i{
+    padding: 0;
+}
+
+.post_comment header{
     font-size: 12px;
 }
 
-.post_comment > p{
+.post_comment p{
     margin: 0.5em 0;
 }
 
-.post_comment > .post_comment{
-    padding-bottom: 1em;
-    padding-top: 0.5em;
-    margin-left: 1em;
+.post_comment a {
+    text-decoration: none;
+    color: black;
 }
 
-/**
- * Lol
- */
 article.story-mainpage {
     display: grid;
     grid-template-areas: "channel channel"
@@ -248,4 +235,8 @@ div.score-info[data-vote="-"] i.fa-arrow-down {
 button.story-save[data-save="1"] {
     color: rgb(0, 0, 241);
     background-color: rgb(214, 105, 93);
+}
+
+button.comment-save[data-save="1"] {
+    color: rgb(0, 0, 241);
 }
