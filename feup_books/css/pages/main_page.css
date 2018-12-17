@@ -73,8 +73,13 @@
 }
 
 #aside_favorite_post p{
+    padding-left: 1em;
     margin: 0;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+}
+
+.post-timestamp{
+    color: rgb(133, 130, 130);
 }
