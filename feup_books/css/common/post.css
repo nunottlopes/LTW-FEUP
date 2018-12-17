@@ -206,6 +206,8 @@ article.story img.author-picture {
 
 article.story h2.story-title {
     margin: 0 0.5em;
+    display: inline-block;
+    word-break: break-word;
 }
 
 div.score-info span.score, div.score-info i {
