@@ -40,23 +40,21 @@
         </div>
     </div>
 
-    <script src="javascript/pages/create_post.js"></script>
-    <script src="javascript/tab.js" defer></script>
-    <script src="javascript/dropdown.js" defer></script>
+    <script src="javascript/pages/create_post_page.js"></script>
+    <script src="javascript/utils/tab.js" defer></script>
+    <script src="javascript/utils/dropdown.js" defer></script>
 
     <div id="post_page_aside">
         <div id="rules" class="aside_div">
-            <h1>Posting rules</h1>
+            <h1>Tinder Posting rules</h1>
             <ul>
-                <li>Regras</li>
-                <li>Why</li>
-                <li>Not</li>
-                <li>Regras</li>
+                <li>1. Be attractive</li>
+                <li>2. Don't be unattractive</li>
             </ul>
         </div>
 
         <div id="aside_footer" class="aside_div">
-            <?php include('templates/common/footer.php') ?>
+            <?php require_once __DIR__ . '/../common/footer.php' ?>
         </div>
 
     </div>

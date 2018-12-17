@@ -7,18 +7,19 @@ require_once __DIR__ . '/../../../api/api.php';
   <head>
     <title>Feup Book</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/overlay.css">
-    <link rel="stylesheet" href="css/dropdown.css">
-    <link rel="stylesheet" href="css/tab.css">
+    <link rel="stylesheet" href="css/common/style.css">
+    <link rel="stylesheet" href="css/common/overlay.css">
+    <link rel="stylesheet" href="css/common/dropdown.css">
+    <link rel="stylesheet" href="css/common/tab.css">
     <link rel="stylesheet" href="css/pages/main_page.css">
     <link rel="stylesheet" href="css/pages/channel_page.css">
     <link rel="stylesheet" href="css/pages/profile_page.css">
     <link rel="stylesheet" href="css/pages/post_page.css">
     <link rel="stylesheet" href="css/pages/create_post_page.css">
     <link rel="stylesheet" href="css/pages/create_channel_page.css">
-    <link rel="stylesheet" href="css/post.css">
-    <link rel="stylesheet" href="css/aside.css">
+    <link rel="stylesheet" href="css/common/post.css">
+    <link rel="stylesheet" href="css/common/aside.css">
+    <link rel="stylesheet" href="css/common/override.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.5.0/css/all.css' integrity='sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU' crossorigin='anonymous'>
@@ -27,8 +28,8 @@ require_once __DIR__ . '/../../../api/api.php';
       var FEUPBOOK_CSRF_TOKEN = "<?= $_SESSION['CSRFTOKEN'] ?>";
       var auth = <?= json_encode($auth) ?>;
     </script>
-    <script src="javascript/api-ajax.js" type="text/javascript"></script>
-    <script src="javascript/date.js" type="text/javascript"></script>
+    <script src="javascript/common/api-ajax.js" type="text/javascript"></script>
+    <script src="javascript/common/date.js" type="text/javascript"></script>
   </head>
 
   <body>
@@ -47,7 +48,7 @@ require_once __DIR__ . '/../../../api/api.php';
           </div>
         <?php include('templates/user/dropdown.php'); ?>
         </div>
-        <script src="javascript/user_header_loggedin.js"></script> 
+        <script src="javascript/common/user_header_loggedin.js"></script> 
 
       <?php } else {?>
 
@@ -55,7 +56,7 @@ require_once __DIR__ . '/../../../api/api.php';
         <?php include('templates/user/login.php') ?>
         <button id="sign_up_button" class="header_button" type="button">SIGN UP</button>
         <?php include('templates/user/register.php') ?>
-        <script src="javascript/user_header.js"></script> 
+        <script src="javascript/common/user_header.js"></script> 
 
     <?php }?>
     

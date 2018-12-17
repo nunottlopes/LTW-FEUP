@@ -115,6 +115,7 @@
 
 .post_comment .comment-buttons{
     display: flex;
+    align-items: center;
 }
 
 .post_comment .comment-buttons i{

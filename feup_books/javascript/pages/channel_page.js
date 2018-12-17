@@ -1,4 +1,3 @@
-let channel_id = document.querySelector("#channel_page").getAttribute("channel_id");
 let noMoreStories = false;
 
 let settings = {
@@ -81,11 +80,6 @@ window.onscroll = () => {
         settings.offset += settings.limit;
         getContent();
     }
-}
-
-function defaultPicture(userid) {
-    const i = (userid % 5) + 1;
-    return `user${i}.jpeg`;
 }
 
 function htmlStoryMainPage(story) {

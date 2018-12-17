@@ -12,5 +12,5 @@
         <div id="average">AVERAGE</div>
         <div id="hot">HOT</div>
     </div>
+    <script src="javascript/utils/dropdown.js" defer></script>
 </div>
-<script src="javascript/dropdown.js" defer></script>

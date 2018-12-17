@@ -1,6 +1,9 @@
+<?php
+$storyid = (int)$_GET['id'];
+?>
 <div id="view_post" class="page">
 
-    <div id="post_page_post" story-id="<?=$_GET['id']?>">
+    <div id="post_page_post">
 
         <article class="post_complete"></article>
 
@@ -34,12 +37,15 @@
         </div>
 
         <div id="aside_footer" class="aside_div">
-            <?php include('templates/common/footer.php') ?>
+            <?php require_once __DIR__ . '/../common/footer.php' ?>
         </div>
 
     </div>
 
+    <script type="text/javascript">
+        const storyid = <?= $storyid ?>;
+    </script>
     <script src="javascript/pages/post_page.js"></script>
-    <script src="javascript/post_buttons.js"></script>
+    <script src="javascript/common/post_buttons.js"></script>
 
 </div>

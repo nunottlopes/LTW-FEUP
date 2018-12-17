@@ -11,7 +11,7 @@
         </div>
     </div>
 
-    <script src="javascript/pages/create_channel.js"></script>
+    <script src="javascript/pages/create_channel_page.js"></script>
 
     <div id="post_page_aside">
         <div id="rules" class="aside_div">
@@ -23,7 +23,7 @@
         </div>
 
         <div id="aside_footer" class="aside_div">
-            <?php include('templates/common/footer.php') ?>
+            <?php require_once __DIR__ . '/../common/footer.php' ?>
         </div>
 
     </div>
