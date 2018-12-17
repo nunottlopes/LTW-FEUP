@@ -57,7 +57,7 @@ function loadPage(){
         for(let story in json.data){
           content += `<div class="profile_post" id="profile_post_${json.data[story].entityid}" onmouseover="showEditDeleteButton(${json.data[story].entityid})" onmouseout="hideEditDeleteButton(${json.data[story].entityid})">
             <a href="post.php?id=${json.data[story].entityid}"><h2>${json.data[story].storyTitle}</h2></a>
-            <div id="edit_delete_object_${json.data[story].entityid}">	
+            <div id="edit_delete_object_${json.data[story].entityid}">  
               <a onclick="editPost(${json.data[story].entityid})"><i class="fa fa-edit"></i></a>
               <a onclick="deletePost(${json.data[story].entityid})"><i class="fa fa-trash-o"></i></a>
             </div>
@@ -99,7 +99,7 @@ function loadPage(){
           let storyid = json.data[comment].storyid;
           content += `<div class="profile_post" id="profile_post_${json.data[comment].entityid}" onmouseover="showEditDeleteButton(${json.data[comment].entityid})" onmouseout="hideEditDeleteButton(${json.data[comment].entityid})">
             <a href="post.php?id=${storyid}#comment${json.data[comment].parentid}"><h4> ${json.data[comment].content} </h4></a>
-            <div id="edit_delete_object_${json.data[comment].entityid}">	
+            <div id="edit_delete_object_${json.data[comment].entityid}">    
               <a onclick="editComment(${json.data[comment].entityid})"><i class="fa fa-edit"></i></a>
               <a onclick="deleteComment(${json.data[comment].entityid})"><i class="fa fa-trash-o"></i></a>
             </div>
@@ -163,7 +163,7 @@ function loadPage(){
             content += `<div class="profile_post" id="profile_post_${json.data[saved].comment.entityid}" onmouseover="showEditDeleteButton(${json.data[saved].comment.entityid})" onmouseout="hideEditDeleteButton(${json.data[saved].comment.entityid})">`;
             content += `<a href="post.php?id=${json.data[saved].story.entityid}#comment${json.data[saved].comment.parentid}"><h3> ${json.data[saved].story.storyTitle} </h3></a>
               <h4> ${json.data[saved].comment.content} </h4>
-              <div id="edit_delete_object_${json.data[saved].comment.entityid}">	
+              <div id="edit_delete_object_${json.data[saved].comment.entityid}">    
                 <a onclick="deleteSave(${userid}, ${json.data[saved].comment.entityid})"><i class="fa fa-trash-o"></i></a>
               </div>
               <h5>Posted ${timeDifference(json.data[saved].comment.updatedat)}</h5>
@@ -172,7 +172,7 @@ function loadPage(){
           else{
             content += `<div class="profile_post" id="profile_post_${json.data[saved].story.entityid}" onmouseover="showEditDeleteButton(${json.data[saved].story.entityid})" onmouseout="hideEditDeleteButton(${json.data[saved].story.entityid})">`;
             content += `<a href="post.php?id=${json.data[saved].story.entityid}"><h2>${json.data[saved].story.storyTitle}</h2></a>
-              <div id="edit_delete_object_${json.data[saved].story.entityid}">	
+              <div id="edit_delete_object_${json.data[saved].story.entityid}">  
                 <a onclick="deleteSave(${userid}, ${json.data[saved].story.entityid})"><i class="fa fa-trash-o"></i></a>
               </div>
               <h5>Posted ${timeDifference(json.data[saved].story.updatedat)}</h5>

@@ -1,4 +1,4 @@
-<?php include('templates/common/sort_dropdown.php') ?>
+<?php require_once __DIR__ . '/../common/sort_dropdown.php' ?>
 
 <div id="main_page" class="page">
 
@@ -21,11 +21,11 @@
         </div>
 
         <div id="aside_footer" class="aside_div">
-            <?php include('templates/common/footer.php') ?>
+            <?php require_once __DIR__ . '/../common/footer.php' ?>
         </div>
 
     </div>
 
     <script src="javascript/pages/main_page.js"></script>
-    <script src="javascript/post_buttons.js"></script>
+    <script src="javascript/common/post_buttons.js"></script>
 </div>

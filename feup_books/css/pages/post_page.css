@@ -26,20 +26,21 @@
     max-width: 50em;
 }
 
-#add_comment img{
+#add_comment > img{
     margin: 1em;
     width: 40px;
     height: 40px;
 }
 
-#add_comment form{
+#add_comment > form{
     display: flex;
     flex-direction: row;
+    flex-grow: 1;
     margin: 1em 0;
 }
 
 #add_comment > form textarea{
-    width: 50em;
+    flex-grow: 1;
     resize:vertical;
 }
 
@@ -48,6 +49,8 @@
     margin-left: 2em;
     width: 10em;
     height: 2em;
+    padding: 0px;
+    border-radius: 5px;
 }
 
 #add_comment h3{

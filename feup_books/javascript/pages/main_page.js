@@ -49,12 +49,6 @@ function getStories(data) {
         main_page_posts.appendChild(htmlStoryMainPage(story));
     }
 
-    // if(auth != null){
-    //     for(let story in data){
-    //         updateButtons(auth.userid, data[story].entityid);
-    //     }
-    // }
-
     if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10) && (data.length != 0)) {
         settings.offset += settings.limit;
         getStoriesContent();
@@ -109,7 +103,7 @@ document.querySelectorAll(".dropdown_options > *").forEach(element => {
     });
 })
 
-window.onscroll = () => {
+window.onscroll = () => { // REPETIDA
     if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10) && (noMoreStories == false)) {
         settings.offset += settings.limit;
         getStoriesContent();
@@ -130,16 +124,6 @@ function createChannelButton(){
     else{
         openLogIn();
     }
-}
-
-function defaultBanner(channelid) {
-    const i = (channelid % 5) + 1;
-    return `banner${i}.jpeg`;
-}
-
-function defaultPicture(userid) {
-    const i = (userid % 5) + 1;
-    return `user${i}.jpeg`;
 }
 
 function htmlStoryMainPage(story) {

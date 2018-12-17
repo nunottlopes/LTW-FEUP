@@ -1,12 +1,11 @@
 let post_page_post = document.querySelector("#post_page_post");
-let storyid = post_page_post.getAttribute("story-id");
 let comments = document.querySelector("#post_comments");
 
 let settings = {
     sort: document.querySelector(".dropdown_selection").getAttribute("selectionid"),
     limit: 5,
     offset: 0,
-    maxdepth: 5
+    maxdepth: 15
 }
 
 getPageContent();
@@ -135,11 +134,6 @@ function updateAside(data) {
         "by " + data.creatorname;
     document.querySelector("#channel_info").style.backgroundImage = 
         `url('images/upload/small/${data.bannerfile}')`;
-}
-
-function defaultPicture(userid) {
-    const i = (userid % 5) + 1;
-    return `user${i}.jpeg`;
 }
 
 function htmlStory(story) {

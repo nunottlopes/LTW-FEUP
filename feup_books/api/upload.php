@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../api/api.php';
 require_once API::entity('image');
 
-function scale_height(int $width, int $height, int $destWidth) {
+function scale_height($width, $height, $destWidth) {
     if ($width <= $destWidth) return $height;
     else return $height * $destWidth / $width;
 }
@@ -17,7 +17,7 @@ if (!isset($_FILES['upload-file'])) {
 $fup = $_FILES['upload-file'];
 
 if (!isset($fup['name']) || !isset($fup['tmp_name'])) {
-    echo "Please choose a file";
+    echo "Please choose a file 2";
     goto end;
 }
 

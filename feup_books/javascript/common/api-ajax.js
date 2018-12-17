@@ -1,4 +1,4 @@
-function apiUnhandledDefaultHandler(response) {
+function apiUnhandled(response) {
     console.warn("API.FETCH UNHANDLED --- " + response.statusText);
     console.log(response); ++api.handlers.counter;
     api.handlers.unhandled.push(response);
@@ -8,6 +8,16 @@ function apiUnhandledDefaultHandler(response) {
     } else {
         response.text().then(text => console.log(text));
     }
+}
+
+function defaultBanner(channelid) { // REPETIDA
+    const i = (channelid % 5) + 1;
+    return `banner${i}.jpeg`;
+}
+
+function defaultPicture(userid) { // REPETIDA
+    const i = (userid % 5) + 1;
+    return `user${i}.jpeg`;
 }
 
 var api = {
@@ -23,19 +33,19 @@ var api = {
 
         unhandled: [],
 
-        other: apiUnhandledDefaultHandler,
-        200:   apiUnhandledDefaultHandler,
-        201:   apiUnhandledDefaultHandler,
-        202:   apiUnhandledDefaultHandler,
-        300:   apiUnhandledDefaultHandler,
-        400:   apiUnhandledDefaultHandler,
-        401:   apiUnhandledDefaultHandler,
-        403:   apiUnhandledDefaultHandler,
-        404:   apiUnhandledDefaultHandler,
-        405:   apiUnhandledDefaultHandler,
-        415:   apiUnhandledDefaultHandler,
-        500:   apiUnhandledDefaultHandler,
-        503:   apiUnhandledDefaultHandler
+        other: apiUnhandled,
+        200:   apiUnhandled,
+        201:   apiUnhandled,
+        202:   apiUnhandled,
+        300:   apiUnhandled,
+        400:   apiUnhandled,
+        401:   apiUnhandled,
+        403:   apiUnhandled,
+        404:   apiUnhandled,
+        405:   apiUnhandled,
+        415:   apiUnhandled,
+        500:   apiUnhandled,
+        503:   apiUnhandled
     },
 
     "base": function() {
@@ -44,7 +54,7 @@ var api = {
     },
 
     "resource": function(resource, query) {
-        const url = new URL('feup_books/api/public/' + resource + '.php', this.base());
+        const url = new URL('feup_books/api/' + resource + '.php', this.base());
         url.search = new URLSearchParams(query);
         return url;
     },
