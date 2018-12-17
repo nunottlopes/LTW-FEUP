@@ -28,7 +28,6 @@
 .post_preview p, .post_complete p{
     padding: 1em;
     margin: 0;
-    display: inline-block;
     word-break: break-word;
 }
   
