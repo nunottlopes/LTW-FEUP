@@ -142,10 +142,6 @@ function defaultPicture(userid) {
     return `user${i}.jpeg`;
 }
 
-function imagelink(folder, filename) {
-    return `/feup_books/images/upload/${folder}/${filename}`;
-}
-
 function htmlStory(story) {
     // story
     const entityid = story.entityid;
@@ -161,7 +157,7 @@ function htmlStory(story) {
     const picturefile = story.picturefile || defaultPicture(story.authorid);
     const authorlink = 'profile.php?id=' + authorid;
 
-    const picturesrc = imagelink('thumbnail', picturefile);
+    const picturesrc = api.imagelink('thumbnail', picturefile);
 
     // timestamp
     const createdat = story.createdat;
@@ -173,7 +169,7 @@ function htmlStory(story) {
     const title = story.storyTitle;
     const content = story.content;
     const imagefile = story.imagefile;
-    const imagesrc = imagelink('original', imagefile);
+    const imagesrc = api.imagelink('original', imagefile);
 
     // story-comments
     const count = story.count;
@@ -252,7 +248,7 @@ function htmlComment(comment) {
     const authorlink = 'profile.php?id=' + authorid;
     
     const authpic = (auth ? (auth.picturefile || defaultPicture(auth.authorid)) : null);
-    const picturesrc = imagelink('thumbnail', authpic);
+    const picturesrc = api.imagelink('thumbnail', authpic);
 
     // timestamp
     const createdat = comment.createdat;

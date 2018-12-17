@@ -5,7 +5,7 @@ class Entity extends APIEntity {
     /**
      * READ
      */
-    public static function read(int $id) {
+    public static function read($id) {
         $query = '
             SELECT * FROM Entity WHERE entityid = ?
             ';
@@ -28,7 +28,7 @@ class Entity extends APIEntity {
     /**
      * DELETE
      */
-    public static function delete(int $id) {
+    public static function delete($id) {
         $query = '
             DELETE FROM Entity WHERE entityid = ?
             ';
