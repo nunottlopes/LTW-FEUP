@@ -127,7 +127,7 @@ section#user-header img{
   justify-content: space-around;
   align-items: center;
   cursor: pointer;
-  margin-right: 1em; 
+  margin-right: 1em;
 }
 
 .header-shortcuts {
@@ -144,4 +144,9 @@ section#user-header img{
 
 .header-i:hover {
   color: black;
+}
+
+#client_name{
+  margin-left: 1em;
+  color: white;
 }

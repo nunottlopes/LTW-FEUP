@@ -21,10 +21,15 @@
 
 #new_channel form > input{
     box-sizing: border-box;
-    /* margin: 0.5em 1em; */
     padding: 0.5em;
     font-size: 1em;
     width: 100%;
+    margin-top: 1em;
+}
+
+#new_channel form > input[type="file"]{
+    margin: 1em 0;
+
 }
 
 #new_channel form > input[type="submit"] {

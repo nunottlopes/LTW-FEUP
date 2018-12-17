@@ -38,7 +38,6 @@ function save(that, entityid) {
     }
 
     let save = that.closest('button.save');
-    console.log(save);
 
     if(save.dataset.save == "1") {
         save.dataset.save = "0";

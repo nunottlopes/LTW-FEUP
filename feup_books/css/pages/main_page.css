@@ -2,6 +2,8 @@
     padding-top: 1em; 
     display: grid;
     grid-template-columns: 1fr auto;
+    word-wrap: break-word;
+    overflow: hidden;
 }
 
 #main_page_posts{

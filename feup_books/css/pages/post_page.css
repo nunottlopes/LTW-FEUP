@@ -6,6 +6,8 @@
 #post_page_post {
     margin: 1em 1em;
     background-color: white;
+    word-wrap: break-word;
+    overflow: hidden;
 }
 
 #post_page_post img {

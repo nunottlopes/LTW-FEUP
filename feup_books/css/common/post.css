@@ -28,8 +28,8 @@
 .post_preview p, .post_complete p{
     padding: 1em;
     margin: 0;
-    word-wrap: break-word;
-    overflow: hidden;
+    display: inline-block;
+    word-break: break-word;
 }
   
 .post_preview img , .post_complete img{
@@ -88,7 +88,6 @@
 }
 
 .comment_button:hover{
-    text-decoration: underline;
     cursor: pointer;
 }
 
@@ -129,6 +128,8 @@
 
 .post_comment p{
     margin: 0.5em 0;
+    word-wrap: break-word;
+    overflow: hidden;
 }
 
 .post_comment a {
@@ -175,7 +176,8 @@ article.story div.story-author {
 
 article.story div.story-post {
     grid-area: post;
-    margin-left: 1em; 
+    margin-left: 1em;
+    overflow: hidden;
 }
 
 article.story div.story-buttons {
