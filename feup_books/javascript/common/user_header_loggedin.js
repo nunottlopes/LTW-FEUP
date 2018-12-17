@@ -1,15 +1,16 @@
 let user_dropdown = document.querySelector("#user-dropdown");
 
-if(auth.picturefile)
-    document.querySelector("#client_image").setAttribute('src', 'images/upload/thumbnail/'+auth.picturefile);
+const picturefile = auth.picturefile || defaultPicture(auth.userid);
+const picturesrc = api.imagelink('thumbnail', picturefile);
+document.querySelector("#client_image").setAttribute('src', picturesrc);
 
-    document.querySelector("#profile_button").addEventListener('click', () => {
+document.querySelector("#profile_button").addEventListener('click', () => {
     if(user_dropdown.style.display == "block") {
         user_dropdown.style.display = "none";
     }
     else {
         user_dropdown.style.display = "block";
-    }
+}
 })
 
 document.querySelector(".createpost_user_dropdown").addEventListener("click", function(){
@@ -21,7 +22,7 @@ document.querySelector(".createchannel_user_dropdown").addEventListener("click",
 });
 
 document.querySelector(".viewprofile_user_dropdown").addEventListener("click", function(){
-    window.location.replace("profile.php");
+    window.location.replace("profile.php?id=" + auth.userid);
 });
 
 document.querySelector(".logout_user_dropdown").addEventListener("click", function(){

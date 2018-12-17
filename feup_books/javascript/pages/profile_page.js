@@ -1,18 +1,21 @@
 document.querySelector('body').style.height = '100%';
 let user;
 
-api.auth().then(response => {return response.json()}).then(json =>{
-  if(json.data == null || json.data == false){
+api.user.get({userid: userid}, [200, 404])
+.then(response => {
+  if(response.ok)
+    return response.json()
+  else {
     window.location.replace("index.php");
+    throw response;
   }
-  else{
-    user = json.data;
-    loadPage();
-  }
+})
+.then(json =>{
+  user = json.data;
+  loadPage();
 })
 
 function loadPage(){
-  let userid = user.userid;
   let divs = document.querySelectorAll("#account ul>*");
 
   for(let i = 0; i < divs.length; i++){
@@ -26,10 +29,12 @@ function loadPage(){
       });
   }
 
-  if(user.picturefile)
-    document.querySelector("#account_menu_image").setAttribute('src', 'images/upload/thumbnail/'+user.picturefile);
+  const picturefile = user.picturefile || defaultPicture(userid);
+  const picturesrc = api.imagelink('thumbnail', picturefile);
+
+  document.querySelector("#account_menu_image").setAttribute('src', picturesrc);
   
-    document.querySelector("#account_menu_username").textContent = user.username;
+  document.querySelector("#account_menu_username").textContent = user.username;
 
   var arrayContentDiv = [];
   var contentDiv = document.querySelector("#profile_content");
@@ -119,7 +124,7 @@ function loadPage(){
     <div class="profile_content_inside">`;
 
     if(json.data.length == 0){
-      content += `<h3>No channels created by you. <a href="create_channel.php">Create a new channel now</a>.</h3>`;
+      content += `<h3>No channels created!</h3>`;
     }
 
     for(let channel in json.data){
@@ -138,7 +143,7 @@ function loadPage(){
 
 
   /////////////// MY SAVED POSTS ///////////////
-
+  if(auth.userid == userid) {
   document.querySelector("#my_saved_posts").addEventListener("click", function(){
     api.save.get({userid:userid, all:""}).then(response => {
       if(response.ok){
@@ -184,7 +189,6 @@ function loadPage(){
         contentDiv.innerHTML = content;
     });
   });
-
 
   /////////////// EDIT PROFILE ///////////////
   document.querySelector("#edit_profile").addEventListener("click", function(){
@@ -256,8 +260,10 @@ function loadPage(){
       window.location.reload();
   });
 }
+}
 
 function showEditDeleteButton(entityid){
+  if(auth.userid == userid)
   document.querySelector("#edit_delete_object_"+entityid).style.display = "inline";
 }
 
@@ -266,8 +272,10 @@ function hideEditDeleteButton(entityid){
 }
 
 function deletePost(entityid){
-  document.querySelector(".profile_content_inside").removeChild(document.querySelector("#profile_post_"+entityid));
-  api.story.delete({storyid: entityid});
+  if(auth.userid == userid) {
+    document.querySelector(".profile_content_inside").removeChild(document.querySelector("#profile_post_"+entityid));
+    api.story.delete({storyid: entityid});
+  }
 }
 
 function editPost(entityid){
@@ -280,6 +288,7 @@ function deleteComment(entityid){
 }
 
 function editComment(entityid){
+  if(auth.userid != userid) return;
   let div = document.querySelector(".profile_content_inside");
   let child = document.querySelector("#profile_post_"+entityid);
   let content = child.querySelector("a > h4").textContent;
@@ -301,6 +310,7 @@ function editComment(entityid){
 }
 
 function deleteSave(userid, entityid){
+  if(auth.userid != userid) return;
   document.querySelector(".profile_content_inside").removeChild(document.querySelector("#profile_post_"+entityid));
   api.save.delete({userid:userid, entityid: entityid});
 }
