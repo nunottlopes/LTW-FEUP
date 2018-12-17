@@ -40,7 +40,7 @@
         </div>
     </div>
 
-    <script src="javascript/pages/create_post_page.js"></script>
+    <script src="javascript/pages/create_post_page.js" defer></script>
     <script src="javascript/utils/tab.js" defer></script>
     <script src="javascript/utils/dropdown.js" defer></script>
 

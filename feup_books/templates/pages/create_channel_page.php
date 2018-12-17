@@ -11,7 +11,7 @@
         </div>
     </div>
 
-    <script src="javascript/pages/create_channel_page.js"></script>
+    <script src="javascript/pages/create_channel_page.js" defer></script>
 
     <div id="create_page_aside">
         <div id="rules" class="aside_div">

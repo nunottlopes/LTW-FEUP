@@ -23,6 +23,6 @@ $channelid = (int)$_GET['id'];
     <script type="text/javascript">
         const channel_id = <?= $channelid ?>;
     </script>
-    <script src="javascript/pages/channel_page.js"></script>
-    <script src="javascript/common/post_buttons.js"></script>
+    <script src="javascript/pages/channel_page.js" defer></script>
+    <script src="javascript/common/post_buttons.js" defer></script>
 </div>

@@ -40,6 +40,6 @@ $userid = (int)$_GET['id'];
   <div class="profile_content" id="profile_content">
   </div>
 
-  <script src="javascript/pages/profile_page.js"></script>
+  <script src="javascript/pages/profile_page.js" defer></script>
 
 </section>
