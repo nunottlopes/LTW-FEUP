@@ -21,6 +21,17 @@
     text-align: center;
 }
 
+#channel_info h1{
+    display: inline-block;
+    word-break: break-word;
+}
+
+
+#channel_info p{
+    display: inline-block;
+    word-break: break-word;
+}
+
 #add_comment{
     padding-right: 1em;    
     display: flex;

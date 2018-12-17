@@ -86,14 +86,17 @@ body > section#account > nav > ul > a{
     padding: 60px;
     display: grid;
     grid-template-rows: auto 1fr;
+    overflow: hidden;
 }
 
 .profile_content h1{
-    font-size: 30px;
+    font-size: 35px;
     margin: 0.5em;
     margin-left: 0em;
     padding-bottom: 0.5em;
     border-bottom: 1px solid rgb(165, 165, 165);
+    display: inline-block;
+    word-break: break-word;
 }
 
 .profile_content_inside{
@@ -149,6 +152,8 @@ body > section#account > nav > ul > a{
 .profile_content_inside > h3 > a{
     text-decoration: none;
     color: black;
+    display: inline-block;
+    word-break: break-word;
 }
 .profile_content_inside > h3 > a:hover{
     text-decoration: underline;
@@ -163,13 +168,25 @@ body > section#account > nav > ul > a{
     text-decoration: none;
     color: black;
     margin-bottom: 0.5em;
+    display: inline-block;
+    word-break: break-word;
 }
 
+.profile_post h4:hover{
+    text-decoration: underline;
+    color: blue;
+    cursor: pointer;
+}
 
-.profile_post h5{
-    margin: 0.5em auto;
-    font-weight: lighter;
-    color: rgb(121, 119, 119);
+.profile_post h2{
+    display: inline-block;
+    word-break: break-word;
+    color: black;
+}
+
+.profile_post h2:hover{
+    text-decoration: underline;
+    color: blue;
 }
 
 .profile_post h5{
@@ -182,6 +199,7 @@ body > section#account > nav > ul > a{
     display: none;
     position: relative;
     float: right;
+    float: bottom;
 }
 
 .profile_post > div > a > i{
