@@ -12,7 +12,7 @@
 
         <div id="login-error"></div>
 
-        <script type="text/javascript" src="javascript/common/login.js"></script>
+        <script type="text/javascript" src="javascript/common/login.js" defer></script>
 
         <p>Don't have an account? <a onclick="closeLogIn(); openSignUp()">Sign up</a> now.</p>
       </div>

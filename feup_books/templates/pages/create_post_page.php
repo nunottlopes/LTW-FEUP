@@ -40,13 +40,13 @@
         </div>
     </div>
 
-    <script src="javascript/pages/create_post_page.js"></script>
+    <script src="javascript/pages/create_post_page.js" defer></script>
     <script src="javascript/utils/tab.js" defer></script>
     <script src="javascript/utils/dropdown.js" defer></script>
 
-    <div id="post_page_aside">
+    <div id="create_page_aside">
         <div id="rules" class="aside_div">
-            <h1>Tinder Posting rules</h1>
+            <h1>Posting rules</h1>
             <ul>
                 <li>1. Be attractive</li>
                 <li>2. Don't be unattractive</li>

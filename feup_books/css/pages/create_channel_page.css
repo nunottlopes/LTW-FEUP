@@ -45,3 +45,10 @@
     background-color: #A5483E;
     outline: none;
 }
+
+@media screen and (max-width:1050px) {
+    .new_channel_page {
+        width: 95vw;
+        height: 20em;
+    }
+}

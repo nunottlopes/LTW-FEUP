@@ -45,7 +45,7 @@ $storyid = (int)$_GET['id'];
     <script type="text/javascript">
         const storyid = <?= $storyid ?>;
     </script>
-    <script src="javascript/pages/post_page.js"></script>
-    <script src="javascript/common/post_buttons.js"></script>
+    <script src="javascript/pages/post_page.js" defer></script>
+    <script src="javascript/common/post_buttons.js" defer></script>
 
 </div>

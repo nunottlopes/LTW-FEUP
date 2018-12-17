@@ -56,7 +56,7 @@ function getStory(story){
 
     //Comment Form
     let add_comment_form = document.querySelector("#add_comment");
-    const picturefile = auth.picturefile || defaultPicture(auth.userid);
+    const picturefile = (auth ? (auth.picturefile || defaultPicture(auth.userid)) : null);
     const picturesrc = api.imagelink('thumbnail', picturefile);
     if(auth != null){
         add_comment_form.innerHTML += 

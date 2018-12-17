@@ -61,7 +61,7 @@ require_once __DIR__ . '/../../../api/api.php';
           </div>
         <?php include('templates/user/dropdown.php'); ?>
         </div>
-        <script src="javascript/common/user_header_loggedin.js"></script> 
+        <script src="javascript/common/user_header_loggedin.js" defer></script> 
 
       <?php } else {?>
 
@@ -69,7 +69,7 @@ require_once __DIR__ . '/../../../api/api.php';
         <?php include('templates/user/login.php') ?>
         <button id="sign_up_button" class="header_button" type="button">SIGN UP</button>
         <?php include('templates/user/register.php') ?>
-        <script src="javascript/common/user_header.js"></script> 
+        <script src="javascript/common/user_header.js" defer></script> 
 
     <?php }?>
     

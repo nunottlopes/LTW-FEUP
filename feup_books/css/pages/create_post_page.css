@@ -55,3 +55,13 @@
 .tabcontent form > input[type="submit"]:hover {
     cursor: pointer;
 }
+
+@media screen and (max-width:1050px) {
+    #create_page_aside {
+      display: none;
+    }
+
+    #create_post_main {
+        width: 95vw;
+    }
+}
