@@ -56,7 +56,7 @@ require_once __DIR__ . '/../../../api/api.php';
 
         <div class="dropdown">
           <div id="profile_button">
-            <img id="client_image" src="images/users/user.png" alt="User profile picture">
+            <img id="client_image" alt="User profile picture">
             <p id="client_name"><?= $auth['username'] ?></p>
           </div>
         <?php include('templates/user/dropdown.php'); ?>

@@ -56,13 +56,12 @@ function getStory(story){
 
     //Comment Form
     let add_comment_form = document.querySelector("#add_comment");
+    const picturefile = auth.picturefile || defaultPicture(auth.userid);
+    const picturesrc = api.imagelink('thumbnail', picturefile);
     if(auth != null){
-        if(auth.picturefile)
-            add_comment_form.innerHTML += `<img src="images/upload/thumbnail/${auth.picturefile}">`;
-        else
-            add_comment_form.innerHTML += `<img src="images/users/user.png">`;
-
-        add_comment_form.innerHTML += `<form action="handlers/add_comment_handler.php?parentid=${story.entityid}&authorid=${auth.userid}" method="post">
+        add_comment_form.innerHTML += 
+        `<img src="${picturesrc}">
+        <form action="handlers/add_comment_handler.php?parentid=${story.entityid}&authorid=${auth.userid}" method="post">
             <textarea name="content" placeholder="Add your comment here..."></textarea>
             <input type="submit" value="Add comment" class="submit_comment_button">
         </form>`;
@@ -241,7 +240,7 @@ function htmlComment(comment) {
     const authorname = comment.authorname;
     const authorlink = 'profile.php?id=' + authorid;
     
-    const authpic = (auth ? (auth.picturefile || defaultPicture(auth.authorid)) : null);
+    const authpic = (auth ? (auth.picturefile || defaultPicture(auth.userid)) : null);
     const picturesrc = api.imagelink('thumbnail', authpic);
 
     // timestamp

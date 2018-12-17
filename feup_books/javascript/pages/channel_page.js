@@ -7,7 +7,7 @@ let settings = {
     offset: 0
 }
 
-api.channel.get({channelid: channel_id})
+api.channel.get({channelid: channel_id}, [200, 404])
     .then(response => {
         if(response.ok) {
             return response.json();
