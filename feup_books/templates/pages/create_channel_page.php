@@ -13,7 +13,7 @@
 
     <script src="javascript/pages/create_channel_page.js"></script>
 
-    <div id="post_page_aside">
+    <div id="create_page_aside">
         <div id="rules" class="aside_div">
             <h1>Creating Channel Rules</h1>
             <ul>
