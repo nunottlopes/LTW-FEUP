@@ -158,6 +158,12 @@ var api = {
         "post": function(data, expect) {
             return api.post('user', {}, data, expect);
         },
+        "put": function(query, expect) {
+            return api.put('user', query, {}, expect);
+        },
+        "patch": function(query, data, expect) {
+            return api.patch('user', query, data, expect);
+        },
         "delete": function(query, expect) {
             return api.delete('user', query, expect);
         }

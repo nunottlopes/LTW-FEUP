@@ -23,19 +23,18 @@ require_once __DIR__ . '/../../../api/api.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.5.0/css/all.css' integrity='sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU' crossorigin='anonymous'>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <script src="javascript/api-ajax.js" type="text/javascript"></script>
-    <script src="javascript/date.js" type="text/javascript"></script>
     <script type="text/javascript">
       var FEUPBOOK_CSRF_TOKEN = "<?= $_SESSION['CSRFTOKEN'] ?>";
       var auth = <?= json_encode($auth) ?>;
     </script>
+    <script src="javascript/api-ajax.js" type="text/javascript"></script>
+    <script src="javascript/date.js" type="text/javascript"></script>
   </head>
 
   <body>
 
     <header>
     <a href="index.php"><img src="images/site/logo.png" class="logo_header"></a>
-    <input class="search_bar" type="text" placeholder="Search.." name="search"/>
     <section id="user-header">
 
     <?php 

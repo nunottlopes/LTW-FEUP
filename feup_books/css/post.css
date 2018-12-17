@@ -12,21 +12,22 @@
 }
 
 
-.post_preview header, .post_complete header{
+/* .post_preview header, .post_complete header{
     margin: 1em;
     font-weight: lighter;
     color: rgb(134, 131, 131);
     font-size: 15px;
-}
+} */
 
-.post_preview footer, .post_complete footer{
+/* .post_preview footer, .post_complete footer{
     padding: 0.6em 1em;
     background-color: rgb(201, 209, 216);
-}
+} */
 
 .post_preview h1, .post_complete h1{
     margin: 0;
-    padding: 0em 0px 0.5em 1em;
+    padding: 1em;
+    /* padding: 0em 0px 0.5em 1em; */
     border-bottom: 2px solid;
     border-color: inherit;
     font-size: 25px;
@@ -141,4 +142,110 @@
     padding-bottom: 1em;
     padding-top: 0.5em;
     margin-left: 1em;
+}
+
+/**
+ * Lol
+ */
+article.story-mainpage {
+    display: grid;
+    grid-template-areas: "channel channel"
+                         "score   author"
+                         "score   post"
+                         "footer  footer";
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto 1fr auto;
+}
+
+article.story-channelpage {
+    display: grid;
+    grid-template-areas: "score   author"
+                         "score   post"
+                         "footer  footer";
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto 1fr auto;
+}
+
+article.story div.story-channel {
+    padding-left: 1em;
+    grid-area: channel;
+    border-bottom: 1px solid black;
+}
+
+article.story div.story-score {
+    grid-area: score;
+    display: flex;
+    flex-direction: column;
+    padding: 1em;
+    border-right: 1px solid black;
+}
+
+article.story div.story-author {
+    grid-area: author;
+}
+
+article.story div.story-post {
+    grid-area: post;
+    margin-left: 1em; 
+}
+
+article.story div.story-buttons {
+    grid-area: footer;
+    padding: 1em 1em 0.5em 1em;
+}
+
+article.story img.channel-banner {
+    margin: 0.5em;
+    width: 2.5em;
+    height: 2.5em;
+    vertical-align: middle;
+    border-radius: 10%;
+    display: inline-block;
+}
+
+article.story img.author-picture {
+    margin: 0.5em;
+    margin-left: 1em; 
+    width: 2.5em;
+    height: 2.5em;
+    vertical-align: middle;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+article.story h2.story-title {
+    margin: 0 0.5em;
+}
+
+div.score-info span.score, div.score-info i {
+    text-align: center;
+}
+
+div.score-info i {
+    cursor: pointer;
+}
+
+div.score-info[data-vote="+"] span.score:before {
+    content: attr(data-score-up);
+}
+
+div.score-info[data-vote=""] span.score:before {
+    content: attr(data-score);
+}
+
+div.score-info[data-vote="-"] span.score:before {
+    content: attr(data-score-down);
+}
+
+div.score-info[data-vote="+"] i.fa-arrow-up {
+    color: blue;
+}
+
+div.score-info[data-vote="-"] i.fa-arrow-down {
+    color:blue;
+}
+
+button.story-save[data-save="1"] {
+    color: rgb(0, 0, 241);
+    background-color: rgb(214, 105, 93);
 }
