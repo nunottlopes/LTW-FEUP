@@ -49,6 +49,10 @@ var api = {
         return url;
     },
 
+    "imagelink": function(folder, filename) {
+        return new URL(`feup_books/images/upload/${folder}/${filename}`, this.base());
+    },
+
     "ajax": function(resource, query, userInit, userExpect) {
         const url = api.resource(resource, query);
         const expect = new Set(userExpect || api.settings.expect);
@@ -61,8 +65,6 @@ var api = {
 
         return window.fetch(url, init).then(function(response) {
             const status = response.status;
-
-            console.log(status, expect);
 
             if (expect.has(status)) {
                 return response;
