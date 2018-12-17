@@ -35,7 +35,6 @@ require_once __DIR__ . '/../../../api/api.php';
 
     <header>
     <a href="index.php"><img src="images/site/logo.png" class="logo_header"></a>
-    <input class="search_bar" type="text" placeholder="Search.." name="search"/>
     <section id="user-header">
 
     <?php 

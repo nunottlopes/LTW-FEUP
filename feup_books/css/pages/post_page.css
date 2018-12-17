@@ -20,6 +20,7 @@
 }
 
 #add_comment{
+    padding-right: 1em;    
     display: flex;
     flex-direction: row;
     max-width: 50em;

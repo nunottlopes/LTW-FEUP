@@ -1,10 +1,3 @@
-var storySettings = {
-    bannerwidth: 40,
-    bannerheight: 40,
-    picturewidth: 30,
-    pictureheight: 30
-};
-
 function defaultBanner(channelid) {
     const i = (channelid % 5) + 1;
     return `banner${i}.jpeg`;
@@ -89,20 +82,17 @@ function htmlStoryMainPage(story) {
         <div class="story-post">
             <h2 class="story-title"></h2>
         </div>
-        <div class="story-comments">
-            <a href="{link story}">
-                <button class="post_button">
-                    <i class="fa fa-comment"></i>
-                    <span class="story-count" data-count="${count}">${count} Comments</span>
-                </button>
-            </a>
-        </div>
-        <div class="story-save" data-save="${save}">
-            <button class="post_button" onclick="save(${entityid})">
-                <i class="fa fa-bookmark"></i>
-                <span class="story-save">Save</span>
+        <a href="${storylink}" class="story-comments">
+            <button class="post_button">
+                <i class="fa fa-comment"></i>
+                <span class="story-count" data-count="${count}">${count} Comments</span>
             </button>
-        </div>
+        </a>
+        <button class="post_button" onclick="save(${entityid})" class="story-save" data-save="${save}">
+            <i class="fa fa-bookmark"></i>
+            <span class="story-save">Save</span>
+        </button>
+
     </article>`;
 
     div.innerHTML = html;

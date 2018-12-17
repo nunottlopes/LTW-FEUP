@@ -1,6 +1,5 @@
 let main_page_posts = document.querySelector('#main_page_posts');
 let noMoreStories = false;
-let user;
 
 let settings = {
     sort: document.querySelector("#dropdown_selection").getAttribute("selectionid"),
@@ -8,13 +7,7 @@ let settings = {
     offset: 0
 }
 
-api.auth().then(response => {return response.json()}).then(json =>{
-    if(json.data == false)
-        user = null;
-    else
-        user = json.data;
-    getContent();
-})
+getContent();
 
 function getContent() {
     getStoriesContent();
@@ -22,62 +15,45 @@ function getContent() {
 }
 
 function getStoriesContent(){
-    api.story.get({all: 1, order: settings.sort, limit: settings.limit, offset: settings.offset}, [200])
-    .then(response => response.json())
-    .then(json => getStories(json.data));
+    if(!auth) {
+        api.story.get({all: 1,
+            order: settings.sort,
+            limit: settings.limit,
+            offset: settings.offset}, [200])
+        .then(response => response.json())
+        .then(json => getStories(json.data));
+    } else {
+        api.story.get({all: 1,
+            order: settings.sort,
+            limit: settings.limit,
+            offset: settings.offset,
+            voterid: auth.userid}, [200])
+        .then(response => response.json())
+        .then(json => getStories(json.data));
+    }
 }
 
 function getFavouritePostsContent(){
-    if(user != null){
-        api.save.get({userid:user.userid, limit:5, stories:""})
+    if(auth != null){
+        api.save.get({userid:auth.userid, limit:5, stories:""})
         .then(response => response.json())
         .then(json => favouritePosts(json.data)); 
     }
     else{
-        let aside_div = document.querySelector('#aside_favorite_post ul');
-        aside_div.innerHTML = '<p>Log in to see your favourite posts.</p>';
+        document.querySelector('#aside_favorite_post').style.display = "none";
     }
 }
 
 function getStories(data) {
     for(let story of data) {
-        /*
-        let a1 =
-        `<article class="post_preview">
-            <header>Posted by ${data[story].authorname} ${timeDifference(data[story].createdat)}</header>
-            <a href="post.php?id=${data[story].entityid}">
-            <h1>${data[story].storyTitle}</h1>`;
-        
-        let a2 = "";
-        switch(data[story].storyType) {
-            case "image":
-                a2 = `<img src="images/upload/medium/${data[story].imagefile}" alt="post image">`;
-                break;
-            case "text":
-                a2 = `<p>${data[story].content}</p>`;
-                break;
-            default:
-                break;
-        }
-    
-        let a3 = `</a>
-            <footer id=post_button_${data[story].entityid}>
-                <button class="post_button" onclick="upvote(${data[story].entityid})"><i class='fas fa-arrow-up'></i> ${data[story].upvotes} Upvotes</button>
-                <button class="post_button" onclick="downvote(${data[story].entityid})"><i class='fas fa-arrow-down'></i> ${data[story].downvotes} Downvotes</button>
-                <a href="post.php?id=${data[story].entityid}"><button class="post_button"><i class="fa fa-comment"></i> ${data[story].count} Comments</button></a>
-                <button class="post_button" id="save${data[story].entityid}" onclick="save(${data[story].entityid})"><i class="fa fa-bookmark"></i> Save</button>
-                <button class="post_button" onclick="share(${data[story].entityid})"><i class="fa fa-share-alt"></i> Share</button>
-            </footer>
-        </article>`;*/
-
-        main_page_posts.appendChild(htmlStoryMainPage(story)); // += a1 + a2 + a3;
+        main_page_posts.appendChild(htmlStoryMainPage(story));
     }
 
-    if(user != null){
-        for(let story in data){
-            updateButtons(user.userid, data[story].entityid);
-        }
-    }
+    // if(auth != null){
+    //     for(let story in data){
+    //         updateButtons(auth.userid, data[story].entityid);
+    //     }
+    // }
 
     if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10) && (data.length != 0)) {
         settings.offset += settings.limit;
@@ -141,7 +117,7 @@ window.onscroll = () => {
 }
 
 function createPostButton(){
-    if(user != null)
+    if(auth != null)
         window.location.replace("create_post.php");
     else{
         openLogIn();
@@ -149,29 +125,12 @@ function createPostButton(){
 }
 
 function createChannelButton(){
-    if(user != null)
+    if(auth != null)
         window.location.replace("create_channel.php");
     else{
         openLogIn();
     }
 }
-
-// function openLogIn(){
-//     document.querySelector("#login-popup").style.visibility = "visible";
-//     document.querySelector("#login-popup").style.opacity = 1;
-// }
-
-// function openSignUp(){
-//     document.querySelector("#register-popup").style.visibility = "visible";
-//     document.querySelector("#register-popup").style.opacity = 1;
-// }
-
-var storySettings = {
-    bannerwidth: 40,
-    bannerheight: 40,
-    picturewidth: 30,
-    pictureheight: 30
-};
 
 function defaultBanner(channelid) {
     const i = (channelid % 5) + 1;
@@ -241,9 +200,9 @@ function htmlStoryMainPage(story) {
             </a>
         </div>
         <div class="score-info story-score" data-vote="${vote}" data-score="${score}">
-            <i class="fas fa-arrow-up" onclick="upvote(${entityid})"></i>
+            <i class="fas fa-arrow-up" onclick="upvote(this, ${entityid})"></i>
             <span class="score" data-score="${score}" data-score-up="${score+1}" data-score-down="${score-1}"></span>
-            <i class="fas fa-arrow-down" onclick="downvote(${entityid})"></i>
+            <i class="fas fa-arrow-down" onclick="downvote(this, ${entityid})"></i>
         </div>
         <div class="author-info story-author" data-authorid="${authorid}">
             <a href="${authorlink}">
@@ -254,23 +213,23 @@ function htmlStoryMainPage(story) {
                 </span>
             </a>
         </div>
-        <div class="story-post">
-            <h2 class="story-title"></h2>
-        </div>
-        <div class="story-comments">
-            <a href="{link story}">
+        <a href=${storylink}>
+            <div class="story-post">
+                <h2 class="story-title"></h2>
+            </div>
+        </a>
+        <div class="story-buttons">
+            <a href="${storylink}" class="story-comments">
                 <button class="post_button">
                     <i class="fa fa-comment"></i>
                     <span class="story-count" data-count="${count}">${count} Comments</span>
                 </button>
             </a>
-        </div>
-        <div class="story-save" data-save="${save}">
-            <button class="post_button" onclick="save(${entityid})">
+            <button id="save" class="post_button story-save" onclick="save(this, ${entityid})" data-save="${save}">
                 <i class="fa fa-bookmark"></i>
                 <span class="story-save">Save</span>
             </button>
-        </div>
+        <div>
     </article>`;
 
     div.innerHTML = html;

@@ -1,88 +1,62 @@
-api.auth().then(response => {return response.json()}).then(json =>{
-    updateAuth(json.data);
-})
+function upvote(that, entityid) {
+    if(auth == null){
+        loginpopup();
+        return;
+    }
+    let score = that.closest('div.score-info');
 
-var auth = null;
-function updateAuth(authentication){
-    auth = authentication;
+    if(score.dataset.vote == "+") {
+        score.dataset.vote = "";
+        api.vote.delete({userid:auth.userid, entityid:entityid});
+    } else {
+        score.dataset.vote = "+";
+        api.vote.put({userid:auth.userid, entityid:entityid}, {vote: '+'});
+    }
 }
 
-function upvote(entityid) {
+function downvote(that, entityid) {
     if(auth == null){
         loginpopup();
         return;
     }
 
-    api.vote.get({userid:auth.userid, entityid:entityid}).then(response => {return response.json()}).then(json => {
-        if(json.data == false || json.data.vote == "-"){
-            api.vote.put({userid:auth.userid, entityid:entityid}, {vote: '+'});
-        }
-        else{
-            api.vote.delete({userid:auth.userid, entityid:entityid});
-        }
-        updateButtons(auth.userid,entityid);
-    })
+    let score = that.closest('div.score-info');
+
+    if(score.dataset.vote == "-") {
+        score.dataset.vote = "";
+        api.vote.delete({userid:auth.userid, entityid:entityid});
+    } else {
+        score.dataset.vote = "-";
+        api.vote.put({userid:auth.userid, entityid:entityid}, {vote: '-'});
+    }
 }
 
-function downvote(entityid) {
+function save(that, entityid) {
     if(auth == null){
         loginpopup();
         return;
     }
 
-    api.vote.get({userid:auth.userid, entityid:entityid}).then(response => {return response.json()}).then(json => {
-        if(json.data == false || json.data.vote == "+"){
-            api.vote.put({userid:auth.userid, entityid:entityid}, {vote: '-'});
-        }
-        else{
-            api.vote.delete({userid:auth.userid, entityid:entityid});
-        }
-        updateButtons(auth.userid,entityid);
-    })
-}
+    let save = that.closest('button.save');
 
-function share(storyid) {
-    console.log("share");
-    console.log(storyid);
-}
-
-function save(entityid) {
-    if(auth == null){
-        loginpopup();
-        return;
-    }
-
-    var save_button = document.querySelector("#save"+entityid);
-
-    //To check if it's a post or comment button
-    var footer = document.querySelector("#post_button_" + entityid);
-
-    if(save_button.classList.length == 1){
-        api.save.put({userid:auth.userid, entityid:entityid});
-        if(footer != null)
-            save_button.classList.add("post_button_selected");
-        else
-            save_button.classList.add("comment_button_selected");
-    }
-    else{
+    if(save.dataset.save == "1") {
+        save.dataset.save = "0";
         api.save.delete({userid:auth.userid, entityid:entityid});
-        if(footer != null)
-            save_button.classList.remove("post_button_selected");
-        else
-            save_button.classList.remove("comment_button_selected");
+    } else {
+        save.dataset.save = "1";   
+        api.save.put({userid:auth.userid, entityid:entityid});
     }
 }
 
-function reply(commentid) {
+function reply(that, commentid) {
     if(auth == null){
         loginpopup();
         return;
     }
-
-    var comment = document.querySelector("#comment"+commentid);
+    let comment = that.closest('article.comment');
     var add_comment_element = document.createElement("div");
     add_comment_element.setAttribute("id", "add_comment");
-    add_comment_element.innerHTML = `<img src="images/users/user.png">
+    add_comment_element.innerHTML = `<img src="${that.dataset.authimg}">
          <form action="handlers/add_comment_handler.php?parentid=${commentid}&authorid=${auth.userid}" method="post">
              <textarea name="content" placeholder="Add your comment here..."></textarea>
              <input type="submit" value="Add comment" class="submit_comment_button">
@@ -104,84 +78,4 @@ function loginpopup(){
 function signuppopup(){
     document.querySelector("#register-popup").style.visibility = "visible";
     document.querySelector("#register-popup").style.opacity = 1;
-}
-
-function updateButtons(userid, entityid){
-    updatePostButtons(userid, entityid);
-    updateCommentButtons(userid, entityid);
-}
-
-function updatePostButtons(userid, entityid){
-    var footer = document.querySelector("#post_button_" + entityid);
-
-    if(footer != null){
-        api.story.get({voterid:userid, storyid:entityid}).then(response => {return response.json()}).then(json => {
-            footer.innerHTML = "";
-            var upvotes = json.data.upvotes;
-            var downvotes = json.data.downvotes;
-            
-            if(json.data.vote){
-                if(json.data.vote == "+"){
-                    footer.innerHTML += `<button id="upvote${entityid}" class="post_button post_button_selected" onclick="upvote(${entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
-                    footer.innerHTML += `<button id="downvote${entityid}" class="post_button" onclick="downvote(${entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
-                }
-                else{
-                    footer.innerHTML += `<button id="upvote${entityid}" class="post_button" onclick="upvote(${entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
-                    footer.innerHTML += `<button id="downvote${entityid}" class="post_button post_button_selected" onclick="downvote(${entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
-                }
-            }
-            else{
-                footer.innerHTML += `<button id="upvote${entityid}" class="post_button" onclick="upvote(${entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
-                footer.innerHTML += `<button id="downvote${entityid}" class="post_button" onclick="downvote(${entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
-            }
-
-            footer.innerHTML += `<a href="post.php?id=${entityid}"><button class="post_button"><i class="fa fa-comment"></i> ${json.data.count} Comments</button></a>`;
-
-            if(json.data.save){
-                footer.innerHTML += `<button id="save${entityid}" class="post_button post_button_selected" onclick="save(${entityid})"><i class="fa fa-bookmark"></i> Save</button>`;
-            }
-            else{
-                footer.innerHTML += `<button id="save${entityid}" class="post_button" onclick="save(${entityid})"><i class="fa fa-bookmark"></i> Save</button>`;
-            }
-
-            footer.innerHTML += `<button class="post_button" onclick="share(${entityid})"><i class="fa fa-share-alt"></i> Share</button>`;
-            
-        })
-    }
-}
-
-function updateCommentButtons(userid, entityid){
-    var footer = document.querySelector("#comment_button_" + entityid);
-
-    if(footer != null){
-        api.comment.get({voterid:userid, commentid:entityid}).then(response => {return response.json()}).then(json => {
-            footer.innerHTML = "";
-            var upvotes = json.data.upvotes;
-            var downvotes = json.data.downvotes;
-            
-            if(json.data.vote){
-                if(json.data.vote == "+"){
-                    footer.innerHTML += `<button id="upvote${entityid}" class="comment_button comment_button_selected" onclick="upvote(${entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
-                    footer.innerHTML += `<button id="downvote${entityid}" class="comment_button" onclick="downvote(${entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
-                }
-                else{
-                    footer.innerHTML += `<button id="upvote${entityid}" class="comment_button" onclick="upvote(${entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
-                    footer.innerHTML += `<button id="downvote${entityid}" class="comment_button comment_button_selected" onclick="downvote(${entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
-                }
-            }
-            else{
-                footer.innerHTML += `<button id="upvote${entityid}" class="comment_button" onclick="upvote(${entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
-                footer.innerHTML += `<button id="downvote${entityid}" class="comment_button" onclick="downvote(${entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
-            }
-
-            footer.innerHTML += `<button class="comment_button" onclick="reply(${entityid})"><i class="fa fa-comment"></i> Reply</button>`;
-
-            if(json.data.save){
-                footer.innerHTML += `<button id="save${entityid}" class="comment_button comment_button_selected" onclick="save(${entityid})"><i class="fa fa-bookmark"></i> Save</button>`;
-            }
-            else{
-                footer.innerHTML += `<button id="save${entityid}" class="comment_button" onclick="save(${entityid})"><i class="fa fa-bookmark"></i> Save</button>`;
-            }
-        })
-    }
 }
