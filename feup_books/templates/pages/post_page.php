@@ -6,11 +6,11 @@
 
         <div id="add_comment"></div>
 
-        <div class="default_dropdown">
+        <div class="default_dropdown selectable-dropdown">
             <header>Sort by</header>
-            <div id="dropdown_selection" selectionid="best">BEST</div>
+            <div class="dropdown_selection" selectionid="best">BEST</div>
             <div class="triangle_down"></div>
-            <div id="dropdown_options" class="default-dropdown-content">
+            <div class="dropdown_options default-dropdown-content">
                 <div id="top">TOP</div>
                 <div id="bot">BOT</div>
                 <div id="new">NEW</div>

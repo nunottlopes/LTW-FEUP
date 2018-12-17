@@ -37,6 +37,7 @@
     margin: 1em auto 1em auto;
     max-width: 40em;
     height: auto;
+    box-sizing: border-box;
 }
 
 .post_complete img{
@@ -239,4 +240,15 @@ button.story-save[data-save="1"] {
 
 button.comment-save[data-save="1"] {
     color: rgb(0, 0, 241);
+}
+
+@media screen and (max-width:1050px) {
+    .post_preview, .post_complete {
+        width: 90vw;
+        overflow: auto;
+    }
+
+    .post_preview img, .post_complete img {
+        margin: 1em auto 1em auto;
+    }
 }

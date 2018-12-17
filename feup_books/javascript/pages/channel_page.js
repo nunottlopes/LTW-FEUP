@@ -2,7 +2,7 @@ let channel_id = document.querySelector("#channel_page").getAttribute("channel_i
 let noMoreStories = false;
 
 let settings = {
-    sort: document.querySelector("#dropdown_selection").getAttribute("selectionid"),
+    sort: document.querySelector(".dropdown_selection").getAttribute("selectionid"),
     limit: 5,
     offset: 0
 }
@@ -67,7 +67,7 @@ function updateAside(data) {
     `url('images/upload/small/${data.bannerfile}')`;
 }
 
-document.querySelectorAll("#dropdown_options > *").forEach(element => {
+document.querySelectorAll(".dropdown_options > *").forEach(element => {
     element.addEventListener('click', () => {
         channel_page_posts.innerHTML = "";
         settings.offset = 0;

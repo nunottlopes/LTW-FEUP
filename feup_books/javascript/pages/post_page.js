@@ -3,7 +3,7 @@ let storyid = post_page_post.getAttribute("story-id");
 let comments = document.querySelector("#post_comments");
 
 let settings = {
-    sort: document.querySelector("#dropdown_selection").getAttribute("selectionid"),
+    sort: document.querySelector(".dropdown_selection").getAttribute("selectionid"),
     limit: 5,
     offset: 0,
     maxdepth: 5
@@ -113,7 +113,7 @@ function getCommentsFromTree(data){
     return total;
 }
 
-document.querySelectorAll("#dropdown_options > *").forEach(element => {
+document.querySelectorAll(".dropdown_options > *").forEach(element => {
     element.addEventListener('click', () => {
         comments.innerHTML = "";
         settings.offset = 0;

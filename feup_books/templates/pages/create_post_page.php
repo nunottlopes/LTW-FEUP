@@ -2,11 +2,11 @@
 
     <div id="create_post_main">
         <h1>Create a Post</h1>
-        <div class="default_dropdown" id="channel_select">
+        <div class="default_dropdown selectable-dropdown" id="channel_select">
             <header>Channel</header>
-            <div id="dropdown_selection">Select a Channel</div>
+            <div class="dropdown_selection">Select a Channel</div>
             <div class="triangle_down"></div>
-            <div id="dropdown_options" class="default-dropdown-content">
+            <div class="dropdown_options default-dropdown-content">
             </div>
         </div>
 

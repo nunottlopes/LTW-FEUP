@@ -37,6 +37,19 @@ require_once __DIR__ . '/../../../api/api.php';
     <a href="index.php"><img src="images/site/logo.png" class="logo_header"></a>
     <section id="user-header">
 
+    <div class="default_dropdown header-dropdown">
+      <div class="dropdown_selection">Channels</div>
+      <div class="triangle_down"></div>
+      <div class="dropdown_options default-dropdown-content"></div>
+    </div>
+
+    <div class="header-shortcuts">
+      <a class="header-i" onclick="createPostButton()"><i class="fa fa-sticky-note-o"></i></a>
+      <a class="header-i" onclick="createChannelButton()"><i class="fa fa-television"></i></a>
+    </div>
+
+    <script src="javascript/header.js" type="text/javascript" defer></script>
+
     <?php 
       if($auth) {?>
 

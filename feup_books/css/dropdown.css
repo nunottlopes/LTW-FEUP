@@ -71,7 +71,7 @@
     padding-right: 5px; 
 }
 
-#dropdown_selection{
+.dropdown_selection{
     font-size: 15px;
     font-weight: 1000;
     line-height: 12px;
@@ -87,4 +87,30 @@
     margin-top: 3em; 
     border-color: black;
     max-height: 1em;
+}
+
+.triangle_down{
+    width: 0; 
+    height: 0; 
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #A5483E;
+    margin: auto 0;
+    cursor: pointer;
+  }
+
+.header-dropdown {
+    border: none;
+    color: white;
+    margin: auto 0.5em;
+    border-top-color: white;
+}
+
+.header-dropdown:hover{
+    color: black;
+    border-top-color: black;
+}
+
+.header-dropdown .triangle_down {
+    border-top-color: inherit;
 }

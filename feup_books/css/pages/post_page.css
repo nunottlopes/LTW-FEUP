@@ -84,3 +84,26 @@
     border-color: rgb(0, 0, 0);
     cursor: pointer;
 }
+
+@media screen and (max-width:1050px) {
+    #view_post {
+        grid-template-areas: "info info"
+                            "post aside";
+        grid-template-rows: auto 1fr;
+    }
+
+    #post_page_post {
+        width: 90vw;
+        overflow: auto;
+    }
+
+    #post_page_aside {
+        padding-left: 1em; 
+        grid-area: info;
+        width:100%;
+    }
+
+    #post_page_aside #aside_footer{
+        display: none;
+    }
+}

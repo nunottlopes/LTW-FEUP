@@ -1,8 +1,8 @@
-<div class="default_dropdown page_dropdown">
+<div class="default_dropdown page_dropdown selectable-dropdown">
     <header>Sort by</header>
-    <div id="dropdown_selection" selectionid="hot">HOT</div>
+    <div class="dropdown_selection" selectionid="hot">HOT</div>
     <div class="triangle_down"></div>
-    <div id="dropdown_options" class="default-dropdown-content">
+    <div class="dropdown_options default-dropdown-content">
         <div id="top">TOP</div>
         <div id="bot">BOT</div>
         <div id="new">NEW</div>

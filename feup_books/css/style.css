@@ -130,12 +130,18 @@ section#user-header img{
   margin-right: 1em; 
 }
 
-.triangle_down{
-  width: 0; 
-  height: 0; 
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 6px solid #A5483E;
-  margin: auto 0;
+.header-shortcuts {
+  margin-right: 1em;
+  border-right: 1px solid black;
+  border-left: 1px solid black;
+}
+
+.header-i {
+  color: white;
+  margin: auto 0.5em;
   cursor: pointer;
+}
+
+.header-i:hover {
+  color: black;
 }

@@ -2,7 +2,7 @@ let main_page_posts = document.querySelector('#main_page_posts');
 let noMoreStories = false;
 
 let settings = {
-    sort: document.querySelector("#dropdown_selection").getAttribute("selectionid"),
+    sort: document.querySelector(".dropdown_selection").getAttribute("selectionid"),
     limit: 5,
     offset: 0
 }
@@ -100,7 +100,7 @@ function getChannels(data) {
 }
 
 
-document.querySelectorAll("#dropdown_options > *").forEach(element => {
+document.querySelectorAll(".dropdown_options > *").forEach(element => {
     element.addEventListener('click', () => {
         main_page_posts.innerHTML = "";
         settings.offset = 0;

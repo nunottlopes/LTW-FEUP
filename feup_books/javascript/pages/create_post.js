@@ -1,13 +1,13 @@
-let dropdown_options = document.querySelector("#dropdown_options");
-let dropdown_selection = document.querySelector("#dropdown_selection");
+let dropdown_options = document.querySelector(".selectable-dropdown .dropdown_options");
+let dropdown_selection = document.querySelector(".selectable-dropdown .dropdown_selection");
 
 if(auth == null)
     window.location.replace("index.php");
 
-let channels = api.channel.get('all', [200])
+let allchannels = api.channel.get('all', [200])
 .then(response => response.json())
-.then(channels => {
-    channels.data.forEach(channel => {
+.then(allchannels => {
+    allchannels.data.forEach(channel => {
         let div = document.createElement('div');
         div.setAttribute('id', channel.channelid);
         div.textContent = channel.channelname.toUpperCase();

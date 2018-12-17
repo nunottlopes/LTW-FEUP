@@ -7,3 +7,21 @@
 #channel_page_posts{
     margin: 0 1em;
 }
+
+@media screen and (max-width:1050px) {
+    #channel_page {
+        grid-template-areas: "info info"
+                            "posts aside";
+        grid-template-rows: auto 1fr;
+    }
+
+    #channel_page_aside {
+        padding-left: 1em; 
+        grid-area: info;
+        width:100%;
+    }
+
+    #channel_page_aside #aside_footer{
+        display: none;
+    }
+}

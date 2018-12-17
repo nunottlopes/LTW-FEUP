@@ -1,5 +1,5 @@
-let dropdown = document.querySelector("#dropdown_options");
-let selection = document.querySelector("#dropdown_selection");
+let dropdown = document.querySelector(".selectable-dropdown .dropdown_options");
+let selection = document.querySelector(".selectable-dropdown .dropdown_selection");
 
 selection.addEventListener('click', () => {
     if(dropdown.style.display == "block") {
@@ -10,7 +10,7 @@ selection.addEventListener('click', () => {
     }
 })
 
-document.querySelector(".triangle_down").addEventListener('click', () => {
+document.querySelector(".selectable-dropdown .triangle_down").addEventListener('click', () => {
     if(dropdown.style.display == "block") {
         dropdown.style.display = "none";
     }
@@ -32,8 +32,8 @@ function bindDropdownOptions() {
 // Close the dropdown if the user clicks outside of it
 window.onclick = function(event) {
     if (!event.target.matches('.triangle_down') &&
-        !event.target.matches('#dropdown_selection') &&
-        !event.target.matches('#dropdown_options')) {
+        !event.target.matches('.dropdown_selection') &&
+        !event.target.matches('.dropdown_options')) {
         dropdown.style.display = "none";
     }
 }
