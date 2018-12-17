@@ -7,7 +7,7 @@
 
     $ret = Auth::login($username, $password, $error);
 
-    if($ret) {
+    if ($ret) {
         header("Location:" . $_SERVER['HTTP_REFERER']);
     } else {
         echo $error;

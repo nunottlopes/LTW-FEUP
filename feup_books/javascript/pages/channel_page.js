@@ -1,8 +1,7 @@
-let channel_id = document.querySelector("#channel_page").getAttribute("channel_id");
 let noMoreStories = false;
 
 let settings = {
-    sort: document.querySelector("#dropdown_selection").getAttribute("selectionid"),
+    sort: document.querySelector(".dropdown_selection").getAttribute("selectionid"),
     limit: 5,
     offset: 0
 }
@@ -21,59 +20,30 @@ api.channel.get({channelid: channel_id})
 });
 
 function getContent() {
-    api.story.get({channelid: channel_id, order: settings.sort, limit: settings.limit, offset: settings.offset})
-    .then(response => response.json())
-    .then(json => getStories(json.data))
+    if(!auth) {
+        api.story.get({channelid: channel_id,
+            order: settings.sort,
+            limit: settings.limit,
+            offset: settings.offset})
+        .then(response => response.json())
+        .then(json => getStories(json.data))
+    } else {
+        api.story.get({channelid: channel_id,
+            order: settings.sort,
+            limit: settings.limit,
+            offset: settings.offset,
+            voterid: auth.userid})
+        .then(response => response.json())
+        .then(json => getStories(json.data))
+    }
 }
 
 function getStories(data) {
-    nposts = data.length;
 
     let channel_page_posts = document.querySelector('#channel_page_posts');
 
-    if(nposts == 0){
-        channel_page_posts.innerHTML = `<article class="post_preview">
-        <h1>No posts available for this channel.</h1>
-        </article>`;
-    }
-
-    for(let story in data) {
-
-        let a1 =
-        `<article class="post_preview">
-            <header>Posted by ${data[story].authorname} ${timeDifference(data[story].createdat)}</header>
-            <a href="post.php?id=${data[story].entityid}">
-            <h1>${data[story].storyTitle}</h1>`;
-        
-        let a2 = "";
-        switch(data[story].storyType) {
-            case "image":
-                a2 = `<img src="images/upload/medium/${data[story].imagefile}" alt="post image">`;
-                break;
-            case "text":
-                a2 = `<p>${data[story].content}</p>`;
-                break;
-            default:
-                break;
-        }
-        
-        let a3 = `</a>
-            <footer id=post_button_${data[story].entityid}>
-                <button class="post_button" onclick="upvote(${data[story].entityid})"><i class='fas fa-arrow-up'></i> ${data[story].upvotes} Upvotes</button>
-                <button class="post_button" onclick="downvote(${data[story].entityid})"><i class='fas fa-arrow-down'></i> ${data[story].downvotes} Downvotes</button>
-                <a href="post.php?id=${data[story].entityid}"><button class="post_button"><i class="fa fa-comment"></i> ${data[story].count} Comments</button></a>
-                <button class="post_button" id="save${data[story].entityid}" onclick="save(${data[story].entityid})"><i class="fa fa-bookmark"></i> Save</button>
-                <button class="post_button" onclick="share(${data[story].entityid})"><i class="fa fa-share-alt"></i> Share</button>
-            </footer>
-        </article>`;
-
-        channel_page_posts.innerHTML += a1 + a2 + a3;
-    }
-
-    if(auth != null){
-        for(let story in data){
-            updateButtons(auth.userid, data[story].entityid);
-        }
+    for(let story of data) {
+        channel_page_posts.appendChild(htmlStoryMainPage(story));
     }
 
     if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10) && (data.length != 0)) {
@@ -96,7 +66,7 @@ function updateAside(data) {
     `url('images/upload/small/${data.bannerfile}')`;
 }
 
-document.querySelectorAll("#dropdown_options > *").forEach(element => {
+document.querySelectorAll(".dropdown_options > *").forEach(element => {
     element.addEventListener('click', () => {
         channel_page_posts.innerHTML = "";
         settings.offset = 0;
@@ -110,4 +80,97 @@ window.onscroll = () => {
         settings.offset += settings.limit;
         getContent();
     }
+}
+
+function htmlStoryMainPage(story) {
+    // story
+    const entityid = story.entityid;
+    const storylink = 'post.php?id=' + entityid;
+    
+    // score-info
+    const vote = story.vote || "";
+    const score = vote ? (vote === '+' ? story.score - 1 : story.score + 1) : story.score;
+    
+    // author-info
+    const authorid = story.authorid;
+    const authorname = story.authorname;
+    const picturefile = story.picturefile || defaultPicture(story.authorid);
+    const authorlink = 'profile.php?id=' + authorid;
+
+    const picturesrc = api.imagelink('thumbnail', picturefile);
+
+    // timestamp
+    const createdat = story.createdat;
+    const updatedat = story.updatedat;
+    const timestamp = timeDifference(createdat);
+
+    // story-post 
+    const type = story.storyType;
+    const title = story.storyTitle;
+    const content = story.content;
+    const imagefile = story.imagefile;
+    const imagesrc = api.imagelink('original', imagefile);
+
+    // story-comments
+    const count = story.count;
+
+    // story-save
+    const save = story.save ? 1 : 0;
+
+    const div = document.createElement('div');
+
+    // Main HTML
+    const html = `<article id="story${entityid}" class="story story-channelpage post_preview" data-entityid="${entityid}">
+        <div class="score-info story-score" data-vote="${vote}" data-score="${score}">
+            <i class="fas fa-arrow-up" onclick="upvote(this, ${entityid})"></i>
+            <span class="score" data-score="${score}" data-score-up="${score+1}" data-score-down="${score-1}"></span>
+            <i class="fas fa-arrow-down" onclick="downvote(this, ${entityid})"></i>
+        </div>
+        <div class="author-info story-author" data-authorid="${authorid}">
+            <a href="${authorlink}">
+                <img class="varimg author-picture" src="${picturesrc}" data-picturefile="${picturefile}"/>
+                <span>
+                    <span class="authorname" data-authorname="${authorname}">${authorname}</span>
+                    <span class="timestamp post-timestamp" data-createdat="${createdat}" data-updatedat="${updatedat}">${timestamp}</span>
+                </span>
+            </a>
+        </div>
+        <a href=${storylink}>
+            <div class="story-post">
+                <h2 class="story-title"></h2>
+            </div>
+        </a>
+        <div class="story-buttons">
+            <a href="${storylink}" class="story-comments">
+                <button class="post_button">
+                    <i class="fa fa-comment"></i>
+                    <span class="story-count" data-count="${count}">${count} Comments</span>
+                </button>
+            </a>
+            <button class="post_button story-save save" onclick="save(this, ${entityid})" data-save="${save}">
+                <i class="fa fa-bookmark"></i>
+                <span class="story-save">Save</span>
+            </button>
+        <div>
+    </article>`;
+
+    div.innerHTML = html;
+
+    div.querySelector('div.story-post h2.story-title').textContent = title;
+
+    switch (type) {
+    case 'text':
+        div.querySelector('div.story-post').insertAdjacentHTML('beforeend',
+            '<p class="story-content"></p>'
+        );
+        div.querySelector('div.story-post p.story-content').textContent = content;
+        break;
+    case 'image':
+        div.querySelector('div.story-post').insertAdjacentHTML('beforeend',
+            `<img class="story-image" src="${imagesrc}" data-imagefile="${imagefile}"/>`
+        );
+        break;
+    }
+
+    return div.firstChild;
 }

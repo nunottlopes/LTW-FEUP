@@ -20,25 +20,27 @@
 }
 
 #add_comment{
+    padding-right: 1em;    
     display: flex;
     flex-direction: row;
     max-width: 50em;
 }
 
-#add_comment img{
+#add_comment > img{
     margin: 1em;
     width: 40px;
     height: 40px;
 }
 
-#add_comment form{
+#add_comment > form{
     display: flex;
     flex-direction: row;
+    flex-grow: 1;
     margin: 1em 0;
 }
 
 #add_comment > form textarea{
-    width: 50em;
+    flex-grow: 1;
     resize:vertical;
 }
 
@@ -47,6 +49,8 @@
     margin-left: 2em;
     width: 10em;
     height: 2em;
+    padding: 0px;
+    border-radius: 5px;
 }
 
 #add_comment h3{
@@ -82,4 +86,27 @@
 .submit_comment_button:hover{
     border-color: rgb(0, 0, 0);
     cursor: pointer;
+}
+
+@media screen and (max-width:1050px) {
+    #view_post {
+        grid-template-areas: "info info"
+                            "post aside";
+        grid-template-rows: auto 1fr;
+    }
+
+    #post_page_post {
+        width: 90vw;
+        overflow: auto;
+    }
+
+    #post_page_aside {
+        padding-left: 1em; 
+        grid-area: info;
+        width:100%;
+    }
+
+    #post_page_aside #aside_footer{
+        display: none;
+    }
 }

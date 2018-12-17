@@ -1,6 +1,9 @@
-<?php include('templates/common/sort_dropdown.php') ?>
+<?php
+require_once __DIR__ . '/../common/sort_dropdown.php';
 
-<div id="channel_page" channel_id="<?= $_GET['id']?>" class="page">
+$channelid = (int)$_GET['id'];
+?>
+<div id="channel_page" class="page">
 
     <div id="channel_page_posts"></div>
     
@@ -12,11 +15,14 @@
         </div>
 
         <div id="aside_footer" class="aside_div">
-            <?php include('templates/common/footer.php') ?>
+            <?php require_once __DIR__ . '/../common/footer.php'; ?>
         </div>
 
     </div>
 
+    <script type="text/javascript">
+        const channel_id = <?= $channelid ?>;
+    </script>
     <script src="javascript/pages/channel_page.js"></script>
-    <script src="javascript/post_buttons.js"></script>
+    <script src="javascript/common/post_buttons.js"></script>
 </div>

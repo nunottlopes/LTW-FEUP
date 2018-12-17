@@ -1,7 +1,7 @@
 #main_page {
     padding-top: 1em; 
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr auto;
 }
 
 #main_page_posts{
@@ -77,4 +77,10 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+}
+
+@media screen and (max-width:1050px) {
+    #main_page_aside {
+      display: none;
+    }
 }

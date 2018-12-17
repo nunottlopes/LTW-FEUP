@@ -334,12 +334,6 @@ FROM StoryAuthorChannel S
 NATURAL JOIN Voting V -- on entityid
 ORDER BY S.entityid ASC;
 
-CREATE VIEW StoryVotingImageAuthorChannel AS
-SELECT S.*, V.userid, V.vote, V.save
-FROM StoryImageAuthorChannel S
-NATURAL JOIN Voting V -- on entityid
-ORDER BY S.entityid ASC;
-
 CREATE VIEW StoryVotingAll AS
 SELECT S.*, V.userid, V.vote, V.save
 FROM StoryAll S
@@ -551,20 +545,20 @@ SELECT SA.*, -createdat as rating
 FROM StoryAll SA
 ORDER BY rating DESC;
 
-CREATE VIEW StorySortBest AS
-SELECT SA.*, WILSONLOWERBOUND(upvotes, downvotes) AS rating
-FROM StoryAll SA
-ORDER BY rating DESC;
+--CREATE VIEW StorySortBest AS
+--SELECT SA.*, WILSONLOWERBOUND(upvotes, downvotes) AS rating
+--FROM StoryAll SA
+--ORDER BY rating DESC;
 
-CREATE VIEW StorySortControversial AS
-SELECT SA.*, REDDITCONTROVERSIAL(upvotes, downvotes) AS rating
-FROM StoryAll SA
-ORDER BY rating DESC;
+--CREATE VIEW StorySortControversial AS
+--SELECT SA.*, REDDITCONTROVERSIAL(upvotes, downvotes) AS rating
+--FROM StoryAll SA
+--ORDER BY rating DESC;
 
-CREATE VIEW StorySortHot AS
-SELECT SA.*, REDDITHOT(upvotes, downvotes, createdat) AS rating
-FROM StoryAll SA
-ORDER BY rating DESC;
+--CREATE VIEW StorySortHot AS
+--SELECT SA.*, REDDITHOT(upvotes, downvotes, createdat) AS rating
+--FROM StoryAll SA
+--ORDER BY rating DESC;
 
 CREATE VIEW StorySortAverage AS
 SELECT SA.*, CAST(upvotes + 1 AS float) / CAST(upvotes + downvotes + 1 AS float) AS rating
@@ -603,20 +597,20 @@ SELECT CA.*, -createdat as rating
 FROM CommentAll CA
 ORDER BY rating DESC;
 
-CREATE VIEW CommentSortBest AS
-SELECT CA.*, WILSONLOWERBOUND(upvotes, downvotes) AS rating
-FROM CommentAll CA
-ORDER BY rating DESC;
+--CREATE VIEW CommentSortBest AS
+--SELECT CA.*, WILSONLOWERBOUND(upvotes, downvotes) AS rating
+--FROM CommentAll CA
+--ORDER BY rating DESC;
 
-CREATE VIEW CommentSortControversial AS
-SELECT CA.*, REDDITCONTROVERSIAL(upvotes, downvotes) AS rating
-FROM CommentAll CA
-ORDER BY rating DESC;
+--CREATE VIEW CommentSortControversial AS
+--SELECT CA.*, REDDITCONTROVERSIAL(upvotes, downvotes) AS rating
+--FROM CommentAll CA
+--ORDER BY rating DESC;
 
-CREATE VIEW CommentSortHot AS
-SELECT CA.*, REDDITHOT(upvotes, downvotes, createdat) AS rating
-FROM CommentAll CA
-ORDER BY rating DESC;
+--CREATE VIEW CommentSortHot AS
+--SELECT CA.*, REDDITHOT(upvotes, downvotes, createdat) AS rating
+--FROM CommentAll CA
+--ORDER BY rating DESC;
 
 CREATE VIEW CommentSortAverage AS
 SELECT CA.*, CAST(upvotes + 1 AS float) / CAST(upvotes + downvotes + 1 AS float) AS rating
@@ -654,20 +648,20 @@ SELECT CT.*, -createdat as rating
 FROM CommentTree CT
 ORDER BY rating DESC;
 
-CREATE VIEW CommentTreeSortBest AS
-SELECT CT.*, WILSONLOWERBOUND(upvotes, downvotes) AS rating
-FROM CommentTree CT
-ORDER BY rating DESC;
+--CREATE VIEW CommentTreeSortBest AS
+--SELECT CT.*, WILSONLOWERBOUND(upvotes, downvotes) AS rating
+--FROM CommentTree CT
+--ORDER BY rating DESC;
 
-CREATE VIEW CommentTreeSortControversial AS
-SELECT CT.*, REDDITCONTROVERSIAL(upvotes, downvotes) AS rating
-FROM CommentTree CT
-ORDER BY rating DESC;
+--CREATE VIEW CommentTreeSortControversial AS
+--SELECT CT.*, REDDITCONTROVERSIAL(upvotes, downvotes) AS rating
+--FROM CommentTree CT
+--ORDER BY rating DESC;
 
-CREATE VIEW CommentTreeSortHot AS
-SELECT CT.*, REDDITHOT(upvotes, downvotes, createdat) AS rating
-FROM CommentTree CT
-ORDER BY rating DESC;
+--CREATE VIEW CommentTreeSortHot AS
+--SELECT CT.*, REDDITHOT(upvotes, downvotes, createdat) AS rating
+--FROM CommentTree CT
+--ORDER BY rating DESC;
 
 CREATE VIEW CommentTreeSortAverage AS
 SELECT CT.*, CAST(upvotes + 1 AS float) / CAST(upvotes + downvotes + 1 AS float) AS rating

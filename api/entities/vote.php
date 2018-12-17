@@ -6,7 +6,7 @@ class Vote extends APIEntity {
     /**
      * CREATE
      */
-    protected static function create(int $entityid, int $userid, string $vote) {
+    protected static function create($entityid, $userid, $vote) {
         $query = '
             INSERT INTO Vote(entityid, userid, vote)
             VALUES (?, ?, ?)
@@ -17,18 +17,18 @@ class Vote extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function upvote(int $entityid, int $userid) {
+    public static function upvote($entityid, $userid) {
         return static::create($entityid, $userid, '+');
     }
 
-    public static function downvote(int $entityid, int $userid) {
+    public static function downvote($entityid, $userid) {
         return static::create($entityid, $userid, '-');
     }
 
     /**
      * READ
      */
-    public static function getEntity(int $entityid) {
+    public static function getEntity($entityid) {
         $query = '
             SELECT * FROM Vote WHERE entityid = ?
             ';
@@ -38,7 +38,7 @@ class Vote extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getUser(int $userid) {
+    public static function getUser($userid) {
         $query = '
             SELECT * FROM Vote WHERE userid = ?
             ';
@@ -48,7 +48,7 @@ class Vote extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function get(int $entityid, int $userid) {
+    public static function get($entityid, $userid) {
         $query = '
             SELECT * FROM Vote WHERE entityid = ? AND userid = ?
             ';
@@ -76,7 +76,7 @@ class Vote extends APIEntity {
     /**
      * DELETE
      */
-    public static function delete(int $entityid, int $userid) {
+    public static function delete($entityid, $userid) {
         $query = '
             DELETE FROM Vote WHERE entityid = ? AND userid = ?
             ';
@@ -86,7 +86,7 @@ class Vote extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function deleteEntity(int $entityid) {
+    public static function deleteEntity($entityid) {
         $query = '
             DELETE FROM Vote WHERE entityid = ?
             ';
@@ -96,7 +96,7 @@ class Vote extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function deleteUser(int $userid) {
+    public static function deleteUser($userid) {
         $query = '
             DELETE FROM Vote WHERE userid = ?
             ';

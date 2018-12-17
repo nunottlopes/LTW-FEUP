@@ -1,16 +1,19 @@
+<?php
+$storyid = (int)$_GET['id'];
+?>
 <div id="view_post" class="page">
 
-    <div id="post_page_post" story-id="<?=$_GET['id']?>">
+    <div id="post_page_post">
 
         <article class="post_complete"></article>
 
         <div id="add_comment"></div>
 
-        <div class="default_dropdown">
+        <div class="default_dropdown selectable-dropdown">
             <header>Sort by</header>
-            <div id="dropdown_selection" selectionid="best">BEST</div>
+            <div class="dropdown_selection" selectionid="best">BEST</div>
             <div class="triangle_down"></div>
-            <div id="dropdown_options" class="default-dropdown-content">
+            <div class="dropdown_options default-dropdown-content">
                 <div id="top">TOP</div>
                 <div id="bot">BOT</div>
                 <div id="new">NEW</div>
@@ -21,7 +24,7 @@
                 <div id="hot">HOT</div>
             </div>
         </div>
-        <script src="javascript/dropdown.js" defer></script>
+        <script src="javascript/utils/dropdown.js" defer></script>
 
         <section id="post_comments"></section>
     </div>
@@ -34,12 +37,15 @@
         </div>
 
         <div id="aside_footer" class="aside_div">
-            <?php include('templates/common/footer.php') ?>
+            <?php require_once __DIR__ . '/../common/footer.php' ?>
         </div>
 
     </div>
 
+    <script type="text/javascript">
+        const storyid = <?= $storyid ?>;
+    </script>
     <script src="javascript/pages/post_page.js"></script>
-    <script src="javascript/post_buttons.js"></script>
+    <script src="javascript/common/post_buttons.js"></script>
 
 </div>

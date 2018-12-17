@@ -71,8 +71,8 @@ class Story extends APIEntity {
     /**
      * CREATE
      */
-    public static function create(string $channelid, int $authorid, string $title,
-            string $type, string $content, int $imageid = NULL) {
+    public static function create($channelid, $authorid, $title, $type, $content,
+            $imageid = NULL) {
         $query = '
             INSERT INTO Story(channelid, authorid, storyTitle, storyType, content, imageid)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -92,24 +92,22 @@ class Story extends APIEntity {
         }
     }
 
-    public static function createText(string $channelid, int $authorid, string $title,
-            string $content) {
+    public static function createText($channelid, $authorid, $title, $content) {
         return static::create($channelid, $authorid, $title, 'text', $content, NULL);
     }
 
-    public static function createTitle(string $channelid, int $authorid, string $title) {
+    public static function createTitle($channelid, $authorid, $title) {
         return static::create($channelid, $authorid, $title, 'title', '', NULL);
     }
 
-    public static function createImage(string $channelid, int $authorid, string $title,
-            string $content, int $imageid) {
+    public static function createImage($channelid, $authorid, $title, $content, $imageid) {
         return static::create($channelid, $authorid, $title, 'image', $content, $imageid);
     }
 
     /**
      * READ
      */
-    public static function read(int $id) {
+    public static function read($id) {
         $query = '
             SELECT * FROM StoryAll WHERE entityid = ?
             ';
@@ -119,7 +117,7 @@ class Story extends APIEntity {
         return static::fetch($stmt);
     }
 
-    public static function getChannel(int $channelid, array $more = []) {
+    public static function getChannel($channelid, array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -137,7 +135,7 @@ class Story extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getAuthor(int $authorid, array $more = []) {
+    public static function getAuthor($authorid, array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -155,8 +153,7 @@ class Story extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getChannelAuthor(int $channelid, int $authorid,
-            array $more = []) {
+    public static function getChannelAuthor($channelid, $authorid, array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -174,7 +171,7 @@ class Story extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function readAll(array $more = []) {
+    public static function readAll(array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -195,7 +192,7 @@ class Story extends APIEntity {
     /**
      * VOTED READ
      */
-    public static function readVoted(int $entityid, int $userid) {
+    public static function readVoted($entityid, $userid) {
         $query = '
             SELECT * FROM StoryVotingAll WHERE entityid = ? AND userid = ?
             ';
@@ -205,7 +202,7 @@ class Story extends APIEntity {
         return static::fetch($stmt);
     }
 
-    public static function getChannelVoted(int $channelid, int $userid, array $more = []) {
+    public static function getChannelVoted($channelid, $userid, array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -224,7 +221,7 @@ class Story extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getAuthorVoted(int $authorid, int $userid, array $more = []) {
+    public static function getAuthorVoted($authorid, $userid, array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -243,8 +240,8 @@ class Story extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getChannelAuthorVoted(int $channelid, int $authorid,
-            int $userid, array $more = []) {
+    public static function getChannelAuthorVoted($channelid, $authorid, $userid,
+            array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -263,7 +260,7 @@ class Story extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function readAllVoted(int $userid, array $more = []) {
+    public static function readAllVoted($userid, array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -285,7 +282,7 @@ class Story extends APIEntity {
     /**
      * UPDATE
      */
-    public static function update(int $entityid, string $content, int $imageid) {
+    public static function update($entityid, $content, $imageid) {
         $query = '
             UPDATE Story SET content = ?, imageid = ? WHERE entityid = ?
             ';
@@ -294,7 +291,7 @@ class Story extends APIEntity {
         $stmt->execute([$content, $imageid, $entityid]);
         return $stmt->rowCount();
     }
-    public static function updateContent(int $entityid, string $content) {
+    public static function updateContent($entityid, $content) {
         $query = '
             UPDATE Story SET content = ? WHERE entityid = ?
             ';
@@ -304,7 +301,7 @@ class Story extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function setImage(int $entityid, int $imageid) {
+    public static function setImage($entityid, $imageid) {
         $query = '
             UPDATE Story SET imageid = ? WHERE entityid = ?
             ';
@@ -314,7 +311,7 @@ class Story extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function clearContent(int $entityid) {
+    public static function clearContent($entityid) {
         $query = '
             UPDATE Story SET content = "" WHERE entityid = ?
             ';
@@ -324,7 +321,7 @@ class Story extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function clearImage(int $entityid) {
+    public static function clearImage($entityid) {
         $query = '
             UPDATE Story SET imageid = NULL WHERE entityid = ?
             ';
@@ -337,7 +334,7 @@ class Story extends APIEntity {
     /**
      * DELETE
      */
-    public static function delete(int $entityid) {
+    public static function delete($entityid) {
         $query = '
             DELETE FROM Story WHERE entityid = ?
             ';
@@ -347,7 +344,7 @@ class Story extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function deleteAuthor(int $authorid) {
+    public static function deleteAuthor($authorid) {
         $query = '
             DELETE FROM Story WHERE authorid = ?
             ';
@@ -357,7 +354,7 @@ class Story extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function deleteChannel(int $channelid) {
+    public static function deleteChannel($channelid) {
         $query = '
             DELETE FROM Story WHERE channelid = ?
             ';
@@ -367,7 +364,7 @@ class Story extends APIEntity {
         return $stmt->rowCount();
     }
 
-    public static function deleteChannelAuthor(int $channelid, int $authorid) {
+    public static function deleteChannelAuthor($channelid, $authorid) {
         $query = '
             DELETE FROM Story WHERE channelid = ? AND authorid = ?
             ';

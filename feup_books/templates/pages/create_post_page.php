@@ -2,11 +2,11 @@
 
     <div id="create_post_main">
         <h1>Create a Post</h1>
-        <div class="default_dropdown" id="channel_select">
+        <div class="default_dropdown selectable-dropdown" id="channel_select">
             <header>Channel</header>
-            <div id="dropdown_selection">Select a Channel</div>
+            <div class="dropdown_selection">Select a Channel</div>
             <div class="triangle_down"></div>
-            <div id="dropdown_options" class="default-dropdown-content">
+            <div class="dropdown_options default-dropdown-content">
             </div>
         </div>
 
@@ -40,23 +40,21 @@
         </div>
     </div>
 
-    <script src="javascript/pages/create_post.js"></script>
-    <script src="javascript/tab.js" defer></script>
-    <script src="javascript/dropdown.js" defer></script>
+    <script src="javascript/pages/create_post_page.js"></script>
+    <script src="javascript/utils/tab.js" defer></script>
+    <script src="javascript/utils/dropdown.js" defer></script>
 
     <div id="post_page_aside">
         <div id="rules" class="aside_div">
-            <h1>Posting rules</h1>
+            <h1>Tinder Posting rules</h1>
             <ul>
-                <li>Regras</li>
-                <li>Why</li>
-                <li>Not</li>
-                <li>Regras</li>
+                <li>1. Be attractive</li>
+                <li>2. Don't be unattractive</li>
             </ul>
         </div>
 
         <div id="aside_footer" class="aside_div">
-            <?php include('templates/common/footer.php') ?>
+            <?php require_once __DIR__ . '/../common/footer.php' ?>
         </div>
 
     </div>

@@ -1,0 +1,147 @@
+html{
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  margin: 0;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  margin: 0 auto;
+  background-color: #DAE0E6;
+}
+
+.page {
+  padding-top: 3em;
+  max-width: 70em;
+  margin: 0 auto;
+  background-color: #DAE0E6;
+}
+
+body > header {
+  background-color: #A5483E;
+  position: fixed;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0.5em;
+  height: 2em;
+  z-index: 2;
+}
+
+.logo_header{
+  width: 10em;
+}
+
+body > footer{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  height: 2em;
+  text-align: center;
+  background-color: #A5483E;
+}
+
+body > footer a {
+  margin: 0;
+  padding-right: 1em;
+  padding-left: 1em;
+  border-right: 1px solid black;
+  text-decoration: none;
+  color: black;
+}
+
+body > footer p{
+  display: inline;
+  margin: auto 1em;
+}
+
+#log_in_button{
+  background-color:white;
+  outline: none;
+}
+#log_in_button:hover{
+  background-color:rgb(161, 78, 68);
+  cursor: pointer;
+}
+
+.header_button {
+  display:inline-block;
+  padding:0.3em 1.2em;
+  margin:0 0.3em 0.3em 0;
+  border-radius: 2em;
+  box-sizing: border-box;
+  text-decoration:none;
+  font-family:'Roboto',sans-serif;
+  font-weight:300;
+  color:black;
+  text-align:center;
+  transition: all 0.2s;
+}
+
+#sign_up_button{
+  background-color:rgb(212, 102, 90);
+  outline: none;
+}
+#sign_up_button:hover{
+  background-color:rgb(134, 64, 56);
+  cursor: pointer;
+}
+
+.search_bar[type=text] {
+  width: 130px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: white;
+  background-image: url('../images/site/searchicon.png');
+  background-position: 10px 10px;
+  background-repeat: no-repeat;
+  padding: 12px 20px 12px 40px;
+  transition: width 0.4s ease-in-out;
+}
+
+.search_bar[type=text]:focus {
+  width: 30%;
+}
+
+section#user-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0em 1em;
+}
+
+section#user-header img{
+  width: 2em;
+  height: 2em;
+}
+
+#profile_button{
+  display:flex;
+  padding: 0;
+  min-width: 160px;
+  justify-content: space-around;
+  align-items: center;
+  cursor: pointer;
+  margin-right: 1em; 
+}
+
+.header-shortcuts {
+  margin-right: 1em;
+  border-right: 1px solid black;
+  border-left: 1px solid black;
+}
+
+.header-i {
+  color: white;
+  margin: auto 0.5em;
+  cursor: pointer;
+}
+
+.header-i:hover {
+  color: black;
+}

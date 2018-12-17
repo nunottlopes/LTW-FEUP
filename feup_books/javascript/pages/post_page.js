@@ -1,40 +1,50 @@
 let post_page_post = document.querySelector("#post_page_post");
-let storyid = post_page_post.getAttribute("story-id");
 let comments = document.querySelector("#post_comments");
-let user;
 
 let settings = {
-    sort: document.querySelector("#dropdown_selection").getAttribute("selectionid"),
+    sort: document.querySelector(".dropdown_selection").getAttribute("selectionid"),
     limit: 5,
     offset: 0,
-    maxdepth: 5
+    maxdepth: 15
 }
 
-api.auth().then(response => response.json()).then(json =>{
-    if(json.data == false)
-        user = null;
-    else
-        user = json.data;
-    getPageContent();
-})
+getPageContent();
 
 function getPageContent(){
     // Get Post 
-    api.story.get({storyid:storyid}).then(response => {
-        if(response.ok){
-            return response.json();
-        }
-        else{
-            window.location.replace("index.php");
-            throw response;
-        }
-    })
-    .then(json => {
-        api.channel.get({channelid: json.data.channelid}, [200])
-        .then(response => response.json())
-        .then( r => updateAside(r.data))
-        getStory(json.data);
-    });
+    if(!auth) {
+        api.story.get({storyid:storyid}).then(response => {
+            if(response.ok){
+                return response.json();
+            }
+            else{
+                window.location.replace("index.php");
+                throw response;
+            }
+        })
+        .then(json => {
+            api.channel.get({channelid: json.data.channelid}, [200])
+            .then(response => response.json())
+            .then( r => updateAside(r.data))
+            getStory(json.data);
+        });
+    } else {
+        api.story.get({storyid:storyid, voterid: auth.userid}).then(response => {
+            if(response.ok){
+                return response.json();
+            }
+            else{
+                window.location.replace("index.php");
+                throw response;
+            }
+        })
+        .then(json => {
+            api.channel.get({channelid: json.data.channelid}, [200])
+            .then(response => response.json())
+            .then( r => updateAside(r.data))
+            getStory(json.data);
+        });
+    }
 
     // Get Comments
     getComments();
@@ -42,155 +52,67 @@ function getPageContent(){
 
 function getStory(story){
     // Article
-    let article = document.querySelector(".post_complete");
-    let article1 = `<article class="post_complete">
-    <header>Posted by ${story.authorname} ${timeDifference(story.updatedat)}</header>
-        <h1>${story.storyTitle}</h1>`;
-
-    let article2 = "";
-    switch(story.storyType) {
-        case "image":
-            article2 = `<img src="images/upload/original/${story.imagefile}" alt="post image">`;
-            break;
-        case "text":
-            article2 = `<p>${story.content}</p>`;
-            break;
-        default:
-            break;
-    }
-
-    let article3 = `<footer id=post_button_${story.entityid}>
-    <button class="post_button" onclick="upvote(${story.entityid})"><i class='fas fa-arrow-up'></i> ${story.upvotes} Upvotes</button>
-    <button class="post_button" onclick="downvote(${story.entityid})"><i class='fas fa-arrow-down'></i> ${story.downvotes} Downvotes</button>
-    <button class="post_button"><i class="fa fa-comment"></i> ${story.count} Comments</button>
-    <button class="post_button" id="save${story.entityid}" onclick="save(${story.entityid})"><i class="fa fa-bookmark"></i> Save</button>
-    <button class="post_button" onclick="share(${story.entityid})"><i class="fa fa-share-alt"></i> Share</button>
-        </footer>
-        </article>`;
-
-    article.innerHTML = article1 + article2 + article3;
+    document.querySelector(".post_complete").appendChild(htmlStory(story));
 
     //Comment Form
     let add_comment_form = document.querySelector("#add_comment");
-    if(user != null){
-        if(user.picturefile)
-            add_comment_form.innerHTML += `<img src="images/upload/thumbnail/${user.picturefile}">`;
+    if(auth != null){
+        if(auth.picturefile)
+            add_comment_form.innerHTML += `<img src="images/upload/thumbnail/${auth.picturefile}">`;
         else
             add_comment_form.innerHTML += `<img src="images/users/user.png">`;
 
-        add_comment_form.innerHTML += `<form action="handlers/add_comment_handler.php?parentid=${story.entityid}&authorid=${user.userid}" method="post">
+        add_comment_form.innerHTML += `<form action="handlers/add_comment_handler.php?parentid=${story.entityid}&authorid=${auth.userid}" method="post">
             <textarea name="content" placeholder="Add your comment here..."></textarea>
             <input type="submit" value="Add comment" class="submit_comment_button">
         </form>`;
     }
-    else{
-        add_comment_form.innerHTML = `<h3><a onclick='loginpopup()'>Login</a> or <a onclick='signuppopup()'>Signup</a> to comment the post.</h3>`
-    }
-
-    if(user != null)
-        updateButtons(user.userid, story.entityid);
 }
-
-// // Get All Comments
-var allComments;
 
 function getComments(){
     allComments = "";
 
-    if(user != null){
-        // api.tree.get({ascendantid:storyid, voterid:user.userid, order: settings.sort, limit: settings.limit, offset: settings.offset, maxdepth: settings.maxdepth}, [200])
-        api.tree.get({ascendantid:storyid, voterid:user.userid, order: settings.sort}, [200])
+    if(auth != null){
+        api.tree.get({ascendantid:storyid, voterid:auth.userid, order: settings.sort}, [200])
         .then(response => response.json())
         .then(json => {
-            getCommentsFromTree(json.data);
-
-            comments.innerHTML = allComments;
-
-            if(user != null)
-                updateButtonsComments(json.data);
-            
-            // if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10)) {
-            //     settings.offset += settings.limit;
-            //     getComments();
-            // }
+            let total = getCommentsFromTree(json.data);
+            for(c of total) {
+                comments.appendChild(c);
+            }
         })
     }
     else{
         api.tree.get({ascendantid:storyid, order: settings.sort}, [200])
-        //api.tree.get({ascendantid:storyid, order: settings.sort, limit: settings.limit, offset: settings.offset, maxdepth: settings.maxdepth}, [200])
         .then(response => response.json())
         .then(json => {
-            getCommentsFromTree(json.data);
-            comments.innerHTML = allComments;
+            let total = getCommentsFromTree(json.data);
+            for(c of total) {
+                comments.appendChild(c);
+            }
         })
     }
 }
 
 function getCommentsFromTree(data){
-    for(let comment in data){
-        let currentComment = data[comment];
-
-        let article = `<article id=comment${currentComment.entityid} class="post_comment">
-        <header>${currentComment.authorname}, ${timeDifference(currentComment.updatedat)}</header>
-        <p>${currentComment.content}</p>
-        <footer id=comment_button_${currentComment.entityid}>
-            <button id="upvote${currentComment.entityid}" class="comment_button" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${currentComment.upvotes} Upvotes</button>
-            <button id="downvote${currentComment.entityid}" class="comment_button" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${currentComment.downvotes} Downvotes</button>
-            <button class="comment_button" onclick="reply(${currentComment.entityid})"><i class="fa fa-comment"></i> Reply</button>
-            <button id="save${currentComment.entityid}" class="comment_button" id="save${currentComment.entityid}" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>
-        </footer>`;
-
-        allComments += article;
-        
-        if(currentComment.children.length > 0){
-            getCommentsFromTree(currentComment.children);
+    let total = [];
+    for(let comment of data){
+        let maincomment = htmlComment(comment);
+        if(comment.children.length > 0) {
+            let div = document.createElement('div');
+            let t = getCommentsFromTree(comment.children);
+            for(c of t) {
+                div.appendChild(c);
+            }
+            maincomment.appendChild(div);
         }
-        allComments += '</article>';
+        total.push(maincomment);
     }
+    console.log
+    return total;
 }
 
-function updateButtonsComments(data){
-    let footer;
-    for(let comment in data){
-        
-        let currentComment = data[comment];
-        footer = document.querySelector("#comment_button_" + currentComment.entityid);
-
-        footer.innerHTML = "";
-        let upvotes = currentComment.upvotes;
-        let downvotes = currentComment.downvotes;
-        
-        if(currentComment.vote){
-            if(currentComment.vote == "+"){
-                footer.innerHTML += `<button id="upvote${currentComment.entityid}" class="comment_button comment_button_selected" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
-                footer.innerHTML += `<button id="downvote${currentComment.entityid}" class="comment_button" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
-            }
-            else{
-                footer.innerHTML += `<button id="upvote${currentComment.entityid}" class="comment_button" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
-                footer.innerHTML += `<button id="downvote${currentComment.entityid}" class="comment_button comment_button_selected" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
-            }
-        }
-        else{
-            footer.innerHTML += `<button id="upvote${currentComment.entityid}" class="comment_button" onclick="upvote(${currentComment.entityid})"><i class='fas fa-arrow-up'></i> ${upvotes} Upvotes</button>`;
-            footer.innerHTML += `<button id="downvote${currentComment.entityid}" class="comment_button" onclick="downvote(${currentComment.entityid})"><i class='fas fa-arrow-down'></i> ${downvotes} Downvotes</button>`;
-        }
-
-        footer.innerHTML += `<button class="comment_button" onclick="reply(${currentComment.entityid})"><i class="fa fa-comment"></i> Reply</button>`;
-
-        if(currentComment.save){
-            footer.innerHTML += `<button id="save${currentComment.entityid}" class="comment_button comment_button_selected" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>`;
-        }
-        else{
-            footer.innerHTML += `<button id="save${currentComment.entityid}" class="comment_button" onclick="save(${currentComment.entityid})"><i class="fa fa-bookmark"></i> Save</button>`;
-        }
-
-        if(currentComment.children.length > 0){
-            updateButtonsComments(currentComment.children);
-        }
-    }
-}
-
-document.querySelectorAll("#dropdown_options > *").forEach(element => {
+document.querySelectorAll(".dropdown_options > *").forEach(element => {
     element.addEventListener('click', () => {
         comments.innerHTML = "";
         settings.offset = 0;
@@ -214,9 +136,155 @@ function updateAside(data) {
         `url('images/upload/small/${data.bannerfile}')`;
 }
 
-// window.onscroll = () => {
-//     if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight-10)) {
-//         settings.offset += settings.limit;
-//         getComments();
-//     }
-// }
+function htmlStory(story) {
+    // story
+    const entityid = story.entityid;
+    const storylink = 'post.php?id=' + entityid;
+
+    // score-info
+    const vote = story.vote || "";
+    const score = vote ? (vote === '+' ? story.score - 1 : story.score + 1) : story.score;
+    
+    // author-info
+    const authorid = story.authorid;
+    const authorname = story.authorname;
+    const picturefile = story.picturefile || defaultPicture(story.authorid);
+    const authorlink = 'profile.php?id=' + authorid;
+
+    const picturesrc = api.imagelink('thumbnail', picturefile);
+
+    // timestamp
+    const createdat = story.createdat;
+    const updatedat = story.updatedat;
+    const timestamp = timeDifference(createdat);
+
+    // story-post 
+    const type = story.storyType;
+    const title = story.storyTitle;
+    const content = story.content;
+    const imagefile = story.imagefile;
+    const imagesrc = api.imagelink('original', imagefile);
+
+    // story-comments
+    const count = story.count;
+
+    // story-save
+    const save = story.save ? 1 : 0;
+
+    const div = document.createElement('div');
+
+    // Main HTML
+    const html = `<article id="story${entityid}" class="story story-channelpage post_complete" data-entityid="${entityid}">
+        <div class="score-info story-score" data-vote="${vote}" data-score="${score}">
+            <i class="fas fa-arrow-up" onclick="upvote(this, ${entityid})"></i>
+            <span class="score" data-score="${score}" data-score-up="${score+1}" data-score-down="${score-1}"></span>
+            <i class="fas fa-arrow-down" onclick="downvote(this, ${entityid})"></i>
+        </div>
+        <div class="author-info story-author" data-authorid="${authorid}">
+            <a href="${authorlink}">
+                <img class="varimg author-picture" src="${picturesrc}" data-picturefile="${picturefile}"/>
+                <span>
+                    <span class="authorname" data-authorname="${authorname}">${authorname}</span>
+                    <span class="timestamp post-timestamp" data-createdat="${createdat}" data-updatedat="${updatedat}">${timestamp}</span>
+                </span>
+            </a>
+        </div>
+        <div class="story-post">
+            <h2 class="story-title"></h2>
+        </div>
+        <div class="story-buttons">
+            <a href="${storylink}" class="story-comments">
+                <button class="post_button">
+                    <i class="fa fa-comment"></i>
+                    <span class="story-count" data-count="${count}">${count} Comments</span>
+                </button>
+            </a>
+            <button class="post_button story-save save" onclick="save(this, ${entityid})" data-save="${save}">
+                <i class="fa fa-bookmark"></i>
+                <span class="story-save">Save</span>
+            </button>
+        <div>
+
+    </article>`;
+
+    div.innerHTML = html;
+
+    div.querySelector('div.story-post h2.story-title').textContent = title;
+
+    switch (type) {
+    case 'text':
+        div.querySelector('div.story-post').insertAdjacentHTML('beforeend',
+            '<p class="story-content"></p>'
+        );
+        div.querySelector('div.story-post p.story-content').textContent = content;
+        break;
+    case 'image':
+        div.querySelector('div.story-post').insertAdjacentHTML('beforeend',
+            `<img class="story-image" src="${imagesrc}" data-imagefile="${imagefile}"/>`
+        );
+        break;
+    }
+
+    return div.firstChild;
+}
+
+function htmlComment(comment) {
+    // comment
+    const entityid = comment.entityid;
+
+    // score-info
+    const vote = comment.vote || "";
+    const score = vote ? (vote === '+' ? comment.score - 1 : comment.score + 1) : comment.score;
+    
+    // author-info
+    const authorid = comment.authorid;
+    const authorname = comment.authorname;
+    const authorlink = 'profile.php?id=' + authorid;
+    
+    const authpic = (auth ? (auth.picturefile || defaultPicture(auth.authorid)) : null);
+    const picturesrc = api.imagelink('thumbnail', authpic);
+
+    // timestamp
+    const createdat = comment.createdat;
+    const updatedat = comment.updatedat;
+    const timestamp = timeDifference(createdat);
+
+    // comment-post 
+    const content = comment.content;
+
+    // comment-save
+    const save = comment.save ? 1 : 0;
+
+    const div = document.createElement('div');
+
+    // Main HTML
+    const html = `<article id="comment${entityid}" class="comment post_comment" data-entityid="${entityid}">
+        <a href="${authorlink}">
+            <header>
+                <span data-authorid="${authorid}" data-authorname="${authorname}">${authorname}</span>
+                <span data-createdat="${createdat}" data-updatedat="${updatedat}">${timestamp}</span>
+            </header>
+        </a>
+        <p class="comment-content">${content}</p>
+        <div class="comment-buttons">
+            <div class="score-info comment-score" data-vote="${vote}" data-score="${score}">
+                <i class="fas fa-arrow-up comment_button" onclick="upvote(this, ${entityid})"></i>
+                <span class="score" data-score="${score}" data-score-up="${score+1}" data-score-down="${score-1}"></span>
+                <i class="fas fa-arrow-down comment_button" onclick="downvote(this, ${entityid})"></i>
+            </div>
+            <button class="comment_button" onclick="reply(this, ${entityid})" data-authimg="${picturesrc}">
+                <i class="fa fa-comment"></i>
+                <span class="comment-reply">Reply</span>
+            </button>
+            <button class="comment_button comment-save save" onclick="save(this, ${entityid})" data-save="${save}">
+                <i class="fa fa-bookmark"></i>
+                <span class="comment-save">Save</span>
+            </button>
+        <div>
+
+    </article>`;
+
+    div.innerHTML = html;
+
+    return div.firstChild;
+}

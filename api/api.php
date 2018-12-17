@@ -24,23 +24,23 @@ class API {
     /**
      * Directory of entity
      */
-    public static function entity(string $entity) {
-        $file = $_SERVER['DOCUMENT_ROOT'] . "/api/entities/$entity.php";
+    public static function entity($entity) {
+        $file = __DIR__ . "/entities/$entity.php";
         return $file;
     }
 
     /**
      * Directory of resource
      */
-    public static function resource(string $resource) {
-        $file = $_SERVER['DOCUMENT_ROOT'] . "/feup_books/api/public/$resource.php";
+    public static function resource($resource) {
+        $file = __DIR__ . "/../feup_books/api/public/$resource.php";
         return $file;
     }
 
     /**
      * Cast $value according to key $key
      */
-    public static function single(string $key, $value, bool $force = false) {
+    public static function single($key, $value, $force = null) {
         // IDs
         if (preg_match('/^\w*id$/i', $key)) {
             return ($value !== null || $force) ? (int)$value : $value;
@@ -90,7 +90,7 @@ class API {
      * Used by database entities for database fetches (casting columns to their
      * appropriate types) and client argument parsing of $_GET, $_POST and body.
      */
-    public static function cast(array $data, bool $force = false) {
+    public static function cast(array $data, $force = null) {
         $casted = [];
         foreach ($data as $key => $value) {
             $casted[$key] = static::single($key, $value, $force);
@@ -139,7 +139,7 @@ class API {
      * Turns an array of arrays into a dictionary according to some key
      * present in every element.
      */
-    public static function keyfy(array $array, string $key) {
+    public static function keyfy(array $array, $key) {
         $object = [];
         foreach ($array as $el) $object[$el[$key]] = $el;
         return $object;
@@ -173,7 +173,8 @@ class API {
      * Remove null entries from the array $array whose key
      * is present in $keys (or any if $keys is null).
      */
-    public static function nonull(array $array, array $safe = []) {
+    public static function nonull(array $array, array $safe = null) {
+        if (!$safe) $safe = [];
         $result = [];
         foreach ($array as $key => $value) {
             if ($value !== null || in_array($key, $safe)) {
@@ -256,7 +257,7 @@ require_once API::entity('user');
 class Auth {
     private static $authRegex = '/^Basic ((?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?)$/';
 
-    public static function checkCSRF(bool $answerFail = false) {
+    public static function checkCSRF($answerFail = null) {
         $sess = $_SESSION['CSRFTOKEN'];
 
         $csrf = HTTPRequest::csrftoken();
@@ -273,7 +274,7 @@ class Auth {
      * Returns an object holding the userid, username and email if successful.
      * Returns false otherwise.
      */
-    public static function autho(string $name, string $password, &$error = null) {
+    public static function autho($name, $password, &$error = null) {
         if (User::authenticate($name, $password, $error)) {
             $user = User::get($name);
 
@@ -292,7 +293,7 @@ class Auth {
      *
      * Returns an array representing the authenticated user if successful, or false.
      */
-    public static function authorization(bool $answerFail = true) {
+    public static function authorization($answerFail = true) {
         static $authorizationParsed = false;
         static $authorizationUser = false;
 
@@ -309,17 +310,17 @@ class Auth {
             }
 
             // Base 64 decode
-            $string = base64_decode($matches[1], true);
+            $str = base64_decode($matches[1], true);
 
-            if (!$string) {
+            if (!$str) {
                 HTTPResponse::badHeader('Authorization', $header);
             }
 
             // Username:Password split, might replace with regex parse in the future
-            $split = explode(':', $string, 2);
+            $split = explode(':', $str, 2);
 
             if (count($split) < 2) {
-                HTTPResponse::badHeader('Authorization', $string);
+                HTTPResponse::badHeader('Authorization', $str);
             }
 
             $username = $split[0];
@@ -378,7 +379,7 @@ class Auth {
      *     false      if authentication is not achieved and is required.
      *     user array if authentication is achieved and required.
      */
-    private static function level(string $level, int $userid = null) {
+    private static function level($level, $userid = null) {
         $auth = static::authenticate();
 
         if ($level === 'free') return $auth;
@@ -410,7 +411,7 @@ class Auth {
      *   - authid       401 Unauthorized OR 403 Forbidden.
      *   - admin        403 Forbidden.
      */
-    public static function demandLevel(string $level, int $userid = null) {
+    public static function demandLevel($level, $userid = null) {
         $auth = static::level($level, $userid);
 
         if ($level === 'free') return $auth;
@@ -450,7 +451,7 @@ class Auth {
      *
      * It is assumed that a session has already been started.
      */
-    public static function login(string $name, string $password, &$error = null) {
+    public static function login($name, $password, &$error = null) {
         if (User::authenticate($name, $password, $error)) {
             $user = User::get($name);
 
@@ -500,7 +501,7 @@ class HTTPRequest {
     /**
      * Parse $_GET for required arguments (=> global $args)
      */
-    public static function action(string $resource, array $actions) {
+    public static function action($resource, array $actions) {
         $method = static::method();
 
         // A GET request on a resource without query arguments is a look.
@@ -537,7 +538,7 @@ class HTTPRequest {
     /**
      * Parse
      */
-    public static function body(string ...$keys) {
+    public static function body(...$keys) {
         $contentType = $_SERVER['CONTENT_TYPE'];
 
         // Content-Type: application/json
@@ -629,7 +630,7 @@ class HTTPRequest {
     /**
      * Get a specific header field.
      */
-    public static function header(string $header) {
+    public static function header($header) {
         $headers = static::headers();
 
         if (isset($headers[$header])) {
@@ -676,7 +677,7 @@ class HTTPResponse {
      * Append several variables to a JSON, output response body and exit.
      * Redirects to json() for output. plain() not used as of now.
      */
-    private static function success(string $code, string $message, $data = null) {
+    private static function success($code, $message, $data = null) {
         global $resource, $methods, $method, $args, $auth, $actions, $action;
 
         $pretty = API::prettyActions($actions);
@@ -702,7 +703,7 @@ class HTTPResponse {
     /**
      * Like output() but intended for error messages.
      */
-    private static function error(string $code, string $error, $data = null) {
+    private static function error($code, $error, $data = null) {
         global $resource, $methods, $method, $args, $auth, $actions, $action;
 
         $pretty = API::prettyActions($actions);
@@ -730,8 +731,9 @@ class HTTPResponse {
      * 200 OK
      * No arguments provided, querying resource.
      */
-    public static function look(string $message, array $extra = []) {
+    public static function look($message, array $extra = null) {
         http_response_code(300);
+        if (!$extra) $extra = [];
 
         global $methods, $method, $actions, $action, $args;
 
@@ -752,7 +754,7 @@ class HTTPResponse {
     /**
      * 200 OK
      */
-    public static function ok(string $message, $data = null) {
+    public static function ok($message, $data = null) {
         http_response_code(200);
 
         static::success('OK', $message, $data);
@@ -761,7 +763,7 @@ class HTTPResponse {
     /**
      * 200 OK
      */
-    public static function updated(string $message, $data = null) {
+    public static function updated($message, $data = null) {
         http_response_code(200);
 
         static::success('Updated', $message, $data);
@@ -770,7 +772,7 @@ class HTTPResponse {
     /**
      * 200 OK
      */
-    public static function deleted(string $message, $data = null) {
+    public static function deleted($message, $data = null) {
         http_response_code(200);
 
         static::success('Deleted', $message, $data);
@@ -779,7 +781,7 @@ class HTTPResponse {
     /**
      * 201 Created
      */
-    public static function created(string $message, $data = null) {
+    public static function created($message, $data = null) {
         http_response_code(201);
 
         static::success('Created', $message, $data);
@@ -788,7 +790,7 @@ class HTTPResponse {
     /**
      * 202 Accepted
      */
-    public static function accepted(string $message, $data = null) {
+    public static function accepted($message, $data = null) {
         http_response_code(202);
 
         static::success('Accepted', $message, $data);
@@ -867,7 +869,7 @@ class HTTPResponse {
     /**
      * 400 Bad Request
      */
-    public static function invalid(string $what, $value, string $requires) {
+    public static function invalid($what, $value, $requires) {
         http_response_code(400);
 
         $error = "Invalid $what: $requires";
@@ -886,7 +888,7 @@ class HTTPResponse {
      * The request tried to create a resource that conflicted with an already existing
      * resource.
      */
-    public static function conflict(string $what, $culprit, string $error) {
+    public static function conflict($what, $culprit, $error) {
         http_response_code(400);
 
         $error = "Conflict: $error";
@@ -920,7 +922,7 @@ class HTTPResponse {
      * 400 Bad Request
      * A request header sent has an invalid/unexpected value.
      */
-    public static function badHeader(string $header, string $value) {
+    public static function badHeader($header, $value) {
         http_response_code(400);
 
         $error = "Header $header has an unexpected value: $value";
@@ -963,7 +965,7 @@ class HTTPResponse {
      * 400 Bad Request
      * General 400 error with a generic message and data JSON.
      */
-    public static function badRequest(string $error, array $data = null) {
+    public static function badRequest($error, array $data = null) {
         http_response_code(400);
 
         static::error('Bad Request', $error, $data);
@@ -973,7 +975,7 @@ class HTTPResponse {
      * 400 Wrong Credentials
      * Wrong credentials
      */
-    public static function wrongCredentials(string $reason = null) {
+    public static function wrongCredentials($reason = null) {
         if (AUTH_MODE === 'SESSION') {
             http_response_code(400);
         } else {
@@ -994,7 +996,7 @@ class HTTPResponse {
      * authentication attempt failed.
      * Required header WWW-Authenticate is present if 401.
      */
-    public static function unauthorized(int $userid = null) {
+    public static function unauthorized($userid = null) {
         if (AUTH_MODE === 'SESSION') {
             http_response_code(400);
         } else {
@@ -1028,7 +1030,7 @@ class HTTPResponse {
      * The resource requires privileged (admin) access, so the user cannot access it.
      * Obviously this isn't actually sent to an admin.
      */
-    public static function forbidden(string $error = null) {
+    public static function forbidden($error = null) {
         http_response_code(403);
 
         if (!$error) {
@@ -1044,7 +1046,7 @@ class HTTPResponse {
      * 404 Not Found
      * An entity identified or requested by the client does not exist.
      */
-    public static function notFound(string $what, string $param = null) {
+    public static function notFound($what, $param = null) {
         http_response_code(404);
 
         $error = "Not found: $what";
@@ -1090,7 +1092,7 @@ class HTTPResponse {
      *     multipart/form-data
      *     text/plain
      */
-    public static function badContentType(string $header, string $reason = null) {
+    public static function badContentType($header, $reason = null) {
         http_response_code(415);
 
         $error = "Invalid Content-Type: format not supported by this API";

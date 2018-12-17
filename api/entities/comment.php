@@ -70,7 +70,7 @@ class Comment extends APIEntity {
     /**
      * CREATE
      */
-    public static function create(int $parentid, int $authorid, string $content) {
+    public static function create($parentid, $authorid, $content) {
         $query = '
             INSERT INTO Comment(parentid, authorid, content)
             VALUES (?, ?, ?)
@@ -93,7 +93,7 @@ class Comment extends APIEntity {
     /**
      * READ
      */
-    public static function read(int $id) {
+    public static function read($id) {
         $query = '
             SELECT * FROM CommentAll WHERE entityid = ?
             ';
@@ -103,7 +103,7 @@ class Comment extends APIEntity {
         return static::fetch($stmt);
     }
 
-    public static function getChildren(int $parentid, array $more = []) {
+    public static function getChildren($parentid, array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -121,7 +121,7 @@ class Comment extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getAuthor(int $authorid, array $more = []) {
+    public static function getAuthor($authorid, array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -139,7 +139,7 @@ class Comment extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getChildrenAuthor(int $parentid, int $authorid, array $more = []) {
+    public static function getChildrenAuthor($parentid, $authorid, array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -157,7 +157,7 @@ class Comment extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function readAll(array $more = []) {
+    public static function readAll(array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -178,7 +178,7 @@ class Comment extends APIEntity {
     /**
      * VOTED READ
      */
-    public static function readVoted(int $id, int $userid) {
+    public static function readVoted($id, $userid) {
         $query = '
             SELECT * FROM CommentVotingAll WHERE entityid = ? AND userid = ?
             ';
@@ -188,7 +188,7 @@ class Comment extends APIEntity {
         return static::fetch($stmt);
     }
 
-    public static function getChildrenVoted(int $parentid, int $userid, array $more = []) {
+    public static function getChildrenVoted($parentid, $userid, array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -207,7 +207,7 @@ class Comment extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getAuthorVoted(int $authorid, int $userid, array $more = []) {
+    public static function getAuthorVoted($authorid, $userid, array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -226,8 +226,8 @@ class Comment extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function getChildrenAuthorVoted(int $parentid, int $authorid,
-            int $userid, array $more = []) {
+    public static function getChildrenAuthorVoted($parentid, $authorid, $userid,
+            array $more = null) {
         $sort = static::sort($more);
 
         $query = "
@@ -246,7 +246,7 @@ class Comment extends APIEntity {
         return static::fetchAll($stmt);
     }
 
-    public static function readAllVoted(int $userid, array $more = []) {
+    public static function readAllVoted($userid, array $more = null) {
         $sort = static::sort($more);
 
         $query = "

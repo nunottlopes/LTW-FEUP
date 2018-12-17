@@ -1,0 +1,116 @@
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right:0;
+    background-color: black;
+    color: white;
+    min-width: 160px;
+    z-index: 1;
+    cursor: pointer;
+}
+
+.dropdown-content a {
+    color: inherit;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: gray
+}
+
+.default-dropdown-content {
+    display: none;
+    background-color: white;
+    color: rgb(153, 41, 0);
+    min-width: 160px;
+    position: absolute;
+    z-index: 1;
+    margin-top: 20px;
+    outline: none;
+    box-shadow: 2px 2px 2px black;
+    border: 0.5px solid rgb(201, 209, 216);
+}
+
+.default-dropdown-content div {
+    color: inherit;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 0.8em;
+}
+
+.default-dropdown-content div:hover {
+    background-color: rgb(255, 236, 229);
+    color: black;
+}
+
+.default_dropdown{
+    position: relative;
+    padding-left: 1em;
+    padding-bottom: .5em;
+    padding-top: .5em;
+    border-bottom: 1px solid rgb(214, 213, 213);
+    display: flex;
+    flex-direction: row;
+}
+
+.default_dropdown header{
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    line-height: 12px;
+    text-transform: uppercase;
+    margin: auto 0;
+    padding-right: 5px; 
+}
+
+.dropdown_selection{
+    font-size: 15px;
+    font-weight: 1000;
+    line-height: 12px;
+    text-transform: uppercase;
+    margin: auto 0;
+    padding-right: 2px;
+    cursor: pointer;
+}
+
+.page_dropdown {
+    background-color: rgb(201, 209, 216);
+    padding-top: 1em; 
+    margin-top: 3em; 
+    border-color: black;
+    max-height: 1em;
+}
+
+.triangle_down{
+    width: 0; 
+    height: 0; 
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #A5483E;
+    margin: auto 0;
+    cursor: pointer;
+  }
+
+.header-dropdown {
+    border: none;
+    color: white;
+    margin: auto 0.5em;
+    border-top-color: white;
+}
+
+.header-dropdown:hover{
+    color: black;
+    border-top-color: black;
+}
+
+.header-dropdown .triangle_down {
+    border-top-color: inherit;
+}
