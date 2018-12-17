@@ -220,7 +220,14 @@ function loadPage(){
         else if(pass != "" && r_pass == "") alert('Please retype new password.');
         else if(pass != r_pass) alert("New password and retyped password don't match.")
         else if(pass != "" && r_pass != "" && img == undefined){
-          api.user.patch({userid: userid}, {password: r_pass}, [200]);
+          api.user.patch({userid: userid}, {password: r_pass}, [200, 400]).then(response => response.json()).then(function(json) {
+            if (json.status === 200) {
+              return window.location.reload(true);
+            }
+            if (json.status === 400) {
+                alert(json.message);
+            }
+          });
         }
         else if(pass == "" && r_pass == "" && img != undefined){
           const formData = new FormData(event.target);
@@ -230,9 +237,11 @@ function loadPage(){
             contentType: false,
             processData: false,
           }).then(r => r.json())
-          .then( r => api.user.patch({userid: userid}, {imageid: r.id}, [200]));
+          .then( r => api.user.patch({userid: userid}, {imageid: r.id}, [200, 400]).then(() => {
+            return window.location.reload(true);
+          }));
         }
-        else{
+        else if(pass != "" && r_pass != "" && img != undefined){
           const formData = new FormData(event.target);
           api.fetch('upload', '', {
             method: 'POST',
@@ -240,8 +249,17 @@ function loadPage(){
             contentType: false,
             processData: false,
           }).then(r => r.json())
-          .then( r => api.user.patch({userid: userid}, {password: r_pass, imageid: r.id}, [200]));
-
+          .then( r => api.user.patch({userid: userid}, {password: r_pass, imageid: r.id}, [200, 400]).then(response => response.json()).then(function(json) {
+            if (json.status === 200) {
+              return window.location.reload(true);
+            }
+            if (json.status === 400) {
+                alert(json.message);
+            }
+          }));
+        }
+        else{
+          alert("Fill the form please.");
         }
       })
 
@@ -293,7 +311,8 @@ function editComment(entityid){
   }
   else{
     let newform = document.createElement('form');
-    newform.setAttribute('id', "form_update_comment_" + entityid);
+    newform.setAttribute('id', "form_update_comment_"+entityid);
+    newform.setAttribute('class', "form_update_comment");
     newform.setAttribute('action', "handlers/update_comment_handler.php?commentid="+entityid);
     newform.setAttribute('method', 'post');
     newform.innerHTML = `<textarea name="content">${content}</textarea>

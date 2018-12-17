@@ -197,13 +197,7 @@ body > section#account > nav > ul > a{
 
 .profile_post > div{
     display: none;
-    position: relative;
-    float: right;
-    float: bottom;
-}
-
-.profile_post > div > a > i{
-    margin-right: 1em;
+    margin-left: .5em;
 }
 
 .profile_post > div > a > i:hover{
@@ -233,4 +227,25 @@ body > section#account > nav > ul > a{
 .delete_profile:hover{
     background-color: #bb3030;
     color: white;
+}
+
+.form_update_comment{
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    margin: 1em 0;
+}
+
+.form_update_comment textarea{
+    flex-grow: 1;
+    resize:vertical;
+}
+
+.form_update_comment input{
+    margin: 1em 0;
+    margin-left: 2em;
+    width: 10em;
+    height: 2em;
+    padding: 0px;
+    border-radius: 5px;
 }
