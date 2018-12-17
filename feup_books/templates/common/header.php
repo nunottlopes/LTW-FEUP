@@ -49,7 +49,7 @@ require_once __DIR__ . '/../../../api/api.php';
       <a class="header-i" onclick="createChannelButton()"><i class="fa fa-television"></i></a>
     </div>
 
-    <script src="javascript/header.js" type="text/javascript" defer></script>
+    <script src="javascript/common/header.js" type="text/javascript" defer></script>
 
     <?php 
       if($auth) {?>

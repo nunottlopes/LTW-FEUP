@@ -24,7 +24,7 @@ $storyid = (int)$_GET['id'];
                 <div id="hot">HOT</div>
             </div>
         </div>
-        <script src="javascript/dropdown.js" defer></script>
+        <script src="javascript/utils/dropdown.js" defer></script>
 
         <section id="post_comments"></section>
     </div>

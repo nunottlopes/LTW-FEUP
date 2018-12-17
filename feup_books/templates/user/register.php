@@ -14,7 +14,7 @@
 
       <div id="register-error"></div>
 
-      <script type="text/javascript" src="javascript/user/register.js"></script>
+      <script type="text/javascript" src="javascript/common/register.js"></script>
 
       <p>Already have an account? <a onclick="closeSignUp(); openLogIn()">Log in</a> now.</p>
     </div>
