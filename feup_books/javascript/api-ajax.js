@@ -62,6 +62,8 @@ var api = {
         return window.fetch(url, init).then(function(response) {
             const status = response.status;
 
+            console.log(status, expect);
+
             if (expect.has(status)) {
                 return response;
             } else {
@@ -261,7 +263,7 @@ var api = {
         return api.put("login", {
             login: 1,
             username: username
-        }, {password: password}, expect || [202, 403]);
+        }, {password: password}, expect || [202, 400, 401, 403]);
     },
 
     "logout": function logout(expect) {
