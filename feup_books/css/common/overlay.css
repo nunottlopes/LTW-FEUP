@@ -194,3 +194,8 @@
 .login-box > p > a:hover{
   text-decoration: underline;
 } 
+
+#login-error{
+  margin-top: 1em;
+  color:red;
+}

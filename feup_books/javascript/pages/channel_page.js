@@ -1,4 +1,5 @@
 let noMoreStories = false;
+let numStories = 0;
 
 let settings = {
     sort: document.querySelector(".dropdown_selection").getAttribute("selectionid"),
@@ -15,6 +16,7 @@ api.channel.get({channelid: channel_id})
             throw response;
         }
     }).then( r => {
+        numStories = r.data.stories;
         updateAside(r.data);
         getContent();
 });
@@ -41,6 +43,12 @@ function getContent() {
 function getStories(data) {
 
     let channel_page_posts = document.querySelector('#channel_page_posts');
+
+    if(numStories == 0){
+        channel_page_posts.innerHTML = `<article class="post_preview">
+        <h1>No posts available for this channel.</h1>	
+        </article>`;
+    }
 
     for(let story of data) {
         channel_page_posts.appendChild(htmlStoryMainPage(story));

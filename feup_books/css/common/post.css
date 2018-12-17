@@ -227,11 +227,11 @@ div.score-info[data-vote="-"] span.score:before {
 }
 
 div.score-info[data-vote="+"] i.fa-arrow-up {
-    color: blue;
+    color: rgb(25, 180, 38);
 }
 
 div.score-info[data-vote="-"] i.fa-arrow-down {
-    color:blue;
+    color:rgb(255, 0, 0);
 }
 
 button.story-save[data-save="1"] {
