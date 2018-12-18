@@ -46,6 +46,10 @@
     outline: none;
 }
 
+#new_channel form > input[type="submit"]:hover {
+    cursor: pointer;
+}
+
 @media screen and (max-width:1050px) {
     .new_channel_page {
         width: 95vw;

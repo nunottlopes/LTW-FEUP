@@ -221,6 +221,8 @@ body > section#account > nav > ul > a{
     -ms-transition: color 0.2s ease-out;
     transition: color 0.2s ease-out;
     margin-top: 5em;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .delete_profile:hover{
