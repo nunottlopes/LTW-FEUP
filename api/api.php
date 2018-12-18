@@ -264,7 +264,7 @@ class Auth {
 
         if ($csrf !== null && $csrf === $sess) return true;
 
-        if ($answerFail) HTTPResponse::forbidden("Invalid CSRF token\n$sess\n$csrf");
+        if ($answerFail) HTTPResponse::forbidden("Invalid CSRF token");
         return false;
     }
 
