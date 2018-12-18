@@ -24,10 +24,9 @@ form_img.addEventListener('submit', event =>{
         })
         .then(r => {
             channelid = r.data.channelid;
-            console.log(channelid);
 
             const formData = new FormData(event.target);
-            api.fetch('upload', '', {
+            fetch('/feup_books/api/upload.php', {
                 method: 'POST',
                 body: formData,
                 contentType: false,
