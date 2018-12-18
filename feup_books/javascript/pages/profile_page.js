@@ -204,9 +204,9 @@ function loadPage(){
           <div id="button_profile">
             <input type="submit" value="Save changes"/>
           </div>
-          <button class="delete_profile">Delete Account</button>
         </div>
       </form>
+      <button class="delete_profile">Delete Account</button>
       </div>`;
 
       let edit_profile_form = document.querySelector(".profile_content_inside");
@@ -264,8 +264,7 @@ function loadPage(){
       })
 
       document.querySelector(".delete_profile").addEventListener('click', () =>{
-        api.user.delete({userid: user.userid});
-        window.location.replace("index.php");
+        api.logout().then(api.user.delete({userid: user.userid})).then(() => window.location.replace("index.php"));
       })
   });
 
