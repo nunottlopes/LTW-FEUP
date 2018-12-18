@@ -67,7 +67,9 @@ form_img.addEventListener('submit', event =>{
                 storyType: 'image',
                 content: r.info.imagefile,
                 imageid: r.id
-            }, [201]).then(() => window.location.replace('index.php'))
+            }, [201])
+            .then( r => r.json())
+            .then(r => window.location.replace('post.php?id=' + r.data.storyid))
         );
     }
 });
