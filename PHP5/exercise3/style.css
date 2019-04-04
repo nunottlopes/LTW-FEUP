@@ -1,0 +1,165 @@
+
+body > header{
+    background-color: #046DD5;
+    color: white;
+    padding: 1em;
+    margin: 0em;
+    font-family: verdana;
+}
+
+body > header a{
+    color: white;
+    text-decoration: white;
+}
+
+body > header h1{
+    font-size: 25px;
+}
+
+body > header h2{
+    font-size: 12px;
+}
+
+body > header *{
+    padding: 0.1em;
+    margin: 0em;
+}
+
+body > header > div a{
+    font-size: 12px;
+}
+
+body > header > div a:nth-child(1){
+    padding-right: 1em;
+    border-right: 1px solid white;
+}
+
+body > header > div a:nth-child(2){
+    padding-left: 1em;
+}
+
+body > nav > ul{
+    text-align: center;
+    list-style: none;
+    margin: 0em;
+    padding: 0em;
+}
+
+body > nav > ul a{
+    color: black;
+    font-family: verdana;
+    text-decoration: white;
+}
+
+#hamburger{
+    display: none;
+}
+
+body > nav > ul > li{
+    border-top: 5px solid black;
+    padding: 1em;
+    margin: 0em;
+}
+
+body > nav > ul > li:nth-child(1){
+    border-top-color: #E1493E;
+}
+body > nav > ul > li:nth-child(2){
+    border-top-color: #8ABA56;
+}
+body > nav > ul > li:nth-child(3){
+    border-top-color: #5B4282;
+}
+body > nav > ul > li:nth-child(4){
+    border-top-color: #FF8932;
+}
+body > nav > ul > li:nth-child(5){
+    border-top-color: #19B6E9;
+}
+body > nav > ul > li:nth-child(6){
+    border-top-color: #E84C8B;
+}
+
+body > aside{
+    background-color: #2A2F33;
+    color: white;
+    padding: 1em;
+}
+
+body > aside h1{
+    font-family: verdana;
+}
+
+body > aside p{
+    font-family: Georgia;
+    line-height: 1.5;
+}
+
+body > aside > article a{
+    text-decoration: white;
+    color: white;
+}
+
+body > aside > article{
+    padding-bottom: 0.3em;
+}
+
+section > article > header a{
+    text-decoration: white;
+    color: white;
+    position: absolute;
+    max-width: 200px;
+    padding: 1.3em;
+    font-family: verdana;
+    line-height: 1.5;
+    text-shadow: 5px 5px 5px black;
+}
+
+section > article > img{
+    width: 100%; 
+}
+
+section > article > p{
+    margin: 1em;
+    font-family: georgia;
+    line-height: 1.2;
+}
+
+section > article > p:first-of-type::first-letter{
+    font-size: 200%;
+}
+
+section > article > footer{
+    background-color: #E1493E;
+    padding: 1em;
+    font-family: Verdana;
+    color:white;
+    font-size: 12px;
+}
+
+section > article > footer a{
+    color:white;
+} 
+
+.author::before{
+    content: "By ";
+}
+
+.date {
+    margin: 0 1em;
+}
+
+.comments::after{
+    content: " comments";
+}
+
+body > footer{
+    background-color: #2A2F33;
+    color: white;
+    padding: 0.1em;
+    margin-top:1em;
+}
+body > footer p{
+    padding-left: 1em;
+}
+

@@ -1,0 +1,65 @@
+section#comments {
+    margin-left: 1em;
+}
+
+section#comments > h1 {
+    font-size: 20px;
+}
+
+section#comments > article.comment > span.user{
+    font-style: italic;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+section#comments > article.comment > span.user::after{
+    content: " said:";
+    font-style: normal;
+}
+
+section#comments > article.comment > span.date{
+    float: right;
+    font-weight: 600;
+}
+
+section#comments > article.comment > p{
+    background-color: #eeeeee;
+    font-family: Georgia;
+    padding: 1em;
+    margin-left: 0em;
+    padding-top: 0.5em;
+}
+
+section#comments > article.comment > p::before{
+    content: "\201C";
+    font-size: 2.5em;
+    opacity: 0.15;
+}
+
+section#comments > form{
+    background-color: #eeeeee;
+    padding-bottom: 1em;
+    margin-right: 1em;
+    margin-bottom: 1em;
+}
+
+section#comments > form > h2{
+    font-size: 18px;
+}
+
+section#news form textarea {
+    width: 70em;
+    height: 8em;
+}
+
+section#news form input{
+    background-color: #eeeeee;
+}
+
+section#news form input[type=submit] {
+    color: white;
+    background-color: black;
+    width: 5em;
+    margin-top: 1em;
+    padding: 1.1em 0;
+}
